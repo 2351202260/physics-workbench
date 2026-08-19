@@ -1,0 +1,2936 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<meta name="theme-color" content="#3b6ef5">
+<title>物理教师教学管理工作台</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<style>
+/* ============================================================
+   物理教师教学管理工作台 —— 样式表
+   护眼浅色主题（Notion/飞书风格），适配华为 MatePad 11.5s 触摸
+   按钮/交互元素均 ≥ 44px
+   ============================================================ */
+:root {
+  --bg: #f4f5f7; --card: #ffffff;
+  --text: #1f2329; --text2: #6b7280; --text3: #9aa1ab;
+  --border: #e6e8ec; --primary: #3b6ef5; --primary-soft: #eef3ff;
+  --danger: #e5484d; --ok: #1f9d55;
+  --shadow: 0 1px 3px rgba(16,24,40,.06), 0 1px 2px rgba(16,24,40,.04);
+  --radius: 14px;
+  /* 指标层次 */
+  --tier-A: #d03b3b; --tier-A-bg: #fdeaea; --tier-A-line: #f3c3c3;
+  --tier-B: #c77a00; --tier-B-bg: #fff4de; --tier-B-line: #f5d9a4;
+  --tier-C: #2f6fdb; --tier-C-bg: #e8f1fe; --tier-C-line: #c2d8f8;
+  --tier-D: #7a828c; --tier-D-bg: #f1f2f4; --tier-D-line: #e0e3e8;
+  --tier-N: #9aa1ab; --tier-N-bg: #f5f6f7; --tier-N-line: #e6e8ec;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+  font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+}
+button { font-family: inherit; cursor: pointer; touch-action: manipulation; }
+input, textarea, select { font-family: inherit; }
+.hidden { display: none !important; }
+
+/* ---------- 顶栏 ---------- */
+header {
+  position: sticky; top: 0; z-index: 50; background: var(--card);
+  border-bottom: 1px solid var(--border); padding: 10px 14px;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+}
+.brand h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: .4px; }
+.brand .sub { color: var(--text2); font-size: 12px; }
+.brand .sub b { color: var(--ok); font-weight: 600; }
+.header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.hbtn {
+  min-height: 44px; padding: 0 13px; border: 1px solid var(--border); border-radius: 10px;
+  background: #fff; color: var(--text); font-size: 14px; display: inline-flex; align-items: center; gap: 5px;
+}
+.hbtn:active { background: #f1f2f4; }
+.hbtn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+.switch-wrap { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; }
+.switch-wrap .sw-label { font-size: 13px; color: var(--text2); font-weight: 600; }
+.switch { position: relative; width: 52px; height: 30px; border-radius: 20px; background: #cdd2da; border: none; transition: background .2s; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+.switch.on { background: #22a06b; } .switch.on::after { left: 25px; }
+
+/* 模式横幅 */
+.mode-banner { display: none; padding: 9px 16px; font-size: 13px; margin: 12px 16px 0; border-radius: 10px; }
+.mode-banner.rep { background: #fff7e6; border: 1px solid #f0d9a8; color: #8a5a00; }
+.mode-banner.show { display: block; }
+
+/* ---------- 班级标签页 ---------- */
+.tabs { display: flex; gap: 9px; padding: 13px 16px 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.tab {
+  flex: 1 1 0; min-width: 0; min-height: 52px; border: 1px solid var(--border); border-radius: 12px;
+  background: #fff; color: var(--text); display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 5px 6px; font-size: 15px; font-weight: 600;
+}
+.tab .badge { font-size: 11px; font-weight: 500; color: var(--text2); }
+.tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.tab.active .badge { color: rgba(255,255,255,.85); }
+.tab.special.active { background: #e5484d; border-color: #e5484d; }
+
+/* ---------- 公告栏（主题位置） ---------- */
+.bulletin { background: linear-gradient(135deg, #eef3ff 0%, #f7f9ff 100%); border: 1px solid #c7d7fb; border-radius: var(--radius); margin: 13px 16px 0; box-shadow: var(--shadow); }
+.bulletin-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 16px 8px; }
+.bulletin-head h2 { margin: 0; font-size: 16px; font-weight: 800; color: #24408f; }
+.bulletin-head .tag { font-size: 11px; color: #5a6ea8; }
+.bulletin-week { padding: 0 16px 6px; }
+.bulletin-week textarea, .bulletin-week input { width: 100%; border: 1px solid #c7d7fb; border-radius: 9px; padding: 8px 12px; font-size: 14px; outline: none; background: #fff; resize: vertical; min-height: 40px; }
+.bulletin-toggle { min-height: 36px; padding: 0 12px; border: 1px solid #c7d7fb; background: #fff; border-radius: 8px; font-size: 13px; color: #24408f; }
+.bulletin-days { display: grid; grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); gap: 8px; padding: 0 16px 12px; }
+.bday { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 8px 9px; }
+.bday.weekend { background: #fffaf3; border-color: #f0d9a8; }
+.bday .bd-label { font-size: 13px; font-weight: 700; color: #24408f; margin-bottom: 5px; }
+.bday .bd-field { margin-bottom: 5px; }
+.bday .bd-field .fl { font-size: 11px; color: var(--text3); margin-bottom: 2px; }
+.bday input { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 6px 9px; font-size: 13px; outline: none; min-height: 36px; background: #fafbfc; }
+.bday input:focus { border-color: var(--primary); background: #fff; }
+/* 节假日作业 */
+.bulletin-holiday { padding: 0 16px 14px; }
+.holiday-head { font-size: 13px; font-weight: 700; color: #24408f; margin: 4px 0 8px; }
+.holiday-entry { display: grid; grid-template-columns: 1.2fr 2fr 1.2fr 1.4fr auto; gap: 7px; align-items: center; margin-bottom: 7px; }
+.holiday-entry input { border: 1px solid #c7d7fb; border-radius: 8px; padding: 6px 9px; font-size: 13px; outline: none; min-height: 38px; background: #fff; }
+.holiday-entry input:focus { border-color: var(--primary); }
+.holiday-del { width: 38px; height: 38px; border: none; background: #fdeaea; color: var(--danger); border-radius: 8px; font-size: 16px; }
+.add-holiday { min-height: 42px; padding: 0 16px; border: 1px dashed #c7d7fb; background: #f7f9ff; color: #24408f; border-radius: 9px; font-size: 14px; }
+@media (max-width: 720px) { .holiday-entry { grid-template-columns: 1fr 1fr; } }
+/* 本节课预设名单 */
+.roster-item { display: flex; gap: 8px; align-items: flex-start; padding: 8px 0; border-bottom: 1px dashed var(--border); }
+.roster-item .lq-body { flex: 1; min-width: 0; }
+.roster-in { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 6px 9px; font-size: 13px; outline: none; min-height: 36px; margin-top: 5px; background: #fff; }
+.roster-in:focus { border-color: var(--primary); }
+.roster-del { width: 36px; height: 36px; border: 1px solid var(--border); background: #fff; border-radius: 8px; font-size: 16px; color: var(--text2); flex-shrink: 0; }
+.qi-add { min-height: 36px; min-width: 36px; border: none; background: var(--primary-soft); color: var(--primary); border-radius: 8px; font-size: 18px; font-weight: 700; }
+.mini-btn { min-height: 44px; padding: 0 13px; border-radius: 10px; border: 1px solid var(--border); background: #fff; font-size: 14px; color: var(--text); }
+/* 手动选人 */
+.picker-group { margin-bottom: 12px; }
+.pg-label { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.pg-label.A { color: var(--tier-A); } .pg-label.B { color: var(--tier-B); } .pg-label.C { color: var(--tier-C); } .pg-label.D { color: var(--tier-D); } .pg-label.none { color: var(--tier-N); }
+.pg-items { display: flex; flex-wrap: wrap; gap: 7px; }
+.picker-item { min-height: 42px; padding: 0 13px; border: 1px solid var(--border); background: #fff; border-radius: 10px; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
+.picker-item.added { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); font-weight: 600; }
+.picker-item .pi-count { font-size: 11px; color: var(--text3); }
+.picker-item.added .pi-count { color: var(--primary); }
+
+/* ---------- 指标总览 ---------- */
+.overview { display: flex; gap: 9px; padding: 13px 16px 0; flex-wrap: wrap; }
+.ov-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 11px 13px; min-width: 96px; flex: 1 1 0; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: var(--shadow);
+}
+.ov-card .num { font-size: 24px; font-weight: 800; line-height: 1.1; }
+.ov-card .num small { font-size: 13px; font-weight: 600; color: var(--text3); }
+.ov-card .lbl { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.ov-card.tier-A { border-left: 4px solid var(--tier-A); } .ov-card .num.tA { color: var(--tier-A); }
+.ov-card.tier-B { border-left: 4px solid var(--tier-B); } .ov-card .num.tB { color: var(--tier-B); }
+.ov-card.tier-C { border-left: 4px solid var(--tier-C); } .ov-card .num.tC { color: var(--tier-C); }
+.ov-card.tier-D { border-left: 4px solid var(--tier-D); } .ov-card .num.tD { color: var(--tier-D); }
+
+/* 作业收缴情况条 */
+.hwbar { flex-basis: 100%; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; box-shadow: var(--shadow); }
+.hwbar .hb-title { font-size: 13px; font-weight: 700; color: var(--text2); margin-bottom: 7px; }
+.hwbar .hb-chips { display: flex; gap: 7px; flex-wrap: wrap; }
+.hw-chip { display: inline-flex; align-items: center; gap: 5px; border-radius: 8px; padding: 4px 11px; font-size: 13px; font-weight: 600; border: 1px solid; }
+.hw-chip b { font-size: 15px; }
+.hw-chip.missing { color: var(--tier-A); background: #fff0f0; border-color: #f3c3c3; }
+.hw-chip.submitted { color: var(--ok); background: #e8f6ee; border-color: #b9e2ca; }
+.hw-chip.excellent { color: #d9700c; background: #fdf0e6; border-color: #f5d0a4; }
+.hw-chip.late { color: #6d5bd0; background: #f1eefd; border-color: #d2c9f5; }
+.hw-chip.returned { color: #b54708; background: #fdebe0; border-color: #f4c6a8; }
+.hw-chip.corrected { color: #0f7b6c; background: #e2f3ef; border-color: #b5ddd4; }
+
+.special-note { flex-basis: 100%; background: #fff1f1; border: 1px solid #f3c3c3; color: #a02020; border-radius: 10px; padding: 7px 13px; font-size: 12px; }
+
+/* ---------- 主布局 ---------- */
+.layout { display: grid; grid-template-columns: 1fr 360px; gap: 13px; padding: 13px 16px 46px; align-items: start; }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+.col-main { min-width: 0; }
+.panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 13px 15px; border-bottom: 1px solid var(--border); }
+.panel-head h2 { margin: 0; font-size: 16px; font-weight: 700; }
+.panel-head .ph-sub { font-size: 12px; color: var(--text3); }
+
+/* 筛选栏 */
+.filter-bar { display: flex; gap: 7px; align-items: center; padding: 11px 14px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.chip { min-height: 40px; padding: 0 13px; border-radius: 20px; border: 1px solid var(--border); background: #fff; font-size: 13px; color: var(--text2); }
+.chip.active { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); font-weight: 600; }
+.search-box { flex: 1; min-width: 130px; min-height: 44px; }
+.search-box input { width: 100%; min-height: 44px; padding: 0 13px; border: 1px solid var(--border); border-radius: 10px; font-size: 15px; outline: none; }
+.search-box input:focus { border-color: var(--primary); }
+.sort-select { min-height: 44px; border: 1px solid var(--border); border-radius: 10px; padding: 0 10px; font-size: 14px; outline: none; background: #fff; color: var(--text); }
+.batch-toggle { min-height: 44px; padding: 0 13px; border-radius: 10px; border: 1px dashed var(--border); background: #fff; font-size: 14px; color: var(--text2); }
+.batch-toggle.on { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); font-weight: 600; }
+
+/* 批量操作条 */
+.batch-bar { display: flex; gap: 8px; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--border); background: #fbfcff; flex-wrap: wrap; }
+.batch-bar .bb-info { font-size: 13px; color: var(--text2); flex: 1; }
+
+/* 学生卡片 */
+.student-list { padding: 11px 14px 14px; display: flex; flex-direction: column; gap: 9px; }
+.student-card { border: 1px solid var(--border); border-radius: 12px; padding: 11px 13px; border-left: 5px solid var(--tier-D); position: relative; }
+.student-card.tier-A { border-left-color: var(--tier-A); background: linear-gradient(90deg, var(--tier-A-bg) 0%, #fff 60px); }
+.student-card.tier-B { border-left-color: var(--tier-B); background: linear-gradient(90deg, var(--tier-B-bg) 0%, #fff 60px); }
+.student-card.tier-C { border-left-color: var(--tier-C); background: linear-gradient(90deg, var(--tier-C-bg) 0%, #fff 60px); }
+.student-card.tier-D { border-left-color: var(--tier-D); }
+.student-card.tier-N { border-left-color: var(--tier-N); }
+.sc-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.sc-rank { font-size: 12px; font-weight: 600; color: var(--text2); background: #f1f2f4; border-radius: 6px; padding: 2px 8px; }
+.sc-name { font-size: 18px; font-weight: 700; }
+.sc-tier { font-size: 12px; font-weight: 600; border-radius: 6px; padding: 2px 8px; }
+.sc-tier.A { color: var(--tier-A); background: var(--tier-A-bg); }
+.sc-tier.B { color: var(--tier-B); background: var(--tier-B-bg); }
+.sc-tier.C { color: var(--tier-C); background: var(--tier-C-bg); }
+.sc-tier.D { color: var(--tier-D); background: var(--tier-D-bg); }
+.sc-tier.N { color: var(--tier-N); background: var(--tier-N-bg); }
+.sc-stats { display: flex; gap: 7px; margin-top: 8px; }
+.sc-stat { flex: 1; background: #f7f8fa; border: 1px solid var(--border); border-radius: 8px; padding: 5px 7px; text-align: center; }
+.sc-stat span { display: block; font-size: 11px; color: var(--text3); }
+.sc-stat b { font-size: 16px; font-weight: 700; }
+.sc-question { margin-top: 7px; font-size: 12px; color: var(--text2); }
+.sc-question .asked { color: var(--primary); font-weight: 600; }
+.sc-actions { display: flex; gap: 7px; margin-top: 9px; align-items: center; flex-wrap: wrap; }
+.act-btn { min-height: 42px; padding: 0 13px; border-radius: 10px; border: 1px solid var(--border); background: #fff; font-size: 14px; color: var(--text); }
+.act-btn:active { background: #f1f2f4; }
+.act-btn.ask { color: var(--primary); border-color: #c7d7fb; }
+.hw-btn { min-height: 42px; padding: 0 14px; border-radius: 10px; border: 1px solid; font-size: 14px; font-weight: 600; }
+.hw-btn.missing { color: var(--tier-A); background: #fff0f0; border-color: #f3c3c3; }
+.hw-btn.submitted { color: var(--ok); background: #e8f6ee; border-color: #b9e2ca; }
+.hw-btn.excellent { color: #d9700c; background: #fdf0e6; border-color: #f5d0a4; }
+.hw-btn.late { color: #6d5bd0; background: #f1eefd; border-color: #d2c9f5; }
+.hw-btn.returned { color: #b54708; background: #fdebe0; border-color: #f4c6a8; }
+.hw-btn.corrected { color: #0f7b6c; background: #e2f3ef; border-color: #b5ddd4; }
+.sc-check { width: 32px; height: 32px; border-radius: 8px; border: 2px solid var(--border); background: #fff; font-size: 18px; color: #fff; }
+.sc-check.checked { background: var(--primary); border-color: var(--primary); }
+
+/* 课代表模式简表 */
+.rep-list { padding: 8px 14px 14px; display: flex; flex-direction: column; gap: 7px; }
+.rep-row { display: flex; align-items: center; gap: 10px; padding: 9px 11px; border: 1px solid var(--border); border-radius: 11px; }
+.rep-row .rr-rank { font-size: 12px; color: var(--text3); width: 40px; flex-shrink: 0; }
+.rep-row .rr-name { flex: 1; font-weight: 600; font-size: 16px; }
+.rep-row .rr-btns { display: flex; gap: 6px; }
+.rr-btns button { min-height: 44px; min-width: 58px; padding: 0 10px; border-radius: 9px; border: 1px solid var(--border); background: #fff; font-size: 14px; font-weight: 600; }
+.rr-btns button.on-missing { background: #fff0f0; color: var(--tier-A); border-color: #f3c3c3; }
+.rr-btns button.on-submitted { background: #e8f6ee; color: var(--ok); border-color: #b9e2ca; }
+.rr-btns button.on-late { background: #f1eefd; color: #6d5bd0; border-color: #d2c9f5; }
+
+/* ---------- 侧边栏 ---------- */
+.col-side { display: flex; flex-direction: column; gap: 13px; }
+.side-panel .panel-body { padding: 13px 15px; }
+
+/* 本节课提问 */
+.lesson-q-item { display: flex; gap: 8px; align-items: flex-start; padding: 8px 0; border-bottom: 1px dashed var(--border); }
+.lesson-q-item:last-child { border-bottom: none; }
+.lesson-q-item .lq-tier { font-size: 12px; font-weight: 700; width: 36px; text-align: center; border-radius: 6px; padding: 2px 0; flex-shrink: 0; }
+.lq-tier.A { color: var(--tier-A); background: var(--tier-A-bg); } .lq-tier.B { color: var(--tier-B); background: var(--tier-B-bg); }
+.lq-tier.C { color: var(--tier-C); background: var(--tier-C-bg); } .lq-tier.D { color: var(--tier-D); background: var(--tier-D-bg); }
+.lesson-q-item .lq-body { flex: 1; min-width: 0; }
+.lesson-q-item .lq-name { font-weight: 700; font-size: 15px; }
+.lesson-q-item .lq-q { font-size: 13px; color: var(--text2); word-break: break-all; }
+.lesson-q-item .lq-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.lq-actions button { min-height: 36px; min-width: 36px; border: 1px solid var(--border); background: #fff; border-radius: 8px; font-size: 14px; color: var(--text2); }
+.next-btn { width: 100%; min-height: 52px; margin-top: 11px; border-radius: 12px; border: none; background: var(--primary); color: #fff; font-size: 16px; font-weight: 700; }
+.next-btn:active { background: #2f5fdc; }
+
+/* 队列 */
+.queue-legend { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+.queue-legend span { font-size: 11px; padding: 2px 8px; border-radius: 6px; }
+.queue-item { display: flex; align-items: center; gap: 8px; padding: 8px 3px; border-bottom: 1px dashed var(--border); }
+.queue-item:last-child { border-bottom: none; }
+.queue-item .qi-tier { font-size: 12px; font-weight: 700; width: 34px; text-align: center; border-radius: 6px; padding: 2px 0; }
+.qi-tier.A { color: var(--tier-A); background: var(--tier-A-bg); } .qi-tier.B { color: var(--tier-B); background: var(--tier-B-bg); }
+.qi-tier.C { color: var(--tier-C); background: var(--tier-C-bg); } .qi-tier.D { color: var(--tier-D); background: var(--tier-D-bg); }
+.queue-item .qi-name { flex: 1; font-weight: 600; }
+.queue-item .qi-count { font-size: 12px; color: var(--text3); }
+
+/* 作业收缴名单 */
+.missing-list { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 9px; }
+.missing-tag { border-radius: 8px; padding: 4px 11px; font-size: 13px; font-weight: 600; border: 1px solid; }
+.missing-tag.missing { background: #fff0f0; color: var(--tier-A); border-color: #f3c3c3; }
+.missing-tag.late { background: #f1eefd; color: #6d5bd0; border-color: #d2c9f5; }
+.missing-tag.returned { background: #fdebe0; color: #b54708; border-color: #f4c6a8; }
+.empty-tip { color: var(--text3); font-size: 13px; }
+.feedback-btn { width: 100%; min-height: 50px; margin-top: 10px; border-radius: 12px; border: none; background: #22a06b; color: #fff; font-size: 15px; font-weight: 700; }
+.feedback-btn:active { background: #1c8559; }
+
+/* 历史作业汇总 */
+.hw-hist-item { border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; margin-bottom: 7px; cursor: pointer; }
+.hw-hist-item.active { border-color: var(--primary); background: var(--primary-soft); }
+.hw-hist-item .hh-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.hw-hist-item .hh-top b { font-size: 14px; }
+.hw-hist-item .hh-date { font-size: 11px; color: var(--text3); }
+.hw-hist-item .hh-stats { font-size: 12px; color: var(--text2); margin-top: 3px; }
+
+/* 留言板 */
+.msg-box { border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; margin-bottom: 8px; }
+.msg-box .mb-head { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text3); margin-bottom: 3px; }
+.msg-box .mb-text { font-size: 14px; word-break: break-all; }
+.msg-box .mb-del { border: none; background: none; color: var(--danger); font-size: 13px; min-height: 30px; padding: 2px 6px; border-radius: 6px; }
+.msg-add { display: flex; gap: 7px; margin-top: 8px; }
+.msg-add input { flex: 1; min-height: 44px; border: 1px solid var(--border); border-radius: 10px; padding: 0 12px; font-size: 14px; outline: none; }
+.msg-add input:focus { border-color: var(--primary); }
+.msg-add button { min-height: 44px; padding: 0 15px; border-radius: 10px; border: none; background: var(--primary); color: #fff; font-size: 14px; font-weight: 600; }
+
+/* ---------- 弹窗 ---------- */
+.modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,.42); z-index: 100; display: flex; align-items: flex-end; justify-content: center; }
+@media (min-width: 640px) { .modal-mask { align-items: center; } }
+.modal { background: #fff; width: 100%; max-width: 560px; max-height: 88vh; border-radius: 18px 18px 0 0; display: flex; flex-direction: column; overflow: hidden; }
+@media (min-width: 640px) { .modal { border-radius: 16px; } }
+.modal-head { display: flex; align-items: center; justify-content: space-between; padding: 15px 17px; border-bottom: 1px solid var(--border); }
+.modal-head h2 { margin: 0; font-size: 17px; }
+.modal-close { width: 44px; height: 44px; border: none; background: transparent; font-size: 26px; color: var(--text2); border-radius: 10px; }
+.modal-close:active { background: #f1f2f4; }
+.modal-body { padding: 15px 17px; overflow-y: auto; }
+
+.q-summary { font-size: 13px; color: var(--text2); margin-bottom: 11px; }
+.q-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.q-item { border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; }
+.q-item .qi-head { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text3); margin-bottom: 3px; }
+.q-item .qi-head .qi-type { font-weight: 600; }
+.q-item .qi-type.class { color: var(--primary); } .q-item .qi-type.office { color: #6d5bd0; }
+.q-item .qi-del { border: none; background: none; color: var(--danger); font-size: 13px; padding: 4px 8px; min-height: 32px; border-radius: 8px; }
+.q-item .qi-q { font-weight: 600; font-size: 14px; }
+.q-item .qi-a { font-size: 13px; color: var(--text2); margin-top: 2px; }
+.q-add { display: flex; flex-direction: column; gap: 8px; }
+.q-add input, .q-add textarea { min-height: 46px; padding: 0 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 15px; outline: none; }
+.q-add textarea { padding: 10px 12px; min-height: 84px; resize: vertical; }
+.q-add input:focus, .q-add textarea:focus { border-color: var(--primary); }
+.modal-actions { display: flex; gap: 9px; margin-top: 8px; flex-wrap: wrap; }
+.btn { min-height: 46px; padding: 0 17px; border-radius: 10px; border: none; font-size: 15px; font-weight: 600; }
+.btn.primary { background: var(--primary); color: #fff; } .btn.primary:active { background: #2f5fdc; }
+.btn.ghost { background: #f1f2f4; color: var(--text); }
+.btn.danger { background: #fdeaea; color: var(--danger); }
+.btn.block { width: 100%; }
+
+/* 作业标记六态 */
+.hw-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+.hw-opt { min-height: 60px; border-radius: 12px; border: 1px solid var(--border); font-size: 15px; font-weight: 700; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
+.hw-opt .ho-sub { font-size: 11px; font-weight: 400; color: var(--text3); }
+
+/* 设置/数据管理 */
+.set-row { display: flex; align-items: center; gap: 10px; margin-bottom: 11px; }
+.set-row label { flex: 1; font-size: 14px; }
+.set-row .triple { display: flex; gap: 6px; }
+.set-row input[type=number] { width: 90px; min-height: 44px; border: 1px solid var(--border); border-radius: 8px; text-align: center; font-size: 15px; outline: none; padding: 0 8px; }
+.set-row input[type=text] { flex: 1; min-height: 44px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; outline: none; padding: 0 12px; }
+.set-row input:focus { border-color: var(--primary); }
+.dm-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 11px 0; border-bottom: 1px dashed var(--border); }
+.dm-item:last-child { border-bottom: none; }
+.dm-item .dm-txt { font-size: 14px; } .dm-item .dm-txt small { display: block; color: var(--text3); font-size: 12px; }
+
+.feedback-text { white-space: pre-wrap; background: #f7f8fa; border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-size: 14px; min-height: 110px; }
+
+/* toast + 回顶部 */
+.toast { position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%) translateY(80px); background: #1f2329; color: #fff; padding: 12px 20px; border-radius: 12px; font-size: 14px; opacity: 0; transition: all .25s; z-index: 200; max-width: 86vw; text-align: center; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.totop { position: fixed; right: 16px; bottom: 22px; width: 50px; height: 50px; border-radius: 50%; border: 1px solid var(--border); background: #fff; box-shadow: var(--shadow); font-size: 20px; color: var(--text2); z-index: 40; }
+.totop:active { background: #f1f2f4; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <h1>物理教师教学管理工作台</h1>
+    <div class="sub">数据本地永久保存 · 上次保存 <b id="lastSave">—</b></div>
+  </div>
+  <div class="header-actions">
+    <button class="hbtn" id="btnManage" onclick="openDataManage()">数据管理</button>
+    <button class="hbtn" id="btnExport" onclick="exportData()">导出备份</button>
+    <button class="hbtn" id="btnImport" onclick="document.getElementById('fileInput').click()">导入</button>
+    <button class="hbtn" id="btnSettings" onclick="openSettings()">设置</button>
+    <div class="switch-wrap">
+      <span class="sw-label">课代表模式</span>
+      <button class="switch" id="repSwitch" onclick="toggleRepresentative()" aria-label="切换课代表模式"></button>
+    </div>
+  </div>
+  <input type="file" id="fileInput" accept="application/json,.json" class="hidden" onchange="importData(event)">
+</header>
+
+<div class="mode-banner rep" id="repBanner">课代表模式 · 只负责收交作业，可查看教学公告栏与作业名单，不显示成绩与指标。</div>
+
+<!-- 班级标签页 -->
+<nav class="tabs" id="tabs"></nav>
+
+<!-- 教学公告栏（按班级分开：教学进度 + 每日/周末/节假日作业，含日期与上交时间） -->
+<section class="bulletin" id="bulletin">
+  <div class="bulletin-head">
+    <h2 id="bulletinTitle">教学公告栏</h2><span class="tag" id="bulletinHint"></span>
+    <button class="bulletin-toggle" id="bulletinToggle" onclick="toggleBulletin()">收起</button>
+  </div>
+  <div class="bulletin-body" id="bulletinBody">
+    <div class="bulletin-week">
+      <textarea id="weekTask" placeholder="本周教学进度（如：第十一章《内能》复习 + 单元测试）" onchange="saveWeekTask(this.value)"></textarea>
+    </div>
+    <div class="bulletin-days" id="bulletinDays"></div>
+    <div class="bulletin-holiday" id="bulletinHoliday"></div>
+  </div>
+</section>
+
+<!-- 指标总览 + 作业收缴情况 -->
+<section class="overview" id="overview"></section>
+
+<main class="layout">
+  <section class="col-main">
+    <div class="panel">
+      <div class="panel-head"><h2 id="listTitle">学生列表</h2><span class="ph-sub" id="listSortHint"></span></div>
+      <div class="filter-bar" id="filterBar"></div>
+      <div class="batch-bar hidden" id="batchBar"></div>
+      <div class="student-list" id="studentList"></div>
+    </div>
+  </section>
+
+  <aside class="col-side">
+    <!-- 本节课提问（课前预设 → 课后确认记录） -->
+    <div class="panel side-panel" id="lessonPanel">
+      <div class="panel-head"><h2>本节课提问 <span class="ph-sub" id="lessonCount"></span></h2></div>
+      <div class="panel-body">
+        <input type="text" id="lessonTitle" placeholder="本节课标题（如：《内能》第3课时提问）" oninput="saveLessonTitle(this.value)" style="width:100%;min-height:42px;border:1px solid var(--border);border-radius:9px;padding:0 11px;font-size:14px;margin-bottom:8px;outline:none">
+        <div class="empty-tip" style="margin-bottom:6px">课前预设人选与问题，提问后点「确认记录」写入个人卡片。</div>
+        <div id="rosterList"></div>
+        <div class="modal-actions" style="margin-top:8px">
+          <button class="mini-btn" onclick="openPicker()">手动分层选人</button>
+          <button class="mini-btn" onclick="nextQuestion()">智能推荐</button>
+        </div>
+        <button class="feedback-btn" onclick="confirmRoster()">确认记录到个人卡片</button>
+        <div style="margin:12px 0 4px;font-weight:700;font-size:13px">今日已记录</div>
+        <div id="lessonList"></div>
+      </div>
+    </div>
+
+    <!-- 智能提问队列 -->
+    <div class="panel side-panel" id="queuePanel">
+      <div class="panel-head"><h2>待提问队列</h2></div>
+      <div class="panel-body">
+        <div class="empty-tip" style="margin-bottom:8px">补差优先：未达线 → C → B → A，同级提问次数少者优先。点「＋」加入本节课。</div>
+        <div class="queue-legend">
+          <span style="color:var(--tier-A);background:var(--tier-A-bg)">A 拔高</span>
+          <span style="color:var(--tier-B);background:var(--tier-B-bg)">B 中间</span>
+          <span style="color:var(--tier-C);background:var(--tier-C-bg)">C 基础</span>
+          <span style="color:var(--tier-D);background:var(--tier-D-bg)">未达线 补差</span>
+        </div>
+        <div id="queueList"></div>
+      </div>
+    </div>
+
+    <!-- 作业收缴 -->
+    <div class="panel side-panel" id="hwListPanel">
+      <div class="panel-head"><h2>作业收缴</h2></div>
+      <div class="panel-body">
+        <div id="hwAssignBar"></div>
+        <div id="hwListBox"></div>
+        <button class="feedback-btn" id="feedbackBtn" onclick="generateFeedback()">生成今日反馈</button>
+        <div id="hwHistory"></div>
+      </div>
+    </div>
+
+    <!-- 留言板 -->
+    <div class="panel side-panel">
+      <div class="panel-head"><h2>留言板</h2></div>
+      <div class="panel-body" id="messagePanel"></div>
+    </div>
+  </aside>
+</main>
+
+<div class="modal-mask hidden" id="modalMask"><div class="modal" id="modalBox"></div></div>
+<div class="toast" id="toast"></div>
+<button class="totop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+/* ============================================================
+   1. 基础数据（来自 Excel「期末成绩.xlsx」）
+   ============================================================ */
+const classData = {
+  "九年级郑开校区1班": [
+    {
+      "name": "段玥婷",
+      "totalScore": 400,
+      "schoolRank": 1321,
+      "classRank": 1,
+      "physics": 56
+    },
+    {
+      "name": "袁景豪",
+      "totalScore": 386,
+      "schoolRank": 1480,
+      "classRank": 2,
+      "physics": 54
+    },
+    {
+      "name": "刘诺祎",
+      "totalScore": 384,
+      "schoolRank": 1509,
+      "classRank": 3,
+      "physics": 59
+    },
+    {
+      "name": "郭聪颖",
+      "totalScore": 355,
+      "schoolRank": 1776,
+      "classRank": 4,
+      "physics": 54
+    },
+    {
+      "name": "程名园",
+      "totalScore": 355,
+      "schoolRank": 1776,
+      "classRank": 4,
+      "physics": 64
+    },
+    {
+      "name": "范佳颖",
+      "totalScore": 354,
+      "schoolRank": 1784,
+      "classRank": 6,
+      "physics": 49
+    },
+    {
+      "name": "范轶杨",
+      "totalScore": 353,
+      "schoolRank": 1799,
+      "classRank": 7,
+      "physics": 56
+    },
+    {
+      "name": "蒋思妤",
+      "totalScore": 344,
+      "schoolRank": 1873,
+      "classRank": 8,
+      "physics": 45
+    },
+    {
+      "name": "李家仪",
+      "totalScore": 341,
+      "schoolRank": 1894,
+      "classRank": 9,
+      "physics": 33
+    },
+    {
+      "name": "吕佳玉",
+      "totalScore": 330,
+      "schoolRank": 1997,
+      "classRank": 10,
+      "physics": 50
+    },
+    {
+      "name": "李歌唱",
+      "totalScore": 313,
+      "schoolRank": 2116,
+      "classRank": 11,
+      "physics": 34
+    },
+    {
+      "name": "周成韩",
+      "totalScore": 310,
+      "schoolRank": 2137,
+      "classRank": 12,
+      "physics": 47
+    },
+    {
+      "name": "吴亦卓",
+      "totalScore": 303,
+      "schoolRank": 2185,
+      "classRank": 13,
+      "physics": 29
+    },
+    {
+      "name": "张腾飞",
+      "totalScore": 297,
+      "schoolRank": 2221,
+      "classRank": 14,
+      "physics": 31
+    },
+    {
+      "name": "姚允浩",
+      "totalScore": 291,
+      "schoolRank": 2264,
+      "classRank": 15,
+      "physics": 46
+    },
+    {
+      "name": "贺家淼",
+      "totalScore": 291,
+      "schoolRank": 2264,
+      "classRank": 15,
+      "physics": 40
+    },
+    {
+      "name": "肖坤鹏",
+      "totalScore": 286,
+      "schoolRank": 2304,
+      "classRank": 17,
+      "physics": 53
+    },
+    {
+      "name": "周诺妍",
+      "totalScore": 272,
+      "schoolRank": 2404,
+      "classRank": 18,
+      "physics": 27
+    },
+    {
+      "name": "古彦哲",
+      "totalScore": 272,
+      "schoolRank": 2404,
+      "classRank": 18,
+      "physics": 42
+    },
+    {
+      "name": "赵铄鑫",
+      "totalScore": 270,
+      "schoolRank": 2422,
+      "classRank": 20,
+      "physics": 30
+    },
+    {
+      "name": "魏雨泽",
+      "totalScore": 269,
+      "schoolRank": 2430,
+      "classRank": 21,
+      "physics": 32
+    },
+    {
+      "name": "陈圣锦",
+      "totalScore": 266,
+      "schoolRank": 2452,
+      "classRank": 22,
+      "physics": 39
+    },
+    {
+      "name": "韩泽旭",
+      "totalScore": 265,
+      "schoolRank": 2463,
+      "classRank": 23,
+      "physics": 29
+    },
+    {
+      "name": "汤明汐",
+      "totalScore": 262,
+      "schoolRank": 2479,
+      "classRank": 24,
+      "physics": 26
+    },
+    {
+      "name": "刘宇哲",
+      "totalScore": 254,
+      "schoolRank": 2528,
+      "classRank": 25,
+      "physics": 40
+    },
+    {
+      "name": "李怡霏",
+      "totalScore": 250,
+      "schoolRank": 2548,
+      "classRank": 26,
+      "physics": 24
+    },
+    {
+      "name": "朱宇航",
+      "totalScore": 248,
+      "schoolRank": 2563,
+      "classRank": 27,
+      "physics": 37
+    },
+    {
+      "name": "刘子懿",
+      "totalScore": 247,
+      "schoolRank": 2569,
+      "classRank": 28,
+      "physics": 30
+    },
+    {
+      "name": "王悦丞",
+      "totalScore": 238,
+      "schoolRank": 2624,
+      "classRank": 29,
+      "physics": 26
+    },
+    {
+      "name": "郑亦萌",
+      "totalScore": 238,
+      "schoolRank": 2624,
+      "classRank": 29,
+      "physics": 17
+    },
+    {
+      "name": "刘王烁",
+      "totalScore": 235,
+      "schoolRank": 2644,
+      "classRank": 31,
+      "physics": 50
+    },
+    {
+      "name": "刘长青",
+      "totalScore": 233,
+      "schoolRank": 2657,
+      "classRank": 32,
+      "physics": 29
+    },
+    {
+      "name": "张梓琪",
+      "totalScore": 232,
+      "schoolRank": 2662,
+      "classRank": 33,
+      "physics": 14
+    },
+    {
+      "name": "吴昊泽",
+      "totalScore": 232,
+      "schoolRank": 2662,
+      "classRank": 33,
+      "physics": 44
+    },
+    {
+      "name": "刘诗婷",
+      "totalScore": 230,
+      "schoolRank": 2673,
+      "classRank": 35,
+      "physics": 27
+    },
+    {
+      "name": "韩志君",
+      "totalScore": 228,
+      "schoolRank": 2686,
+      "classRank": 36,
+      "physics": 31
+    },
+    {
+      "name": "王紫璇",
+      "totalScore": 227,
+      "schoolRank": 2691,
+      "classRank": 37,
+      "physics": 30
+    },
+    {
+      "name": "孙辰美伊",
+      "totalScore": 226,
+      "schoolRank": 2696,
+      "classRank": 38,
+      "physics": 26
+    },
+    {
+      "name": "辛佳怡",
+      "totalScore": 224,
+      "schoolRank": 2704,
+      "classRank": 39,
+      "physics": 17
+    },
+    {
+      "name": "李鸿飞",
+      "totalScore": 221,
+      "schoolRank": 2719,
+      "classRank": 40,
+      "physics": 32
+    },
+    {
+      "name": "吴哲印",
+      "totalScore": 216,
+      "schoolRank": 2749,
+      "classRank": 41,
+      "physics": 28
+    },
+    {
+      "name": "闫紫涵",
+      "totalScore": 216,
+      "schoolRank": 2749,
+      "classRank": 41,
+      "physics": 8
+    },
+    {
+      "name": "孟真玉",
+      "totalScore": 206,
+      "schoolRank": 2801,
+      "classRank": 43,
+      "physics": 26
+    },
+    {
+      "name": "张荣海",
+      "totalScore": 186,
+      "schoolRank": 2884,
+      "classRank": 44,
+      "physics": 21
+    },
+    {
+      "name": "贺鹏华",
+      "totalScore": 183,
+      "schoolRank": 2894,
+      "classRank": 45,
+      "physics": 21
+    },
+    {
+      "name": "李子昂",
+      "totalScore": 143,
+      "schoolRank": 3016,
+      "classRank": 46,
+      "physics": 18
+    },
+    {
+      "name": "张静怡",
+      "totalScore": 77,
+      "schoolRank": 3092,
+      "classRank": 47,
+      "physics": 6
+    },
+    {
+      "name": "张辰烁",
+      "totalScore": 0,
+      "schoolRank": null,
+      "classRank": null,
+      "physics": null
+    }
+  ],
+  "九年级郑开校区2班": [
+    {
+      "name": "朱一豪",
+      "totalScore": 484,
+      "schoolRank": 255,
+      "classRank": 1,
+      "physics": 66
+    },
+    {
+      "name": "秦明郡",
+      "totalScore": 475,
+      "schoolRank": 373,
+      "classRank": 2,
+      "physics": 61
+    },
+    {
+      "name": "韩润哲",
+      "totalScore": 474,
+      "schoolRank": 386,
+      "classRank": 3,
+      "physics": 63
+    },
+    {
+      "name": "赵瑾萱",
+      "totalScore": 471,
+      "schoolRank": 425,
+      "classRank": 4,
+      "physics": 63
+    },
+    {
+      "name": "刘溪悦",
+      "totalScore": 471,
+      "schoolRank": 425,
+      "classRank": 4,
+      "physics": 62
+    },
+    {
+      "name": "梁梓萌",
+      "totalScore": 469,
+      "schoolRank": 459,
+      "classRank": 6,
+      "physics": 63
+    },
+    {
+      "name": "姜一茹",
+      "totalScore": 465,
+      "schoolRank": 513,
+      "classRank": 7,
+      "physics": 64
+    },
+    {
+      "name": "李浩东",
+      "totalScore": 455,
+      "schoolRank": 647,
+      "classRank": 8,
+      "physics": 57
+    },
+    {
+      "name": "靳艺荃",
+      "totalScore": 452,
+      "schoolRank": 693,
+      "classRank": 9,
+      "physics": 59
+    },
+    {
+      "name": "朱宇晨",
+      "totalScore": 451,
+      "schoolRank": 711,
+      "classRank": 10,
+      "physics": 59
+    },
+    {
+      "name": "张壹涵",
+      "totalScore": 450,
+      "schoolRank": 732,
+      "classRank": 11,
+      "physics": 61
+    },
+    {
+      "name": "刘溪娴",
+      "totalScore": 439,
+      "schoolRank": 872,
+      "classRank": 12,
+      "physics": 60
+    },
+    {
+      "name": "李雨轩",
+      "totalScore": 426,
+      "schoolRank": 1030,
+      "classRank": 13,
+      "physics": 54
+    },
+    {
+      "name": "梁雅婧",
+      "totalScore": 424,
+      "schoolRank": 1059,
+      "classRank": 14,
+      "physics": 56
+    },
+    {
+      "name": "张春雨",
+      "totalScore": 424,
+      "schoolRank": 1059,
+      "classRank": 14,
+      "physics": 60
+    },
+    {
+      "name": "王佑琪",
+      "totalScore": 423,
+      "schoolRank": 1075,
+      "classRank": 16,
+      "physics": 67
+    },
+    {
+      "name": "王秋雨",
+      "totalScore": 422,
+      "schoolRank": 1084,
+      "classRank": 17,
+      "physics": 56
+    },
+    {
+      "name": "张诗雨",
+      "totalScore": 418,
+      "schoolRank": 1124,
+      "classRank": 18,
+      "physics": 59
+    },
+    {
+      "name": "朱惜然",
+      "totalScore": 416,
+      "schoolRank": 1147,
+      "classRank": 19,
+      "physics": 59
+    },
+    {
+      "name": "连欣然",
+      "totalScore": 412,
+      "schoolRank": 1203,
+      "classRank": 20,
+      "physics": 63
+    },
+    {
+      "name": "张艺悦",
+      "totalScore": 411,
+      "schoolRank": 1214,
+      "classRank": 21,
+      "physics": 56
+    },
+    {
+      "name": "胡钿笑",
+      "totalScore": 387,
+      "schoolRank": 1464,
+      "classRank": 22,
+      "physics": 40
+    },
+    {
+      "name": "边凌熙",
+      "totalScore": 386,
+      "schoolRank": 1480,
+      "classRank": 23,
+      "physics": 47
+    },
+    {
+      "name": "宋昕悦",
+      "totalScore": 385,
+      "schoolRank": 1495,
+      "classRank": 24,
+      "physics": 42
+    },
+    {
+      "name": "尚凯睿",
+      "totalScore": 384,
+      "schoolRank": 1509,
+      "classRank": 25,
+      "physics": 44
+    },
+    {
+      "name": "王文迪",
+      "totalScore": 381,
+      "schoolRank": 1543,
+      "classRank": 26,
+      "physics": 44
+    },
+    {
+      "name": "张婉馨",
+      "totalScore": 380,
+      "schoolRank": 1551,
+      "classRank": 27,
+      "physics": 47
+    },
+    {
+      "name": "李若菡",
+      "totalScore": 374,
+      "schoolRank": 1607,
+      "classRank": 28,
+      "physics": 35
+    },
+    {
+      "name": "韩仝淦",
+      "totalScore": 373,
+      "schoolRank": 1619,
+      "classRank": 29,
+      "physics": 54
+    },
+    {
+      "name": "张烁轲",
+      "totalScore": 370,
+      "schoolRank": 1645,
+      "classRank": 30,
+      "physics": 52
+    },
+    {
+      "name": "张宸洋",
+      "totalScore": 362,
+      "schoolRank": 1711,
+      "classRank": 31,
+      "physics": 53
+    },
+    {
+      "name": "张佳一",
+      "totalScore": 360,
+      "schoolRank": 1735,
+      "classRank": 32,
+      "physics": 35
+    },
+    {
+      "name": "邵依晗",
+      "totalScore": 359,
+      "schoolRank": 1746,
+      "classRank": 33,
+      "physics": 45
+    },
+    {
+      "name": "韩佩宸",
+      "totalScore": 358,
+      "schoolRank": 1751,
+      "classRank": 34,
+      "physics": 32
+    },
+    {
+      "name": "刘宸旭",
+      "totalScore": 356,
+      "schoolRank": 1769,
+      "classRank": 35,
+      "physics": 54
+    },
+    {
+      "name": "曾煜宸",
+      "totalScore": 341,
+      "schoolRank": 1894,
+      "classRank": 36,
+      "physics": 42
+    },
+    {
+      "name": "张寒烁",
+      "totalScore": 321,
+      "schoolRank": 2065,
+      "classRank": 37,
+      "physics": 31
+    },
+    {
+      "name": "刘浩阳",
+      "totalScore": 306,
+      "schoolRank": 2160,
+      "classRank": 38,
+      "physics": 36
+    },
+    {
+      "name": "刘鑫怡",
+      "totalScore": 302,
+      "schoolRank": 2190,
+      "classRank": 39,
+      "physics": 21
+    },
+    {
+      "name": "姚贺竣",
+      "totalScore": 297,
+      "schoolRank": 2221,
+      "classRank": 40,
+      "physics": 35
+    },
+    {
+      "name": "金琪淇",
+      "totalScore": 295,
+      "schoolRank": 2241,
+      "classRank": 41,
+      "physics": 37
+    },
+    {
+      "name": "万家升",
+      "totalScore": 291,
+      "schoolRank": 2264,
+      "classRank": 42,
+      "physics": 26
+    },
+    {
+      "name": "常潘彤",
+      "totalScore": 281,
+      "schoolRank": 2341,
+      "classRank": 43,
+      "physics": 23
+    },
+    {
+      "name": "陈文彤",
+      "totalScore": 280,
+      "schoolRank": 2348,
+      "classRank": 44,
+      "physics": 18
+    },
+    {
+      "name": "陈炟祺",
+      "totalScore": 279,
+      "schoolRank": 2357,
+      "classRank": 45,
+      "physics": 44
+    },
+    {
+      "name": "张子鹏",
+      "totalScore": 253,
+      "schoolRank": 2533,
+      "classRank": 46,
+      "physics": 23
+    },
+    {
+      "name": "平雨航",
+      "totalScore": 237,
+      "schoolRank": 2634,
+      "classRank": 47,
+      "physics": 25
+    },
+    {
+      "name": "魏子喆",
+      "totalScore": 236,
+      "schoolRank": 2638,
+      "classRank": 48,
+      "physics": 26
+    }
+  ],
+  "九年级郑开校区3班": [
+    {
+      "name": "陈艺晴",
+      "totalScore": 399,
+      "schoolRank": 1332,
+      "classRank": 1,
+      "physics": 56
+    },
+    {
+      "name": "董沐慈",
+      "totalScore": 388,
+      "schoolRank": 1453,
+      "classRank": 2,
+      "physics": 54
+    },
+    {
+      "name": "王家繁",
+      "totalScore": 363,
+      "schoolRank": 1707,
+      "classRank": 3,
+      "physics": 57
+    },
+    {
+      "name": "王若熙",
+      "totalScore": 353,
+      "schoolRank": 1799,
+      "classRank": 4,
+      "physics": 43
+    },
+    {
+      "name": "陈奕名",
+      "totalScore": 347,
+      "schoolRank": 1844,
+      "classRank": 5,
+      "physics": 39
+    },
+    {
+      "name": "南瀚臣",
+      "totalScore": 344,
+      "schoolRank": 1873,
+      "classRank": 6,
+      "physics": 43
+    },
+    {
+      "name": "刘俊熙",
+      "totalScore": 340,
+      "schoolRank": 1910,
+      "classRank": 7,
+      "physics": 55
+    },
+    {
+      "name": "王语诺",
+      "totalScore": 319,
+      "schoolRank": 2076,
+      "classRank": 8,
+      "physics": 28
+    },
+    {
+      "name": "王梓彤",
+      "totalScore": 317,
+      "schoolRank": 2093,
+      "classRank": 9,
+      "physics": 44
+    },
+    {
+      "name": "王昕怡",
+      "totalScore": 314,
+      "schoolRank": 2110,
+      "classRank": 10,
+      "physics": 41
+    },
+    {
+      "name": "李若冰",
+      "totalScore": 306,
+      "schoolRank": 2160,
+      "classRank": 11,
+      "physics": 28
+    },
+    {
+      "name": "刘佳萱",
+      "totalScore": 301,
+      "schoolRank": 2197,
+      "classRank": 12,
+      "physics": 41
+    },
+    {
+      "name": "李佳瑶",
+      "totalScore": 295,
+      "schoolRank": 2241,
+      "classRank": 13,
+      "physics": 30
+    },
+    {
+      "name": "徐心然",
+      "totalScore": 290,
+      "schoolRank": 2271,
+      "classRank": 14,
+      "physics": 25
+    },
+    {
+      "name": "王一瑾",
+      "totalScore": 271,
+      "schoolRank": 2413,
+      "classRank": 15,
+      "physics": 29
+    },
+    {
+      "name": "樊子钰",
+      "totalScore": 268,
+      "schoolRank": 2436,
+      "classRank": 16,
+      "physics": 23
+    },
+    {
+      "name": "张一依",
+      "totalScore": 262,
+      "schoolRank": 2479,
+      "classRank": 17,
+      "physics": 27
+    },
+    {
+      "name": "李宇航",
+      "totalScore": 256,
+      "schoolRank": 2517,
+      "classRank": 18,
+      "physics": 30
+    },
+    {
+      "name": "刘梦",
+      "totalScore": 254,
+      "schoolRank": 2528,
+      "classRank": 19,
+      "physics": 22
+    },
+    {
+      "name": "郭宸烨",
+      "totalScore": 251,
+      "schoolRank": 2543,
+      "classRank": 20,
+      "physics": 28
+    },
+    {
+      "name": "王绍华",
+      "totalScore": 248,
+      "schoolRank": 2563,
+      "classRank": 21,
+      "physics": 27
+    },
+    {
+      "name": "潘正轩",
+      "totalScore": 247,
+      "schoolRank": 2569,
+      "classRank": 22,
+      "physics": 31
+    },
+    {
+      "name": "李卓昊",
+      "totalScore": 244,
+      "schoolRank": 2588,
+      "classRank": 23,
+      "physics": 24
+    },
+    {
+      "name": "张瑞颖",
+      "totalScore": 242,
+      "schoolRank": 2598,
+      "classRank": 24,
+      "physics": 16
+    },
+    {
+      "name": "吴承泽",
+      "totalScore": 239,
+      "schoolRank": 2618,
+      "classRank": 25,
+      "physics": 28
+    },
+    {
+      "name": "刘映源",
+      "totalScore": 238,
+      "schoolRank": 2624,
+      "classRank": 26,
+      "physics": 26
+    },
+    {
+      "name": "郭米乐",
+      "totalScore": 232,
+      "schoolRank": 2662,
+      "classRank": 27,
+      "physics": 22
+    },
+    {
+      "name": "潘怡淼",
+      "totalScore": 225,
+      "schoolRank": 2699,
+      "classRank": 28,
+      "physics": 18
+    },
+    {
+      "name": "马欣冉",
+      "totalScore": 218,
+      "schoolRank": 2732,
+      "classRank": 29,
+      "physics": 26
+    },
+    {
+      "name": "李奇诺",
+      "totalScore": 218,
+      "schoolRank": 2732,
+      "classRank": 29,
+      "physics": 13
+    },
+    {
+      "name": "刘润泽",
+      "totalScore": 216,
+      "schoolRank": 2749,
+      "classRank": 31,
+      "physics": 18
+    },
+    {
+      "name": "侯奕阳",
+      "totalScore": 206,
+      "schoolRank": 2801,
+      "classRank": 32,
+      "physics": 17
+    },
+    {
+      "name": "曹奕博",
+      "totalScore": 202,
+      "schoolRank": 2819,
+      "classRank": 33,
+      "physics": 20
+    },
+    {
+      "name": "杨一诺",
+      "totalScore": 199,
+      "schoolRank": 2829,
+      "classRank": 34,
+      "physics": 15
+    },
+    {
+      "name": "张浩宇",
+      "totalScore": 198,
+      "schoolRank": 2837,
+      "classRank": 35,
+      "physics": 13
+    },
+    {
+      "name": "单翊峻",
+      "totalScore": 186,
+      "schoolRank": 2884,
+      "classRank": 36,
+      "physics": 21
+    },
+    {
+      "name": "曾浩宇",
+      "totalScore": 162,
+      "schoolRank": 2959,
+      "classRank": 37,
+      "physics": 18
+    },
+    {
+      "name": "余梦涵",
+      "totalScore": 159,
+      "schoolRank": 2971,
+      "classRank": 38,
+      "physics": 8
+    },
+    {
+      "name": "毕程凯",
+      "totalScore": 154,
+      "schoolRank": 2983,
+      "classRank": 39,
+      "physics": 11
+    },
+    {
+      "name": "吴志扬",
+      "totalScore": 154,
+      "schoolRank": 2983,
+      "classRank": 39,
+      "physics": 8
+    },
+    {
+      "name": "马晨皓",
+      "totalScore": 151,
+      "schoolRank": 2994,
+      "classRank": 41,
+      "physics": 10
+    },
+    {
+      "name": "孟浩怡",
+      "totalScore": 146,
+      "schoolRank": 3010,
+      "classRank": 42,
+      "physics": 12
+    },
+    {
+      "name": "孟怡轩",
+      "totalScore": 132,
+      "schoolRank": 3032,
+      "classRank": 43,
+      "physics": 9
+    },
+    {
+      "name": "汪钰轩",
+      "totalScore": 119,
+      "schoolRank": 3055,
+      "classRank": 44,
+      "physics": 11
+    },
+    {
+      "name": "霍锦熙",
+      "totalScore": 62,
+      "schoolRank": 3098,
+      "classRank": 45,
+      "physics": 9
+    },
+    {
+      "name": "张伊腾",
+      "totalScore": 41,
+      "schoolRank": 3106,
+      "classRank": 46,
+      "physics": 8
+    }
+  ],
+  "九年级郑开校区4班": [
+    {
+      "name": "姚佳诚",
+      "totalScore": 430,
+      "schoolRank": 984,
+      "classRank": 1,
+      "physics": 57
+    },
+    {
+      "name": "马蓝冰",
+      "totalScore": 422,
+      "schoolRank": 1084,
+      "classRank": 2,
+      "physics": 61
+    },
+    {
+      "name": "黄冠",
+      "totalScore": 414,
+      "schoolRank": 1181,
+      "classRank": 3,
+      "physics": 53
+    },
+    {
+      "name": "祁子昕",
+      "totalScore": 378,
+      "schoolRank": 1569,
+      "classRank": 4,
+      "physics": 55
+    },
+    {
+      "name": "梁博宸",
+      "totalScore": 376,
+      "schoolRank": 1587,
+      "classRank": 5,
+      "physics": 46
+    },
+    {
+      "name": "蔡欣然",
+      "totalScore": 352,
+      "schoolRank": 1808,
+      "classRank": 6,
+      "physics": 35
+    },
+    {
+      "name": "张皓森",
+      "totalScore": 341,
+      "schoolRank": 1894,
+      "classRank": 7,
+      "physics": 36
+    },
+    {
+      "name": "孟紫嫣",
+      "totalScore": 333,
+      "schoolRank": 1978,
+      "classRank": 8,
+      "physics": 51
+    },
+    {
+      "name": "赵烨铜",
+      "totalScore": 331,
+      "schoolRank": 1989,
+      "classRank": 9,
+      "physics": 57
+    },
+    {
+      "name": "李艺歆",
+      "totalScore": 310,
+      "schoolRank": 2137,
+      "classRank": 10,
+      "physics": 19
+    },
+    {
+      "name": "秦焕畅",
+      "totalScore": 305,
+      "schoolRank": 2168,
+      "classRank": 11,
+      "physics": 28
+    },
+    {
+      "name": "掌钰涵",
+      "totalScore": 305,
+      "schoolRank": 2168,
+      "classRank": 11,
+      "physics": 36
+    },
+    {
+      "name": "李伊菡",
+      "totalScore": 296,
+      "schoolRank": 2233,
+      "classRank": 13,
+      "physics": 24
+    },
+    {
+      "name": "田浩广",
+      "totalScore": 291,
+      "schoolRank": 2264,
+      "classRank": 14,
+      "physics": 32
+    },
+    {
+      "name": "李天娇",
+      "totalScore": 283,
+      "schoolRank": 2324,
+      "classRank": 15,
+      "physics": 18
+    },
+    {
+      "name": "李承尚",
+      "totalScore": 283,
+      "schoolRank": 2324,
+      "classRank": 15,
+      "physics": 44
+    },
+    {
+      "name": "边家晔",
+      "totalScore": 276,
+      "schoolRank": 2377,
+      "classRank": 17,
+      "physics": 32
+    },
+    {
+      "name": "仓诗雨",
+      "totalScore": 258,
+      "schoolRank": 2505,
+      "classRank": 18,
+      "physics": 23
+    },
+    {
+      "name": "张艺然",
+      "totalScore": 251,
+      "schoolRank": 2543,
+      "classRank": 19,
+      "physics": 9
+    },
+    {
+      "name": "杨佳晨",
+      "totalScore": 242,
+      "schoolRank": 2598,
+      "classRank": 20,
+      "physics": 15
+    },
+    {
+      "name": "马辰曦",
+      "totalScore": 240,
+      "schoolRank": 2614,
+      "classRank": 21,
+      "physics": 26
+    },
+    {
+      "name": "刘鑫野",
+      "totalScore": 239,
+      "schoolRank": 2618,
+      "classRank": 22,
+      "physics": 13
+    },
+    {
+      "name": "宋宇欣",
+      "totalScore": 239,
+      "schoolRank": 2618,
+      "classRank": 22,
+      "physics": 24
+    },
+    {
+      "name": "张珂欣",
+      "totalScore": 237,
+      "schoolRank": 2634,
+      "classRank": 24,
+      "physics": 19
+    },
+    {
+      "name": "闫思彤",
+      "totalScore": 234,
+      "schoolRank": 2648,
+      "classRank": 25,
+      "physics": 14
+    },
+    {
+      "name": "吕昊煜",
+      "totalScore": 229,
+      "schoolRank": 2680,
+      "classRank": 26,
+      "physics": 32
+    },
+    {
+      "name": "韩昊琰",
+      "totalScore": 223,
+      "schoolRank": 2708,
+      "classRank": 27,
+      "physics": 19
+    },
+    {
+      "name": "刘子月",
+      "totalScore": 216,
+      "schoolRank": 2749,
+      "classRank": 28,
+      "physics": 9
+    },
+    {
+      "name": "赵子宁",
+      "totalScore": 215,
+      "schoolRank": 2757,
+      "classRank": 29,
+      "physics": 18
+    },
+    {
+      "name": "李雨泽",
+      "totalScore": 215,
+      "schoolRank": 2757,
+      "classRank": 29,
+      "physics": 8
+    },
+    {
+      "name": "王子骞",
+      "totalScore": 206,
+      "schoolRank": 2801,
+      "classRank": 31,
+      "physics": 18
+    },
+    {
+      "name": "肖涵雨",
+      "totalScore": 201,
+      "schoolRank": 2824,
+      "classRank": 32,
+      "physics": 10
+    },
+    {
+      "name": "王景文",
+      "totalScore": 199,
+      "schoolRank": 2829,
+      "classRank": 33,
+      "physics": 18
+    },
+    {
+      "name": "王嘉栩",
+      "totalScore": 177,
+      "schoolRank": 2918,
+      "classRank": 34,
+      "physics": 23
+    },
+    {
+      "name": "李欣科",
+      "totalScore": 176,
+      "schoolRank": 2922,
+      "classRank": 35,
+      "physics": 16
+    },
+    {
+      "name": "刘宸卓",
+      "totalScore": 174,
+      "schoolRank": 2926,
+      "classRank": 36,
+      "physics": 19
+    },
+    {
+      "name": "杨闳蕾",
+      "totalScore": 174,
+      "schoolRank": 2926,
+      "classRank": 36,
+      "physics": 4
+    },
+    {
+      "name": "冯忠硕",
+      "totalScore": 172,
+      "schoolRank": 2933,
+      "classRank": 38,
+      "physics": 13
+    },
+    {
+      "name": "贾依婧",
+      "totalScore": 165,
+      "schoolRank": 2950,
+      "classRank": 39,
+      "physics": 7
+    },
+    {
+      "name": "贾俊豪",
+      "totalScore": 152,
+      "schoolRank": 2991,
+      "classRank": 40,
+      "physics": 13
+    },
+    {
+      "name": "岳晨旭",
+      "totalScore": 148,
+      "schoolRank": 3002,
+      "classRank": 41,
+      "physics": 28
+    },
+    {
+      "name": "孟浩硕",
+      "totalScore": 147,
+      "schoolRank": 3007,
+      "classRank": 42,
+      "physics": 12
+    },
+    {
+      "name": "张鑫胜",
+      "totalScore": 144,
+      "schoolRank": 3013,
+      "classRank": 43,
+      "physics": 12
+    },
+    {
+      "name": "王非凡",
+      "totalScore": 143,
+      "schoolRank": 3016,
+      "classRank": 44,
+      "physics": 7
+    },
+    {
+      "name": "乔涵文雅",
+      "totalScore": 131,
+      "schoolRank": 3034,
+      "classRank": 45,
+      "physics": 12
+    },
+    {
+      "name": "朱家贝",
+      "totalScore": 128,
+      "schoolRank": 3040,
+      "classRank": 46,
+      "physics": 0
+    },
+    {
+      "name": "张嘉乐",
+      "totalScore": 124,
+      "schoolRank": 3046,
+      "classRank": 47,
+      "physics": 16
+    },
+    {
+      "name": "高兴源",
+      "totalScore": 54,
+      "schoolRank": 3102,
+      "classRank": 48,
+      "physics": 10
+    },
+    {
+      "name": "李满一",
+      "totalScore": 0,
+      "schoolRank": null,
+      "classRank": null,
+      "physics": null
+    }
+  ]
+};
+
+const CLASS_META = [
+  { key: "九年级郑开校区1班", short: "九一班", badge: "班主任", special: false },
+  { key: "九年级郑开校区2班", short: "九二班", badge: "重点班", special: true  },
+  { key: "九年级郑开校区3班", short: "九三班", badge: "",        special: false },
+  { key: "九年级郑开校区4班", short: "九四班", badge: "",        special: false },
+];
+
+const TIER_CONFIG = {
+  A:    { label: "A指标生", range: "校次 1-388",     cls: "A" },
+  B:    { label: "B指标生", range: "校次 389-1076",  cls: "B" },
+  C:    { label: "C指标生", range: "校次 1077-1765", cls: "C" },
+  D:    { label: "未达指标", range: "校次 >1765",    cls: "D" },
+  none: { label: "缺考/未计分", range: "无",         cls: "N" },
+};
+
+/* 作业状态（六态） */
+const HW_INFO = {
+  missing:   { label: "未交",     sub: "未上交" },
+  submitted: { label: "已交",     sub: "已上交" },
+  excellent: { label: "优秀",     sub: "评A" },
+  late:      { label: "补交",     sub: "补交" },
+  returned:  { label: "打回重写", sub: "需订正" },
+  corrected: { label: "已订正",   sub: "重交合格" },
+};
+
+/* 一周字段（含周末） */
+const WEEKDAYS = [
+  { key: "mon", label: "周一" }, { key: "tue", label: "周二" }, { key: "wed", label: "周三" },
+  { key: "thu", label: "周四" }, { key: "fri", label: "周五" }, { key: "sat", label: "周六" }, { key: "sun", label: "周日" },
+];
+
+/* 学生列表排序选项 */
+const SORT_OPTIONS = [
+  { v: "classRank",  label: "班级名次（默认）" },
+  { v: "schoolRank", label: "综合校次" },
+  { v: "physics",    label: "物理成绩" },
+  { v: "totalScore", label: "综合总分" },
+];
+
+/* ============================================================
+   2. 状态管理（localStorage + IndexedDB 双写持久化）
+   ============================================================ */
+const STORAGE_KEY = "physics_teacher_workbench_v2";
+const DB_NAME = "physics_workbench_db";
+const DB_STORE = "kv";
+
+function defaultState() {
+  return {
+    version: 5,
+    targets: {
+      "九年级郑开校区1班": { A: 0, B: 2, C: 8 },
+      "九年级郑开校区2班": { A: 3, B: 13, C: 18 },
+      "九年级郑开校区3班": { A: 0, B: 2, C: 8 },
+      "九年级郑开校区4班": { A: 0, B: 2, C: 8 },
+    },
+    students: {},           // { 班级: { 姓名: { note, questions: [{ts,type,q,a,title}] } } }
+    studentData: {},        // { 班级: [ {name,totalScore,schoolRank,classRank,physics} ] }  学生名单（可增删改，初始来自 Excel）
+    assignments: {},        // { 班级: [ {id,title,date,due} ] }  作业（按日期+标题，每天可多份）
+    submissions: {},        // { 班级: { [作业id]: { [姓名]: status } } }  每份作业的收缴状态
+    currentAssignment: {},  // { 班级: 作业id }  当前选中的作业
+    rosterTitle: {},        // { 班级: "本节课提问标题" }
+    boards: {},             // { 班级: { weekTask, days:{mon..sun:{task,hw,date,due}}, holidays:[...] } }  教学公告栏
+    roster: {},             // { 班级: [ {name,q,a} ] }  本节课待确认的预设提问名单
+    messages: { teacher: [], rep: [] },  // 教师留言 / 课代表留言
+    lastPicked: null,
+  };
+}
+
+/* 获取某班级的学生名单（可变，初始从 classData 复制一份，之后增删改都持久化） */
+function getClassStudents(clsKey) {
+  if (!state.studentData) state.studentData = {};
+  if (!state.studentData[clsKey]) {
+    state.studentData[clsKey] = (classData[clsKey] || []).map(s => Object.assign({}, s));
+  }
+  return state.studentData[clsKey];
+}
+
+/* 获取某班级的教学公告栏（不存在则创建默认结构） */
+function defaultBoard() {
+  const days = {};
+  WEEKDAYS.forEach(w => days[w.key] = { task: "", hw: "", date: "", due: "" });
+  return { weekTask: "", days, holidays: [] };
+}
+function getBoard(clsKey) {
+  if (!state.boards[clsKey]) state.boards[clsKey] = defaultBoard();
+  return state.boards[clsKey];
+}
+/* 获取某班级的本节课预设提问名单 */
+function getRoster(clsKey) {
+  if (!state.roster[clsKey]) state.roster[clsKey] = [];
+  return state.roster[clsKey];
+}
+
+function deepMerge(base, extra) {
+  const out = {};
+  for (const k of new Set([...Object.keys(base), ...Object.keys(extra || {})])) {
+    const b = base[k], e = (extra || {})[k];
+    if (b && e && typeof b === "object" && typeof e === "object" && !Array.isArray(b) && !Array.isArray(e)) out[k] = deepMerge(b, e);
+    else out[k] = (e !== undefined) ? e : b;
+  }
+  return out;
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return deepMerge(defaultState(), JSON.parse(raw));
+  } catch (e) { console.warn("读取本地数据失败", e); }
+  return defaultState();
+}
+
+function saveState() {
+  const json = JSON.stringify(state);
+  try { localStorage.setItem(STORAGE_KEY, json); } catch (e) { console.warn("localStorage 写入失败", e); }
+  idbSet(STORAGE_KEY, state);                       // 异步镜像到 IndexedDB（更持久）
+  document.getElementById("lastSave").textContent = dateStr(Date.now());
+}
+
+/* ---- IndexedDB 镜像（异步，增强持久性，防止 localStorage 被清） ---- */
+function idbOpen() {
+  return new Promise((res, rej) => {
+    if (!window.indexedDB) return rej(new Error("no idb"));
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = () => { const db = req.result; if (!db.objectStoreNames.contains(DB_STORE)) db.createObjectStore(DB_STORE); };
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+function idbSet(key, val) {
+  idbOpen().then(db => {
+    const tx = db.transaction(DB_STORE, "readwrite");
+    tx.objectStore(DB_STORE).put(val, key);
+    tx.oncomplete = () => db.close();
+  }).catch(() => {});
+}
+function idbGet(key) {
+  return idbOpen().then(db => new Promise((res) => {
+    const tx = db.transaction(DB_STORE, "readonly");
+    const rq = tx.objectStore(DB_STORE).get(key);
+    rq.onsuccess = () => { res(rq.result || null); db.close(); };
+    rq.onerror = () => { res(null); db.close(); };
+  })).catch(() => null);
+}
+
+let state = loadState();
+let currentClassKey = CLASS_META[0].key;
+let isRepresentative = false;
+let filterTier = "all";
+let searchQuery = "";
+let sortKey = "classRank";
+let batchMode = false;
+const selected = new Set();   // 批量选中的学生姓名（当前班）
+let bulletinOpen = true;      // 公告栏是否展开
+
+/* ============================================================
+   3. 工具函数
+   ============================================================ */
+function currentStudents() { return getClassStudents(currentClassKey); }
+function clsShort(key) { const m = CLASS_META.find(x => x.key === key); return m ? m.short : key; }
+function getMeta(key) { return CLASS_META.find(x => x.key === key) || CLASS_META[0]; }
+function getTier(rank) { if (rank == null || rank <= 0) return "none"; if (rank <= 388) return "A"; if (rank <= 1076) return "B"; if (rank <= 1765) return "C"; return "D"; }
+function shortTier(t) { return { A: "A", B: "B", C: "C", D: "补差", none: "—" }[t] || t; }
+function getStudent(clsKey, name) {
+  if (!state.students[clsKey]) state.students[clsKey] = {};
+  if (!state.students[clsKey][name]) state.students[clsKey][name] = { note: "", questions: [] };
+  return state.students[clsKey][name];
+}
+
+/* ---------- 作业（按日期+标题，每天可多份） ---------- */
+function getAssignments(clsKey) {
+  if (!state.assignments[clsKey]) state.assignments[clsKey] = [];
+  return state.assignments[clsKey];
+}
+function getSubmissions(clsKey) {
+  if (!state.submissions[clsKey]) state.submissions[clsKey] = {};
+  return state.submissions[clsKey];
+}
+/* 当前选中的作业（默认最新一份；无则自动创建一份“今日作业”） */
+function currentAssignment(clsKey) {
+  const list = getAssignments(clsKey);
+  if (list.length === 0) {
+    const a = { id: Date.now(), title: "今日作业", date: new Date().toLocaleDateString("zh-CN"), due: "" };
+    list.push(a);
+    state.currentAssignment[clsKey] = a.id;
+  }
+  return list.find(x => String(x.id) === String(state.currentAssignment[clsKey])) || list[list.length - 1];
+}
+function getSub(clsKey, aId, name) {
+  const s = state.submissions[clsKey];
+  return (s && s[aId] && s[aId][name]) || "missing";
+}
+function setSub(clsKey, aId, name, status) {
+  if (!state.submissions[clsKey]) state.submissions[clsKey] = {};
+  if (!state.submissions[clsKey][aId]) state.submissions[clsKey][aId] = {};
+  state.submissions[clsKey][aId][name] = status;
+}
+/* 当前作业下某学生的状态 */
+function hwOf(name) {
+  const a = currentAssignment(currentClassKey);
+  return a ? getSub(currentClassKey, a.id, name) : "missing";
+}
+function setCurrentAssignment(id) { state.currentAssignment[currentClassKey] = id; }
+function escapeHtml(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function dateStr(ts) { const d = new Date(ts); const p = n => String(n).padStart(2, "0"); return `${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; }
+function todayStart() { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()).getTime(); }
+function weekStart() { const n = new Date(); const dow = n.getDay(); return new Date(n.getFullYear(), n.getMonth(), n.getDate() - (dow === 0 ? 6 : dow - 1)).getTime(); }
+function todayWeekday() { const d = new Date().getDay(); const idx = d === 0 ? 6 : d - 1; return WEEKDAYS[idx]; }
+
+/* 提问计数：课堂/课下、今日/本周/累计 */
+function qCounts(questions) {
+  const t0 = todayStart(), w0 = weekStart();
+  let classN = 0, officeN = 0, todayN = 0, weekN = 0;
+  for (const q of questions) {
+    if (q.type === "class") classN++; else officeN++;
+    const t = q.ts || 0; if (t >= t0) todayN++; if (t >= w0) weekN++;
+  }
+  return { classN, officeN, today: todayN, week: weekN, total: questions.length };
+}
+
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._timer); t._timer = setTimeout(() => t.classList.remove("show"), 1900);
+}
+
+/* ============================================================
+   4. 渲染
+   ============================================================ */
+function renderAll() {
+  renderTabs(); renderBulletin(); renderOverview(); renderFilterBar();
+  renderBatchBar(); renderStudentList(); renderLesson(); renderQueue();
+  renderHwList(); renderMessages(); renderRepMode();
+}
+
+function renderTabs() {
+  document.getElementById("tabs").innerHTML = CLASS_META.map(m => `
+    <button class="tab ${m.key === currentClassKey ? "active" : ""} ${m.special ? "special" : ""}" onclick="switchClass('${m.key}')">
+      <span>${m.short}</span>
+      ${m.badge ? `<span class="badge">${m.badge}</span>` : `<span class="badge">&nbsp;</span>`}
+    </button>`).join("");
+}
+
+/* 公告栏：本周教学任务 + 每日教学任务/作业 */
+function renderBulletin() {
+  const readOnly = isRepresentative;
+  const board = getBoard(currentClassKey);
+  document.getElementById("bulletinTitle").textContent = `教学公告栏 · ${clsShort(currentClassKey)}`;
+  document.getElementById("weekTask").value = board.weekTask || "";
+  document.getElementById("weekTask").disabled = readOnly;
+  document.getElementById("bulletinHint").textContent = readOnly ? "（只读）" : "教学进度 / 作业，含周末与节假日，标注日期与上交时间";
+  document.getElementById("bulletinDays").innerHTML = WEEKDAYS.map(w => {
+    const p = board.days[w.key] || { task: "", hw: "", date: "", due: "" };
+    const weekend = (w.key === "sat" || w.key === "sun");
+    return `<div class="bday ${weekend ? "weekend" : ""}">
+      <div class="bd-label">${w.label}</div>
+      <div class="bd-field"><div class="fl">教学进度</div><input type="text" data-wd="${w.key}" data-f="task" value="${escapeHtml(p.task)}" placeholder="教学内容" ${readOnly ? "disabled" : ""}></div>
+      <div class="bd-field"><div class="fl">作业</div><input type="text" data-wd="${w.key}" data-f="hw" value="${escapeHtml(p.hw)}" placeholder="作业内容" ${readOnly ? "disabled" : ""}></div>
+      <div class="bd-field"><div class="fl">日期</div><input type="text" data-wd="${w.key}" data-f="date" value="${escapeHtml(p.date)}" placeholder="日期" ${readOnly ? "disabled" : ""}></div>
+      <div class="bd-field"><div class="fl">上交时间</div><input type="text" data-wd="${w.key}" data-f="due" value="${escapeHtml(p.due)}" placeholder="如：次日早读前" ${readOnly ? "disabled" : ""}></div>
+    </div>`;
+  }).join("");
+  renderHolidaySection(board, readOnly);
+  document.getElementById("bulletinBody").classList.toggle("hidden", !bulletinOpen);
+  document.getElementById("bulletinToggle").textContent = bulletinOpen ? "收起" : "展开";
+}
+
+/* 节假日作业区 */
+function renderHolidaySection(board, readOnly) {
+  const entries = (board.holidays || []).map(h => `
+    <div class="holiday-entry">
+      <input type="text" data-hid="${h.id}" data-f="name" value="${escapeHtml(h.name)}" placeholder="名称（如国庆假期）" ${readOnly ? "disabled" : ""}>
+      <input type="text" data-hid="${h.id}" data-f="hw" value="${escapeHtml(h.hw)}" placeholder="作业内容" ${readOnly ? "disabled" : ""}>
+      <input type="text" data-hid="${h.id}" data-f="date" value="${escapeHtml(h.date)}" placeholder="日期（如10.1-10.7）" ${readOnly ? "disabled" : ""}>
+      <input type="text" data-hid="${h.id}" data-f="due" value="${escapeHtml(h.due)}" placeholder="上交时间" ${readOnly ? "disabled" : ""}>
+      ${readOnly ? "" : `<button class="holiday-del" onclick="delHoliday('${h.id}')">×</button>`}
+    </div>`).join("");
+  document.getElementById("bulletinHoliday").innerHTML = `
+    <div class="holiday-head">节假日 / 特殊作业</div>
+    ${entries || `<div class="empty-tip" style="margin-bottom:8px">暂无节假日作业</div>`}
+    ${readOnly ? "" : `<button class="add-holiday" onclick="addHoliday()">＋ 添加节假日作业</button>`}`;
+}
+
+function toggleBulletin() { bulletinOpen = !bulletinOpen; renderBulletin(); }
+
+/* 总览：总人数 + 作业收缴六态 + A/B/C 指标（仅教师） */
+function renderOverview() {
+  const students = currentStudents();
+  const total = students.length;
+  const target = state.targets[currentClassKey] || { A: 0, B: 2, C: 8 };
+  const cnt = { A: 0, B: 0, C: 0, D: 0, none: 0 };
+  const hw = { missing: 0, submitted: 0, excellent: 0, late: 0, returned: 0, corrected: 0 };
+  const a = currentAssignment(currentClassKey);
+  students.forEach(s => {
+    cnt[getTier(s.schoolRank)]++;
+    hw[getSub(currentClassKey, a.id, s.name)] = (hw[getSub(currentClassKey, a.id, s.name)] || 0) + 1;
+  });
+
+  let html = `<div class="ov-card"><div class="num">${total}</div><div class="lbl">班级总人数</div></div>`;
+
+  // 作业收缴情况（针对当前作业，显示标题+日期）
+  html += `<div class="hwbar">
+    <div class="hb-title">作业收缴 · ${escapeHtml(a.title)}${a.date ? "（" + a.date + "）" : ""}</div>
+    <div class="hb-chips">
+      <span class="hw-chip submitted"><b>${hw.submitted}</b>已交</span>
+      <span class="hw-chip missing"><b>${hw.missing}</b>未交</span>
+      <span class="hw-chip excellent"><b>${hw.excellent}</b>优秀</span>
+      <span class="hw-chip late"><b>${hw.late}</b>补交</span>
+      <span class="hw-chip returned"><b>${hw.returned}</b>打回重写</span>
+      <span class="hw-chip corrected"><b>${hw.corrected}</b>已订正</span>
+    </div>
+  </div>`;
+
+  if (!isRepresentative) {
+    html += `<div class="ov-card tier-A"><div class="num tA">${cnt.A}<small>/${target.A || 0}</small></div><div class="lbl">A指标 达标/目标</div></div>
+    <div class="ov-card tier-B"><div class="num tB">${cnt.B}<small>/${target.B || 0}</small></div><div class="lbl">B指标 达标/目标</div></div>
+    <div class="ov-card tier-C"><div class="num tC">${cnt.C}<small>/${target.C || 0}</small></div><div class="lbl">C指标 达标/目标</div></div>
+    <div class="ov-card tier-D"><div class="num tD">${cnt.D}</div><div class="lbl">未达指标</div></div>`;
+    const meta = getMeta(currentClassKey);
+    if (meta.special) html += `<div class="special-note">重点班 · A 指标生集中班，红色卡片为 A 指标生，请重点培优。</div>`;
+  }
+  document.getElementById("overview").innerHTML = html;
+}
+
+/* 筛选栏：分层 + 搜索 + 排序 + 批量 */
+function renderFilterBar() {
+  if (isRepresentative) { document.getElementById("filterBar").classList.add("hidden"); return; }
+  document.getElementById("filterBar").classList.remove("hidden");
+  const chips = [
+    { v: "all", label: "全部" }, { v: "A", label: "A指标" }, { v: "B", label: "B指标" },
+    { v: "C", label: "C指标" }, { v: "D", label: "未达线" }, { v: "none", label: "缺考" },
+  ];
+  document.getElementById("filterBar").innerHTML = `
+    ${chips.map(c => `<button class="chip ${filterTier === c.v ? "active" : ""}" onclick="setFilter('${c.v}')">${c.label}</button>`).join("")}
+    <div class="search-box"><input type="text" placeholder="搜索姓名…" value="${escapeHtml(searchQuery)}" oninput="setSearch(this.value)"></div>
+    <select class="sort-select" onchange="setSort(this.value)">${SORT_OPTIONS.map(o => `<option value="${o.v}" ${sortKey === o.v ? "selected" : ""}>${o.label}</option>`).join("")}</select>
+    <button class="chip active" onclick="openStudentManager()">学生管理</button>
+    <button class="batch-toggle ${batchMode ? "on" : ""}" onclick="toggleBatch()">${batchMode ? "退出批量" : "批量操作"}</button>`;
+  document.getElementById("listSortHint").textContent = "按" + SORT_OPTIONS.find(o => o.v === sortKey).label.replace("（默认）", "") + "排序";
+}
+
+function renderBatchBar() {
+  const bar = document.getElementById("batchBar");
+  if (!batchMode || isRepresentative) { bar.classList.add("hidden"); return; }
+  bar.classList.remove("hidden");
+  bar.innerHTML = `
+    <span class="bb-info">已选 <b>${selected.size}</b> 人</span>
+    <button class="act-btn" onclick="batchSelectAll()">全选</button>
+    <button class="act-btn" onclick="batchClearQuestions()">批量清空提问</button>
+    <button class="act-btn" onclick="batchResetHw()">批量重置作业</button>
+    <button class="act-btn" onclick="batchClearNote()">批量清空备注</button>`;
+}
+
+/* ---------- 学生增删改 ---------- */
+let editingStudent = null;   // 正在编辑的学生姓名（null=新增）
+
+/* 学生管理弹窗：列出当前班学生，可编辑/删除/新增 */
+function openStudentManager() {
+  const students = getClassStudents(currentClassKey).slice().sort((a, b) => (a.classRank == null ? 9999 : a.classRank) - (b.classRank == null ? 9999 : b.classRank));
+  const rows = students.map(s => `
+    <div class="rep-row">
+      <span class="rr-rank">${s.classRank != null ? "第" + s.classRank + "名" : "—"}</span>
+      <span class="rr-name">${escapeHtml(s.name)}</span>
+      <span style="font-size:12px;color:var(--text3)">总分${s.totalScore != null ? s.totalScore : "—"} · 物理${s.physics != null ? s.physics : "—"}</span>
+      <div class="rr-btns">
+        <button class="mini-btn" onclick="openStudentForm('${escapeHtml(s.name)}')">编辑</button>
+        <button class="mini-btn" style="color:var(--danger)" onclick="deleteStudent('${escapeHtml(s.name)}')">删除</button>
+      </div>
+    </div>`).join("");
+  openModal(`
+    <div class="modal-head"><h2>学生管理 · ${clsShort(currentClassKey)}</h2><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="empty-tip" style="margin-bottom:10px">共 ${students.length} 人。可新增、编辑或删除学生（删除会同时清理其作业/提问/备注数据）。</div>
+      <button class="btn primary block" onclick="openStudentForm()">＋ 新增学生</button>
+      <div style="height:10px"></div>
+      <div class="rep-list" style="padding:0">${rows}</div>
+      <div class="modal-actions" style="margin-top:12px">
+        <button class="btn ghost" onclick="closeModal()">关闭</button>
+        <button class="btn danger" onclick="resetStudentData()">恢复默认名单</button>
+      </div>
+    </div>`);
+}
+
+/* 新增/编辑学生表单 */
+function openStudentForm(name) {
+  editingStudent = name || null;
+  const s = name ? getClassStudents(currentClassKey).find(x => x.name === name) : null;
+  const v = (f, def) => (s && s[f] != null) ? s[f] : def;
+  openModal(`
+    <div class="modal-head"><h2>${name ? "编辑学生" : "新增学生"} · ${clsShort(currentClassKey)}</h2><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="set-row"><label>姓名（必填）</label><input type="text" id="sfName" value="${escapeHtml(s ? s.name : "")}" placeholder="学生姓名"></div>
+      <div class="set-row"><label>综合总分</label><input type="number" id="sfTotal" value="${v("totalScore", "")}" placeholder="缺考可留空"></div>
+      <div class="set-row"><label>综合校次</label><input type="number" id="sfRank" value="${v("schoolRank", "")}" placeholder="缺考可留空"></div>
+      <div class="set-row"><label>班级名次</label><input type="number" id="sfCRank" value="${v("classRank", "")}" placeholder="可留空"></div>
+      <div class="set-row"><label>物理成绩</label><input type="number" id="sfPhy" value="${v("physics", "")}" placeholder="缺考可留空"></div>
+      <div class="modal-actions">
+        <button class="btn primary" onclick="saveStudent()">保存</button>
+        <button class="btn ghost" onclick="openStudentManager()">返回</button>
+      </div>
+    </div>`);
+}
+
+function saveStudent() {
+  const name = document.getElementById("sfName").value.trim();
+  if (!name) { toast("请填写姓名"); return; }
+  const num = id => { const v = document.getElementById(id).value.trim(); return v === "" ? null : Number(v); };
+  const list = getClassStudents(currentClassKey);
+  if (editingStudent) {
+    const s = list.find(x => x.name === editingStudent);
+    if (!s) { toast("未找到该学生"); return; }
+    const oldName = s.name;
+    // 若改名，需同步迁移运行时数据
+    if (name !== oldName && state.students[currentClassKey] && state.students[currentClassKey][oldName]) {
+      state.students[currentClassKey][name] = state.students[currentClassKey][oldName];
+      delete state.students[currentClassKey][oldName];
+      // 迁移预设名单
+      const roster = getRoster(currentClassKey);
+      roster.forEach(r => { if (r.name === oldName) r.name = name; });
+    }
+    s.name = name; s.totalScore = num("sfTotal"); s.schoolRank = num("sfRank"); s.classRank = num("sfCRank"); s.physics = num("sfPhy");
+  } else {
+    if (list.some(x => x.name === name)) { toast("该班已存在同名学生"); return; }
+    list.push({ name, totalScore: num("sfTotal"), schoolRank: num("sfRank"), classRank: num("sfCRank"), physics: num("sfPhy") });
+  }
+  saveState(); renderAll(); openStudentManager();
+  toast("已保存");
+}
+
+function deleteStudent(name) {
+  if (!confirm(`确定删除 ${name} 吗？其作业/提问/备注数据将一并删除。`)) return;
+  const list = getClassStudents(currentClassKey);
+  const i = list.findIndex(x => x.name === name);
+  if (i >= 0) list.splice(i, 1);
+  if (state.students[currentClassKey]) delete state.students[currentClassKey][name];
+  const roster = getRoster(currentClassKey);
+  const ri = roster.findIndex(r => r.name === name);
+  if (ri >= 0) roster.splice(ri, 1);
+  selected.delete(name);
+  saveState(); renderAll(); openStudentManager();
+  toast(`已删除 ${name}`);
+}
+
+/* 恢复默认学生名单（重新从 Excel 数据生成，覆盖增删改） */
+function resetStudentData() {
+  if (!confirm(`确定恢复 ${clsShort(currentClassKey)} 的默认学生名单吗？将覆盖所有增删改。`)) return;
+  state.studentData[currentClassKey] = (classData[currentClassKey] || []).map(s => Object.assign({}, s));
+  saveState(); renderAll(); openStudentManager();
+  toast("已恢复默认名单");
+}
+
+/* 学生列表（默认按班级总分名次排序） */
+function renderStudentList() {
+  const students = currentStudents();
+  document.getElementById("listTitle").textContent = `${clsShort(currentClassKey)} · ${students.length} 人`;
+
+  const sorted = students.map((s, i) => ({ s, i })).sort((a, b) => {
+    const va = a.s[sortKey], vb = b.s[sortKey];
+    if (va == null && vb == null) return 0;
+    if (va == null) return 1; if (vb == null) return -1;
+    return va - vb;
+  });
+
+  // 课代表模式：只读简表，只显示名次+姓名+作业按钮（针对当前作业）
+  if (isRepresentative) {
+    document.getElementById("studentList").className = "rep-list";
+    document.getElementById("studentList").innerHTML = sorted.map(({ s }) => {
+      const hw = hwOf(s.name);
+      const rank = s.classRank != null ? `第${s.classRank}名` : "—";
+      return `<div class="rep-row">
+        <span class="rr-rank">${rank}</span>
+        <span class="rr-name">${escapeHtml(s.name)}</span>
+        <div class="rr-btns">
+          <button class="${hw === "missing" ? "on-missing" : ""}" onclick="repSetHw('${escapeHtml(s.name)}','missing')">未交</button>
+          <button class="${hw === "submitted" ? "on-submitted" : ""}" onclick="repSetHw('${escapeHtml(s.name)}','submitted')">已交</button>
+          <button class="${hw === "late" ? "on-late" : ""}" onclick="repSetHw('${escapeHtml(s.name)}','late')">补交</button>
+        </div>
+      </div>`;
+    }).join("");
+    return;
+  }
+
+  document.getElementById("studentList").className = "student-list";
+  const list = sorted
+    .map(({ s, i }) => ({ s, i, tier: getTier(s.schoolRank) }))
+    .filter(x => filterTier === "all" || x.tier === filterTier)
+    .filter(x => !searchQuery || x.s.name.includes(searchQuery));
+
+  if (list.length === 0) { document.getElementById("studentList").innerHTML = `<div class="empty-tip">没有匹配的学生</div>`; return; }
+
+  document.getElementById("studentList").innerHTML = list.map(({ s, i, tier }) => {
+    const st = getStudent(currentClassKey, s.name);
+    const hw = hwOf(s.name);
+    const c = qCounts(st.questions);
+    const tierCfg = TIER_CONFIG[tier];
+    const rankText = s.classRank != null ? `${clsShort(currentClassKey)}第${s.classRank}名` : "缺考/未计分";
+    const checked = selected.has(s.name) ? "checked" : "";
+    return `
+    <div class="student-card tier-${tierCfg.cls}" data-idx="${i}">
+      <div class="sc-top">
+        ${batchMode ? `<button class="sc-check ${checked}" onclick="toggleSelect('${escapeHtml(s.name)}')">✓</button>` : ""}
+        <span class="sc-rank">${rankText}</span>
+        <span class="sc-name">${escapeHtml(s.name)}</span>
+        <span class="sc-tier ${tierCfg.cls}">${tierCfg.label}</span>
+      </div>
+      <div class="sc-stats">
+        <div class="sc-stat"><span>综合校次</span><b>${s.schoolRank != null ? s.schoolRank : "—"}</b></div>
+        <div class="sc-stat"><span>物理</span><b>${s.physics != null ? s.physics : "—"}</b></div>
+        <div class="sc-stat"><span>综合总分</span><b>${s.totalScore != null ? s.totalScore : "—"}</b></div>
+      </div>
+      <div class="sc-question">${c.total > 0 ? `<span class="asked">累计提问 ${c.total} 次</span> · 课堂 ${c.classN} · 课下 ${c.officeN} · 本周 ${c.week}` : "尚未提问"}</div>
+      <div class="sc-actions">
+        <button class="hw-btn ${hw}" data-action="hw">${HW_INFO[hw].label}</button>
+        <button class="act-btn ask" data-action="class">课堂提问</button>
+        <button class="act-btn" data-action="office">课下答疑</button>
+        <button class="act-btn" data-action="note">备注</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+/* 本节课提问：预设名单（待确认）+ 今日已记录（带标题/日期） */
+function renderLesson() {
+  const roster = getRoster(currentClassKey);
+  document.getElementById("lessonCount").textContent = `待确认 ${roster.length} 人`;
+  const titleEl = document.getElementById("lessonTitle");
+  if (titleEl && document.activeElement !== titleEl) titleEl.value = state.rosterTitle[currentClassKey] || "";
+
+  // 待确认预设名单（可编辑问题/回答，可移除）
+  document.getElementById("rosterList").innerHTML = roster.map((r, ri) => {
+    const s = currentStudents().find(x => x.name === r.name);
+    const tier = s ? getTier(s.schoolRank) : "none";
+    return `<div class="roster-item">
+      <span class="lq-tier ${tier}">${shortTier(tier)}</span>
+      <div class="lq-body">
+        <div class="lq-name">${escapeHtml(r.name)}</div>
+        <input type="text" class="roster-in" data-ri="${ri}" data-f="q" placeholder="预设问题" value="${escapeHtml(r.q)}">
+        <input type="text" class="roster-in" data-ri="${ri}" data-f="a" placeholder="回答情况（课后填）" value="${escapeHtml(r.a)}">
+      </div>
+      <button class="roster-del" onclick="removeRoster(${ri})">×</button>
+    </div>`;
+  }).join("") || `<div class="empty-tip">尚未预设人选，点「手动分层选人」或「智能推荐」添加。</div>`;
+
+  // 今日已记录（已确认写入个人卡片的课堂提问）
+  const today = todayStart();
+  const items = [];
+  currentStudents().forEach(s => {
+    const st = getStudent(currentClassKey, s.name);
+    st.questions.forEach((q, qi) => { if (q.type === "class" && (q.ts || 0) >= today) items.push({ s, qi, q }); });
+  });
+  items.sort((a, b) => (a.q.ts || 0) - (b.q.ts || 0));
+  document.getElementById("lessonList").innerHTML = items.map(it => {
+    const tier = getTier(it.s.schoolRank);
+    return `<div class="lesson-q-item">
+      <span class="lq-tier ${tier}">${shortTier(tier)}</span>
+      <div class="lq-body">
+        <div class="lq-name">${escapeHtml(it.s.name)} <span style="font-size:11px;color:var(--text3)">${it.q.title ? escapeHtml(it.q.title) + " · " : ""}${dateStr(it.q.ts)}</span></div>
+        <div class="lq-q">${escapeHtml(it.q.q || "（无内容）")}${it.q.a ? `<span style="color:var(--text3)"> · 答：${escapeHtml(it.q.a)}</span>` : ""}</div>
+      </div>
+      <button class="roster-del" onclick="delLessonQ('${escapeHtml(it.s.name)}',${it.qi})">×</button>
+    </div>`;
+  }).join("") || `<div class="empty-tip">今日尚无已记录提问</div>`;
+}
+
+/* 队列：补差优先，显示累计提问次数，可点「＋」加入本节课 */
+function renderQueue() {
+  const order = { D: 0, C: 1, B: 2, A: 3 };
+  const q = currentStudents()
+    .filter(s => s.schoolRank != null && s.schoolRank > 0)
+    .map(s => ({ s, tier: getTier(s.schoolRank), count: getStudent(currentClassKey, s.name).questions.length }))
+    .sort((a, b) => order[a.tier] - order[b.tier] || a.count - b.count || (a.s.classRank || 999) - (b.s.classRank || 999));
+  document.getElementById("queueList").innerHTML = q.slice(0, 12).map(x => `
+    <div class="queue-item">
+      <span class="qi-tier ${x.tier}">${shortTier(x.tier)}</span>
+      <span class="qi-name">${escapeHtml(x.s.name)}</span>
+      <span class="qi-count">累计 ${x.count} 次</span>
+      <button class="qi-add" onclick="addToRoster('${escapeHtml(x.s.name)}')">＋</button>
+    </div>`).join("") || `<div class="empty-tip">暂无队列</div>`;
+}
+
+/* 作业收缴：作业选择 + 当前作业名单 + 历史作业汇总 */
+function renderHwList() {
+  const students = currentStudents();
+  const a = currentAssignment(currentClassKey);
+  const list = getAssignments(currentClassKey).slice().sort((x, y) => (y.id || 0) - (x.id || 0));
+
+  // 作业选择栏
+  const opts = list.map(x => `<option value="${x.id}" ${String(x.id) === String(a.id) ? "selected" : ""}>${escapeHtml(x.title)}${x.date ? "（" + x.date + "）" : ""}</option>`).join("");
+  document.getElementById("hwAssignBar").innerHTML = `
+    <select class="sort-select" style="width:100%;margin-bottom:8px" onchange="switchAssignment(this.value)">${opts}</select>
+    ${isRepresentative ? "" : `<div class="modal-actions" style="margin-bottom:8px"><button class="mini-btn" onclick="openNewAssignment()">＋ 新建作业</button><button class="mini-btn" style="color:var(--danger)" onclick="deleteAssignment('${a.id}')">删除本作业</button></div>`}
+    <div class="empty-tip" style="margin-bottom:6px">${a.due ? "上交时间：" + escapeHtml(a.due) : "可新建作业，填写标题 / 日期 / 上交时间"}</div>`;
+
+  // 当前作业收缴名单
+  const groups = { missing: [], late: [], returned: [], submitted: [], excellent: [], corrected: [] };
+  students.forEach(s => { const st = getSub(currentClassKey, a.id, s.name); (groups[st] = groups[st] || []).push(s.name); });
+  const mk = (arr, cls, label) => arr.length
+    ? `<div style="margin-bottom:4px;font-size:12px;color:var(--text2);font-weight:700">${label}（${arr.length}人）</div><div class="missing-list">${arr.map(n => `<span class="missing-tag ${cls}">${escapeHtml(n)}</span>`).join("")}</div>`
+    : "";
+  document.getElementById("hwListBox").innerHTML =
+    (mk(groups.missing, "missing", "未交") + mk(groups.returned, "returned", "打回重写") + mk(groups.late, "late", "补交"))
+    || `<div class="empty-tip">本作业已全部收齐</div>`;
+
+  renderHwHistory();
+}
+
+/* 历史作业汇总：每份作业显示已交/未交等汇总，点击切换查看 */
+function renderHwHistory() {
+  const students = currentStudents();
+  const list = getAssignments(currentClassKey).slice().sort((x, y) => (y.id || 0) - (x.id || 0));
+  const cur = currentAssignment(currentClassKey);
+  const rows = list.map(x => {
+    const c = { submitted: 0, missing: 0, late: 0, returned: 0, excellent: 0, corrected: 0 };
+    students.forEach(s => { const st = getSub(currentClassKey, x.id, s.name); c[st] = (c[st] || 0) + 1; });
+    return `<div class="hw-hist-item ${String(x.id) === String(cur.id) ? "active" : ""}" onclick="switchAssignment('${x.id}')">
+      <div class="hh-top"><b>${escapeHtml(x.title)}</b>${x.date ? `<span class="hh-date">${escapeHtml(x.date)}</span>` : ""}</div>
+      <div class="hh-stats">已交${c.submitted} · 未交${c.missing} · 优秀${c.excellent} · 补交${c.late} · 打回${c.returned} · 订正${c.corrected}</div>
+    </div>`;
+  }).join("");
+  document.getElementById("hwHistory").innerHTML = list.length
+    ? `<div style="margin:14px 0 4px;font-weight:700;font-size:13px">历史作业（点击切换查看）</div>${rows}`
+    : "";
+}
+
+function switchAssignment(id) {
+  state.currentAssignment[currentClassKey] = id;
+  saveState(); renderOverview(); renderStudentList(); renderHwList();
+}
+function openNewAssignment() {
+  openModal(`
+    <div class="modal-head"><h2>新建作业 · ${clsShort(currentClassKey)}</h2><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="set-row"><label>作业标题（必填）</label><input type="text" id="naTitle" placeholder="如：《内能》练习册P10-12"></div>
+      <div class="set-row"><label>日期</label><input type="text" id="naDate" value="${new Date().toLocaleDateString("zh-CN")}" placeholder="如 8/18"></div>
+      <div class="set-row"><label>上交时间</label><input type="text" id="naDue" placeholder="如：次日早读前"></div>
+      <div class="modal-actions"><button class="btn primary" onclick="saveNewAssignment()">创建</button><button class="btn ghost" onclick="closeModal()">取消</button></div>
+    </div>`);
+}
+function saveNewAssignment() {
+  const title = document.getElementById("naTitle").value.trim();
+  if (!title) { toast("请填写作业标题"); return; }
+  const date = document.getElementById("naDate").value.trim();
+  const due = document.getElementById("naDue").value.trim();
+  const a = { id: Date.now(), title, date, due };
+  getAssignments(currentClassKey).push(a);
+  state.currentAssignment[currentClassKey] = a.id;
+  saveState(); closeModal(); renderOverview(); renderStudentList(); renderHwList();
+  toast("已创建作业：" + title);
+}
+function deleteAssignment(id) {
+  const a = getAssignments(currentClassKey).find(x => String(x.id) === String(id));
+  if (!a) return;
+  if (!confirm(`确定删除作业「${a.title}」及其收缴记录吗？`)) return;
+  state.assignments[currentClassKey] = state.assignments[currentClassKey].filter(x => String(x.id) !== String(id));
+  if (state.submissions[currentClassKey]) delete state.submissions[currentClassKey][String(id)];
+  if (String(state.currentAssignment[currentClassKey]) === String(id)) state.currentAssignment[currentClassKey] = null;
+  saveState(); renderOverview(); renderStudentList(); renderHwList();
+  toast("已删除作业");
+}
+
+/* 留言板 */
+function renderMessages() {
+  const teacherMsgs = state.messages.teacher || [];
+  const repMsgs = state.messages.rep || [];
+  const mkBox = (arr, canDel) => arr.map((m, i) => `
+    <div class="msg-box"><div class="mb-head"><span>${dateStr(m.ts)}</span>${canDel ? `<button class="mb-del" onclick="delMessage('teacher',${i})">删除</button>` : ""}</div><div class="mb-text">${escapeHtml(m.text)}</div></div>`).join("");
+
+  // 教师留言（老师写，课代表看）
+  const teacherWrite = !isRepresentative;
+  let html = `<div style="font-weight:700;font-size:14px;margin-bottom:8px">教师留言 <span style="color:var(--text3);font-weight:400;font-size:12px">（${teacherWrite ? "可编辑" : "课代表可见"}）</span></div>`;
+  html += teacherMsgs.length ? mkBox(teacherMsgs, teacherWrite) : `<div class="empty-tip">暂无教师留言</div>`;
+  if (teacherWrite) html += `<div class="msg-add"><input id="tMsgInput" placeholder="给课代表 / 全班的留言…"><button onclick="addMessage('teacher')">发送</button></div>`;
+
+  html += `<div style="font-weight:700;font-size:14px;margin:16px 0 8px">课代表留言 <span style="color:var(--text3);font-weight:400;font-size:12px">（${!teacherWrite ? "可编辑" : "老师可见"}）</span></div>`;
+  html += repMsgs.length ? mkBox(repMsgs, !teacherWrite) : `<div class="empty-tip">暂无课代表留言</div>`;
+  if (!teacherWrite) html += `<div class="msg-add"><input id="rMsgInput" placeholder="向老师留言…"><button onclick="addMessage('rep')">发送</button></div>`;
+
+  document.getElementById("messagePanel").innerHTML = html;
+}
+
+function renderRepMode() {
+  document.getElementById("repSwitch").classList.toggle("on", isRepresentative);
+  document.getElementById("repBanner").classList.toggle("show", isRepresentative);
+  // 课代表隐藏：提问/队列/成绩指标/数据管理/导出导入/设置
+  document.getElementById("lessonPanel").classList.toggle("hidden", isRepresentative);
+  document.getElementById("queuePanel").classList.toggle("hidden", isRepresentative);
+  document.getElementById("btnManage").classList.toggle("hidden", isRepresentative);
+  document.getElementById("btnExport").classList.toggle("hidden", isRepresentative);
+  document.getElementById("btnImport").classList.toggle("hidden", isRepresentative);
+  document.getElementById("btnSettings").classList.toggle("hidden", isRepresentative);
+}
+
+/* ============================================================
+   5. 交互
+   ============================================================ */
+function switchClass(key) {
+  currentClassKey = key; filterTier = "all"; searchQuery = ""; batchMode = false; selected.clear();
+  renderAll();
+}
+function setFilter(v) { filterTier = v; renderStudentList(); }
+function setSearch(v) { searchQuery = v; renderStudentList(); }
+function setSort(v) { sortKey = v; renderFilterBar(); renderStudentList(); }
+function toggleRepresentative() { isRepresentative = !isRepresentative; batchMode = false; selected.clear(); renderAll(); }
+function toggleBatch() { batchMode = !batchMode; selected.clear(); renderFilterBar(); renderBatchBar(); renderStudentList(); }
+function toggleSelect(name) { selected.has(name) ? selected.delete(name) : selected.add(name); renderBatchBar(); renderStudentList(); }
+function batchSelectAll() {
+  const names = currentStudents().map(s => s.name);
+  if (selected.size === names.length) selected.clear(); else names.forEach(n => selected.add(n));
+  renderBatchBar(); renderStudentList();
+}
+
+/* 学生卡片点击（事件委托） */
+document.getElementById("studentList").addEventListener("click", e => {
+  if (isRepresentative) return;
+  const btn = e.target.closest("[data-action]");
+  if (!btn) return;
+  const card = btn.closest("[data-idx]"); if (!card) return;
+  const idx = Number(card.dataset.idx);
+  const action = btn.dataset.action;
+  if (action === "hw") openHwModal(idx);
+  else if (action === "class") openQuestionModal(idx, "class");
+  else if (action === "office") openQuestionModal(idx, "office");
+  else if (action === "note") openNoteModal(idx);
+});
+
+/* 作业状态（教师六态 / 课代表三态），针对当前作业 */
+function openHwModal(idx) {
+  const s = currentStudents()[idx];
+  const a = currentAssignment(currentClassKey);
+  const cur = getSub(currentClassKey, a.id, s.name);
+  openModal(`
+    <div class="modal-head"><h2>${escapeHtml(s.name)} · 作业状态</h2><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="empty-tip" style="margin-bottom:8px">作业：${escapeHtml(a.title)}${a.date ? "（" + a.date + "）" : ""}</div>
+      <div class="empty-tip" style="margin-bottom:12px">当前：<b>${HW_INFO[cur].label}</b></div>
+      <div class="hw-options">
+        ${Object.keys(HW_INFO).map(k => `<button class="hw-opt" style="color:${hwColor(k)};background:${hwBg(k)};border-color:${hwLine(k)}" onclick="applyHw('${escapeHtml(s.name)}','${k}')">${HW_INFO[k].label}<span class="ho-sub">${HW_INFO[k].sub}</span></button>`).join("")}
+      </div>
+    </div>`);
+}
+function hwColor(k) { return { missing: "#d03b3b", submitted: "#1f9d55", excellent: "#d9700c", late: "#6d5bd0", returned: "#b54708", corrected: "#0f7b6c" }[k]; }
+function hwBg(k) { return { missing: "#fff0f0", submitted: "#e8f6ee", excellent: "#fdf0e6", late: "#f1eefd", returned: "#fdebe0", corrected: "#e2f3ef" }[k]; }
+function hwLine(k) { return { missing: "#f3c3c3", submitted: "#b9e2ca", excellent: "#f5d0a4", late: "#d2c9f5", returned: "#f4c6a8", corrected: "#b5ddd4" }[k]; }
+function applyHw(name, val) {
+  const a = currentAssignment(currentClassKey);
+  setSub(currentClassKey, a.id, name, val);
+  saveState(); closeModal(); renderStudentList(); renderOverview(); renderHwList();
+  toast(`${name} 已标记为「${HW_INFO[val].label}」`);
+}
+function repSetHw(name, val) {
+  applyHw(name, val);   // 课代表快速标记
+}
+
+/* 提问 / 答疑弹窗 */
+function openQuestionModal(idx, type) {
+  const s = currentStudents()[idx];
+  const st = getStudent(currentClassKey, s.name);
+  const title = type === "class" ? "课堂提问" : "课下答疑";
+  const items = st.questions.map((q, qi) => ({ q, qi })).filter(x => x.q.type === type);
+  const c = qCounts(st.questions);
+  const list = items.map(({ q, qi }) => `
+    <div class="q-item">
+      <div class="qi-head"><span class="qi-type ${q.type}">${q.type === "class" ? "课堂提问" : "课下答疑"}</span><span>${q.title ? escapeHtml(q.title) + " · " : ""}${dateStr(q.ts)}</span><button class="qi-del" onclick="delQuestion('${escapeHtml(s.name)}',${qi},'${type}')">删除</button></div>
+      <div class="qi-q">问：${escapeHtml(q.q || "（未填）")}</div>
+      ${q.a ? `<div class="qi-a">答：${escapeHtml(q.a)}</div>` : ""}
+    </div>`).join("");
+  openModal(`
+    <div class="modal-head"><h2>${escapeHtml(s.name)} · ${title}</h2><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="q-summary">累计提问 ${c.total} 次（课堂 ${c.classN} · 课下 ${c.officeN}）· 本周 ${c.week} · 今日 ${c.today}</div>
+      <div class="q-list">${list || `<div class="empty-tip">暂无记录</div>`}</div>
+      <div class="q-add">
+        <input type="text" id="qInput" placeholder="${type === "class" ? "提问的问题，如：内能的概念？" : "课下问的问题，如：做功的计算"}">
+        <input type="text" id="aInput" placeholder="回答情况，如：正确 / 需再巩固">
+        <button class="btn primary" onclick="addQuestion('${escapeHtml(s.name)}','${type}')">记录</button>
+      </div>
+      <div class="modal-actions">
+        <button class="btn danger" onclick="clearStudentQuestions('${escapeHtml(s.name)}','${type}')">清空该生全部${title}</button>
+      </div>
+    </div>`);
+}
+function addQuestion(name, type) {
+  const st = getStudent(currentClassKey, name);
+  const q = document.getElementById("qInput").value.trim();
+  const a = document.getElementById("aInput").value.trim();
+  if (!q && !a) { toast("请至少填写问题或回答情况"); return; }
+  const title = type === "class" ? (state.rosterTitle[currentClassKey] || "") : "";
+  st.questions.push({ ts: Date.now(), type, q, a, title });
+  saveState(); renderStudentList(); renderQueue(); renderLesson();
+  toast(`已记录 ${name} 的${type === "class" ? "课堂提问" : "课下答疑"}`);
+  const idx = currentStudents().findIndex(s => s.name === name);
+  openQuestionModal(idx, type);
+}
+function delQuestion(name, qi, type) {
+  const st = getStudent(currentClassKey, name);
+  st.questions.splice(qi, 1);
+  saveState(); renderStudentList(); renderQueue(); renderLesson();
+  const idx = currentStudents().findIndex(s => s.name === name);
+  openQuestionModal(idx, type || "class");  // 重新打开并保持原视图
+  toast("已删除该条记录");
+}
+function clearStudentQuestions(name, type) {
+  if (!confirm(`确定清空 ${name} 的全部${type === "class" ? "课堂提问" : "课下答疑"}记录吗？`)) return;
+  const st = getStudent(currentClassKey, name);
+  st.questions = st.questions.filter(q => q.type !== type);
+  saveState(); closeModal(); renderStudentList(); renderQueue(); renderLesson();
+  toast(`已清空 ${name} 的${type === "class" ? "课堂提问" : "课下答疑"}记录`);
+}
+
+/* 备注 */
+function openNoteModal(idx) {
+  const s = currentStudents()[idx];
+  const st = getStudent(currentClassKey, s.name);
+  openModal(`
+    <div class="modal-head"><h2>${escapeHtml(s.name)} · 备注</h2><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="q-add"><textarea id="noteInput" placeholder="课上表现、课下答疑等…">${escapeHtml(st.note)}</textarea>
+      <button class="btn primary" onclick="saveNote('${escapeHtml(s.name)}')">保存备注</button></div>
+    </div>`);
+}
+function saveNote(name) {
+  getStudent(currentClassKey, name).note = document.getElementById("noteInput").value.trim();
+  saveState(); closeModal(); toast(`已保存 ${name} 的备注`);
+}
+
+/* 删除今日已记录的课堂提问 */
+function delLessonQ(name, qi) {
+  const st = getStudent(currentClassKey, name);
+  st.questions.splice(qi, 1);
+  saveState(); renderLesson(); renderStudentList(); renderQueue();
+  toast("已删除本条课堂提问");
+}
+
+/* 下一个提问（智能推荐）：按分层补差优先，加入本节课预设名单 */
+function nextQuestion() {
+  const order = { D: 0, C: 1, B: 2, A: 3 };
+  const roster = getRoster(currentClassKey);
+  const q = currentStudents()
+    .filter(s => s.schoolRank != null && s.schoolRank > 0)
+    .map(s => ({ s, tier: getTier(s.schoolRank), count: getStudent(currentClassKey, s.name).questions.length }))
+    .sort((a, b) => order[a.tier] - order[b.tier] || a.count - b.count || (a.s.classRank || 999) - (b.s.classRank || 999));
+  const pick = q.find(x => !roster.some(r => r.name === x.s.name));
+  if (!pick) { toast("所有学生均已加入名单"); return; }
+  roster.push({ name: pick.s.name, q: "", a: "" });
+  saveState(); renderLesson(); renderQueue();
+  toast(`已加入：${pick.s.name}（${shortTier(pick.tier)}）`);
+}
+
+/* 加入本节课名单 */
+function addToRoster(name) {
+  const roster = getRoster(currentClassKey);
+  if (roster.some(r => r.name === name)) { toast(`${name} 已在名单中`); return; }
+  roster.push({ name, q: "", a: "" });
+  saveState(); renderLesson(); renderQueue();
+  toast(`已加入：${name}`);
+}
+function removeRoster(ri) { getRoster(currentClassKey).splice(ri, 1); saveState(); renderLesson(); }
+
+/* 确认记录：把预设名单写入个人卡片（累计提问次数 + 问题内容 + 标题/日期） */
+function confirmRoster() {
+  const roster = getRoster(currentClassKey);
+  if (!roster.length) { toast("暂无待确认的提问人选"); return; }
+  const title = (document.getElementById("lessonTitle").value || "").trim();
+  state.rosterTitle[currentClassKey] = title;
+  let n = 0;
+  roster.forEach(r => {
+    const st = getStudent(currentClassKey, r.name);
+    st.questions.push({ ts: Date.now(), type: "class", q: r.q || "", a: r.a || "", title });
+    n++;
+  });
+  roster.length = 0;
+  saveState(); renderLesson(); renderQueue(); renderStudentList();
+  toast(`已记录 ${n} 名学生的课堂提问到个人卡片`);
+}
+function saveLessonTitle(v) { state.rosterTitle[currentClassKey] = v; saveState(); }
+
+/* 手动分层选人 */
+function openPicker() {
+  const roster = getRoster(currentClassKey);
+  const inRoster = new Set(roster.map(r => r.name));
+  const groups = { A: [], B: [], C: [], D: [], none: [] };
+  currentStudents().forEach(s => {
+    const tier = getTier(s.schoolRank);
+    const st = getStudent(currentClassKey, s.name);
+    groups[tier].push({ name: s.name, count: st.questions.length });
+  });
+  const gLabels = { A: "A指标（拔高）", B: "B指标（中间）", C: "C指标（基础）", D: "未达线（补差）", none: "缺考/未计分" };
+  let html = "";
+  ["A", "B", "C", "D", "none"].forEach(t => {
+    if (!groups[t].length) return;
+    const rows = groups[t].map(g => `<button class="picker-item ${inRoster.has(g.name) ? "added" : ""}" onclick="togglePicker('${escapeHtml(g.name)}')"><span class="pi-name">${escapeHtml(g.name)}</span><span class="pi-count">累计 ${g.count} 次</span></button>`).join("");
+    html += `<div class="picker-group"><div class="pg-label ${t}">${gLabels[t]}</div><div class="pg-items">${rows}</div></div>`;
+  });
+  openModal(`
+    <div class="modal-head"><h2>手动分层选人</h2><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="empty-tip" style="margin-bottom:10px">点击学生可加入/移出本节课预设名单，已加入的标蓝。</div>
+      ${html}
+      <div class="modal-actions"><button class="btn primary" onclick="closeModal()">完成</button></div>
+    </div>`);
+}
+function togglePicker(name) {
+  const roster = getRoster(currentClassKey);
+  const i = roster.findIndex(r => r.name === name);
+  if (i >= 0) roster.splice(i, 1); else roster.push({ name, q: "", a: "" });
+  saveState(); renderLesson(); openPicker();
+}
+
+/* 公告栏保存（按班级） */
+function saveWeekTask(v) { getBoard(currentClassKey).weekTask = v; saveState(); }
+document.getElementById("bulletinDays").addEventListener("change", e => {
+  const inp = e.target.closest("input[data-wd]");
+  if (!inp) return;
+  const board = getBoard(currentClassKey);
+  const wd = inp.dataset.wd, f = inp.dataset.f;
+  if (!board.days[wd]) board.days[wd] = { task: "", hw: "", date: "", due: "" };
+  board.days[wd][f] = inp.value;
+  saveState();
+});
+document.getElementById("bulletinHoliday").addEventListener("change", e => {
+  const inp = e.target.closest("input[data-hid]");
+  if (!inp) return;
+  const board = getBoard(currentClassKey);
+  const h = board.holidays.find(x => String(x.id) === inp.dataset.hid);
+  if (h) { h[inp.dataset.f] = inp.value; saveState(); }
+});
+document.getElementById("rosterList").addEventListener("input", e => {
+  const inp = e.target.closest("input[data-ri]");
+  if (!inp) return;
+  const roster = getRoster(currentClassKey);
+  const r = roster[Number(inp.dataset.ri)];
+  if (r) { r[inp.dataset.f] = inp.value; saveState(); }
+});
+function addHoliday() {
+  const board = getBoard(currentClassKey);
+  board.holidays = board.holidays || [];
+  board.holidays.push({ id: Date.now(), name: "", hw: "", date: "", due: "" });
+  saveState(); renderBulletin();
+}
+function delHoliday(id) {
+  const board = getBoard(currentClassKey);
+  board.holidays = board.holidays.filter(h => String(h.id) !== String(id));
+  saveState(); renderBulletin();
+}
+
+/* 留言 */
+function addMessage(board) {
+  const inputId = board === "teacher" ? "tMsgInput" : "rMsgInput";
+  const v = document.getElementById(inputId).value.trim();
+  if (!v) { toast("请输入留言内容"); return; }
+  state.messages[board] = state.messages[board] || [];
+  state.messages[board].push({ ts: Date.now(), text: v });
+  saveState(); renderMessages(); toast("留言已发送");
+}
+function delMessage(board, i) {
+  state.messages[board].splice(i, 1);
+  saveState(); renderMessages(); toast("留言已删除");
+}
+
+/* 生成今日反馈（针对当前作业：标题 + 日期 + 名单） */
+function generateFeedback() {
+  const students = currentStudents();
+  const a = currentAssignment(currentClassKey);
+  const groups = { missing: [], late: [], returned: [] };
+  students.forEach(s => { const st = getSub(currentClassKey, a.id, s.name); if (groups[st]) groups[st].push(s.name); });
+  let text = `${clsShort(currentClassKey)} 作业反馈 · ${a.title}${a.date ? "（" + a.date + "）" : ""}\n`;
+  if (a.due) text += `上交时间：${a.due}\n`;
+  if (!groups.missing.length && !groups.returned.length && !groups.late.length) text += "本作业已全部收齐！";
+  else {
+    if (groups.missing.length) text += `未交（${groups.missing.length}人）：${groups.missing.join("、")}\n`;
+    if (groups.returned.length) text += `打回重写（${groups.returned.length}人）：${groups.returned.join("、")}\n`;
+    if (groups.late.length) text += `补交（${groups.late.length}人）：${groups.late.join("、")}\n`;
+    text += "请课代表跟进催收。";
+  }
+  openModal(`
+    <div class="modal-head"><h2>作业反馈</h2><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="feedback-text" id="feedbackText">${escapeHtml(text)}</div>
+      <div class="modal-actions" style="margin-top:12px"><button class="btn primary" onclick="copyFeedback()">复制文本</button><button class="btn ghost" onclick="closeModal()">关闭</button></div>
+    </div>`);
+}
+function copyFeedback() {
+  const t = document.getElementById("feedbackText").textContent;
+  const done = () => toast("已复制，可发给课代表或投屏");
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done).catch(() => { fallbackCopy(t); done(); });
+  else { fallbackCopy(t); done(); }
+}
+function fallbackCopy(text) { const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); } catch (e) {} document.body.removeChild(ta); }
+
+/* ============================================================
+   6. 数据管理 / 批量 / 设置 / 导入导出
+   ============================================================ */
+function openDataManage() {
+  const c = qCounts(currentStudents().flatMap(s => getStudent(currentClassKey, s.name).questions));
+  openModal(`
+    <div class="modal-head"><h2>数据管理 · ${clsShort(currentClassKey)}</h2><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="dm-item"><div class="dm-txt">重置当前作业收缴<small>当前作业全班状态回到「未交」</small></div><button class="btn ghost" onclick="resetTodayHw()">重置</button></div>
+      <div class="dm-item"><div class="dm-txt">清空本班今日课堂提问<small>今日已提问 ${c.today} 条，删除后不恢复</small></div><button class="btn ghost" onclick="resetTodayClassQ()">清空</button></div>
+      <div class="dm-item"><div class="dm-txt">清空本班今日课下答疑<small>仅删除今天的课下答疑记录</small></div><button class="btn ghost" onclick="resetTodayOfficeQ()">清空</button></div>
+      <div class="dm-item"><div class="dm-txt">清空本班预设提问名单<small>尚未确认记录的本节课人选</small></div><button class="btn ghost" onclick="clearRoster()">清空</button></div>
+      <div class="dm-item"><div class="dm-txt">清空本班全部作业收缴<small>所有作业、所有学生的收缴状态清空</small></div><button class="btn ghost" onclick="resetAllHw()">清空</button></div>
+      <div class="dm-item"><div class="dm-txt">清空本班教学公告栏<small>本周教学进度 + 每日/节假日作业内容</small></div><button class="btn ghost" onclick="clearBoard()">清空</button></div>
+      <hr style="border:none;border-top:1px solid var(--border);margin:12px 0">
+      <div class="dm-item"><div class="dm-txt">清空本班全部提问记录<small>课堂+课下，累计提问次数归零</small></div><button class="btn danger" onclick="clearClassQuestions()">清空</button></div>
+      <div class="dm-item"><div class="dm-txt">清空全部班级数据<small>所有班级的作业/提问/备注/留言/公告，不可恢复</small></div><button class="btn danger" onclick="resetAll()">全部清空</button></div>
+    </div>`);
+}
+function resetTodayHw() {
+  const a = currentAssignment(currentClassKey);
+  if (state.submissions[currentClassKey]) delete state.submissions[currentClassKey][a.id];
+  saveState(); renderStudentList(); renderOverview(); renderHwList(); closeModal(); toast("当前作业已重置为未交");
+}
+function resetTodayClassQ() {
+  const t0 = todayStart();
+  currentStudents().forEach(s => { const st = getStudent(currentClassKey, s.name); st.questions = st.questions.filter(q => !(q.type === "class" && (q.ts || 0) >= t0)); });
+  saveState(); renderStudentList(); renderQueue(); renderLesson(); closeModal(); toast("今日课堂提问已清空");
+}
+function resetTodayOfficeQ() {
+  const t0 = todayStart();
+  currentStudents().forEach(s => { const st = getStudent(currentClassKey, s.name); st.questions = st.questions.filter(q => !(q.type === "office" && (q.ts || 0) >= t0)); });
+  saveState(); renderStudentList(); renderQueue(); closeModal(); toast("今日课下答疑已清空");
+}
+function resetAllHw() {
+  state.submissions[currentClassKey] = {};
+  saveState(); renderStudentList(); renderOverview(); renderHwList(); closeModal(); toast("本班全部作业收缴记录已清空");
+}
+function clearClassQuestions() {
+  if (!confirm(`确定清空 ${clsShort(currentClassKey)} 全部提问记录吗？`)) return;
+  currentStudents().forEach(s => { getStudent(currentClassKey, s.name).questions = []; });
+  saveState(); renderStudentList(); renderQueue(); renderLesson(); closeModal(); toast("本班提问记录已清空");
+}
+function clearRoster() {
+  getRoster(currentClassKey).length = 0;
+  saveState(); renderLesson(); closeModal(); toast("预设提问名单已清空");
+}
+function clearBoard() {
+  state.boards[currentClassKey] = defaultBoard();
+  saveState(); renderBulletin(); closeModal(); toast("本班教学公告栏已清空");
+}
+
+/* 批量操作 */
+function batchClearQuestions() {
+  if (!selected.size) { toast("请先勾选学生"); return; }
+  if (!confirm(`确定清空已选 ${selected.size} 名学生的全部提问记录吗？`)) return;
+  selected.forEach(n => { getStudent(currentClassKey, n).questions = []; });
+  saveState(); selected.clear(); renderBatchBar(); renderStudentList(); renderQueue(); renderLesson(); toast("已批量清空提问记录");
+}
+function batchResetHw() {
+  if (!selected.size) { toast("请先勾选学生"); return; }
+  const a = currentAssignment(currentClassKey);
+  selected.forEach(n => { setSub(currentClassKey, a.id, n, "missing"); });
+  saveState(); renderStudentList(); renderOverview(); renderHwList(); toast("已批量重置作业");
+}
+function batchClearNote() {
+  if (!selected.size) { toast("请先勾选学生"); return; }
+  selected.forEach(n => { getStudent(currentClassKey, n).note = ""; });
+  saveState(); toast("已批量清空备注");
+}
+
+/* 设置 */
+function openSettings() {
+  const rows = CLASS_META.map(m => {
+    const t = state.targets[m.key] || { A: 0, B: 2, C: 8 };
+    return `<div class="set-row"><label>${m.short}${m.badge ? "（" + m.badge + "）" : ""} A/B/C 指标目标</label>
+      <div class="triple"><input type="number" min="0" data-cls="${m.key}" data-t="A" value="${t.A}"><input type="number" min="0" data-cls="${m.key}" data-t="B" value="${t.B}"><input type="number" min="0" data-cls="${m.key}" data-t="C" value="${t.C}"></div></div>`;
+  }).join("");
+  openModal(`
+    <div class="modal-head"><h2>设置 · 指标目标</h2><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="empty-tip" style="margin-bottom:10px">三列依次为 A / B / C 指标目标人数（显示为「达标/目标」）。</div>
+      ${rows}
+      <div class="modal-actions"><button class="btn primary" onclick="saveSettings()">保存</button><button class="btn ghost" onclick="closeModal()">取消</button></div>
+    </div>`);
+}
+function saveSettings() {
+  document.querySelectorAll("#modalBox input[data-cls]").forEach(inp => {
+    const cls = inp.dataset.cls, t = inp.dataset.t;
+    if (!state.targets[cls]) state.targets[cls] = { A: 0, B: 0, C: 0 };
+    state.targets[cls][t] = Math.max(0, parseInt(inp.value || "0", 10));
+  });
+  saveState(); closeModal(); renderOverview(); toast("指标目标已保存");
+}
+function resetAll() {
+  if (!confirm("确定清空全部班级的所有数据（作业/提问/备注/留言/公告）吗？此操作不可撤销。")) return;
+  state = defaultState(); saveState(); closeModal(); renderAll(); toast("已清空全部数据");
+}
+
+/* 导出 / 导入 */
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  const d = new Date(); const p = n => String(n).padStart(2, "0");
+  a.href = URL.createObjectURL(blob);
+  a.download = `物理教学工作台备份_${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(a.href);
+  toast("已导出备份文件");
+}
+function importData(evt) {
+  const file = evt.target.files && evt.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const obj = JSON.parse(reader.result);
+      if (!obj || typeof obj !== "object" || !obj.students) throw new Error("格式不符");
+      state = deepMerge(defaultState(), obj);
+      saveState(); renderAll(); toast("导入成功");
+    } catch (e) { toast("导入失败：文件格式不正确"); }
+  };
+  reader.readAsText(file); evt.target.value = "";
+}
+
+/* ============================================================
+   7. 弹窗通用 + 初始化
+   ============================================================ */
+const modalMask = document.getElementById("modalMask");
+const modalBox = document.getElementById("modalBox");
+function openModal(html) { modalBox.innerHTML = html; modalMask.classList.remove("hidden"); }
+function closeModal() { modalMask.classList.add("hidden"); modalBox.innerHTML = ""; }
+modalMask.addEventListener("click", e => { if (e.target === modalMask) closeModal(); });
+
+/* 若 localStorage 为空但 IndexedDB 有数据，从 IndexedDB 恢复 */
+if (!localStorage.getItem(STORAGE_KEY)) {
+  idbGet(STORAGE_KEY).then(dbState => {
+    if (dbState) { state = deepMerge(defaultState(), dbState); saveState(); renderAll(); }
+  });
+}
+
+/* 注册 Service Worker（仅在 http/https 下，实现离线与可安装） */
+if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+
+renderAll();
+</script>
+</body>
+</html>
