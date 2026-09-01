@@ -89,14 +89,18 @@ header {
 .bulletin-toggle { min-height: 36px; padding: 0 12px; border: 1px solid #c7d7fb; background: #fff; border-radius: 8px; font-size: 13px; color: #24408f; }
 .bulletin-sync { min-height: 36px; padding: 0 12px; border: none; background: var(--primary); color: #fff; border-radius: 8px; font-size: 13px; font-weight: 600; }
 .bulletin-sync:active { background: #2f5fdc; }
-.bulletin-days { display: grid; grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); gap: 8px; padding: 0 16px 12px; }
-.bday { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 8px 9px; }
+.bulletin-days { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; padding: 0 16px 12px; }
+.bday { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 10px 11px; display: flex; flex-direction: column; }
 .bday.weekend { background: #fffaf3; border-color: #f0d9a8; }
-.bday .bd-label { font-size: 13px; font-weight: 700; color: #24408f; margin-bottom: 5px; }
-.bday .bd-field { margin-bottom: 5px; }
+.bday .bd-label { font-size: 14px; font-weight: 700; color: #24408f; margin-bottom: 6px; }
+.bday .bd-field { margin-bottom: 7px; }
 .bday .bd-field .fl { font-size: 11px; color: var(--text3); margin-bottom: 2px; }
-.bday input { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 6px 9px; font-size: 13px; outline: none; min-height: 36px; background: #fafbfc; }
-.bday input:focus { border-color: var(--primary); background: #fff; }
+.bday input, .bday textarea { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 7px 9px; font-size: 13px; outline: none; background: #fafbfc; color: var(--text); }
+.bday input { min-height: 38px; }
+.bday textarea { min-height: 58px; resize: none; overflow: hidden; line-height: 1.5; font-family: inherit; }
+.bday input:focus, .bday textarea:focus { border-color: var(--primary); background: #fff; }
+.bday textarea[disabled] { background: #fafbfc; color: var(--text); -webkit-text-fill-color: var(--text); opacity: 1; }
+@media (max-width: 900px) { .bulletin-days { grid-template-columns: 1fr; } }
 /* 节假日作业 */
 .bulletin-holiday { padding: 0 16px 14px; }
 .holiday-head { font-size: 13px; font-weight: 700; color: #24408f; margin: 4px 0 8px; }
@@ -2058,12 +2062,13 @@ function renderBulletin() {
     const weekend = (w.key === "sat" || w.key === "sun");
     return `<div class="bday ${weekend ? "weekend" : ""}">
       <div class="bd-label">${w.label}</div>
-      <div class="bd-field"><div class="fl">教学进度</div><input type="text" data-wd="${w.key}" data-f="task" value="${escapeHtml(p.task)}" placeholder="教学内容" ${readOnly ? "disabled" : ""}></div>
-      <div class="bd-field"><div class="fl">作业</div><input type="text" data-wd="${w.key}" data-f="hw" value="${escapeHtml(p.hw)}" placeholder="作业内容" ${readOnly ? "disabled" : ""}></div>
+      <div class="bd-field"><div class="fl">教学进度</div><textarea data-wd="${w.key}" data-f="task" placeholder="教学内容" ${readOnly ? "disabled" : ""}>${escapeHtml(p.task)}</textarea></div>
+      <div class="bd-field"><div class="fl">作业</div><textarea data-wd="${w.key}" data-f="hw" placeholder="作业内容" ${readOnly ? "disabled" : ""}>${escapeHtml(p.hw)}</textarea></div>
       <div class="bd-field"><div class="fl">日期</div><input type="text" data-wd="${w.key}" data-f="date" value="${escapeHtml(p.date)}" placeholder="日期" ${readOnly ? "disabled" : ""}></div>
       <div class="bd-field"><div class="fl">上交时间</div><input type="text" data-wd="${w.key}" data-f="due" value="${escapeHtml(p.due)}" placeholder="如：次日早读前" ${readOnly ? "disabled" : ""}></div>
     </div>`;
   }).join("");
+  autoResizeBulletin();
   renderHolidaySection(board, readOnly);
   document.getElementById("bulletinBody").classList.toggle("hidden", !bulletinOpen);
   document.getElementById("bulletinToggle").textContent = bulletinOpen ? "收起" : "展开";
@@ -2782,10 +2787,10 @@ function togglePicker(name) {
   saveState(); renderLesson(); openPicker();
 }
 
-/* 公告栏保存（按班级） */
+/* 公告栏保存（按班级）——input 与 textarea 均支持 */
 function saveWeekTask(v) { getBoard(currentClassKey).weekTask = v; saveState(); }
 document.getElementById("bulletinDays").addEventListener("change", e => {
-  const inp = e.target.closest("input[data-wd]");
+  const inp = e.target.closest("[data-wd]");
   if (!inp) return;
   const board = getBoard(currentClassKey);
   const wd = inp.dataset.wd, f = inp.dataset.f;
@@ -2793,6 +2798,19 @@ document.getElementById("bulletinDays").addEventListener("change", e => {
   board.days[wd][f] = inp.value;
   saveState();
 });
+/* 公告栏 textarea 输入时自适应高度（内容完整显示） */
+document.getElementById("bulletinDays").addEventListener("input", e => {
+  const ta = e.target.closest("textarea");
+  if (!ta) return;
+  ta.style.height = "auto";
+  ta.style.height = (ta.scrollHeight + 2) + "px";
+});
+function autoResizeBulletin() {
+  document.querySelectorAll("#bulletinDays textarea").forEach(ta => {
+    ta.style.height = "auto";
+    ta.style.height = (ta.scrollHeight + 2) + "px";
+  });
+}
 document.getElementById("bulletinHoliday").addEventListener("change", e => {
   const inp = e.target.closest("input[data-hid]");
   if (!inp) return;
