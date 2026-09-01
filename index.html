@@ -369,6 +369,7 @@ header {
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><h2 id="bulletinTitle">教学公告栏</h2><span class="tag" id="bulletinHint"></span></div>
     <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
       <button class="bulletin-sync" id="btnSyncBulletin" onclick="syncBulletin()">同步到其他班</button>
+      <button class="bulletin-toggle" id="btnExportBulletin" onclick="exportBulletin()">导出打印</button>
       <button class="bulletin-toggle" id="bulletinToggle" onclick="toggleBulletin()">收起</button>
     </div>
   </div>
@@ -2077,6 +2078,44 @@ function syncBulletin() {
   others.forEach(m => { state.boards[m.key] = JSON.parse(JSON.stringify(src)); });
   saveState(); renderBulletin();
   toast(`已同步到 ${others.map(m => m.short).join("、")}`);
+}
+
+/* 生成公告栏的 Excel（HTML 表格）内容 */
+function buildBulletinHtml() {
+  const board = getBoard(currentClassKey);
+  const cls = clsShort(currentClassKey);
+  const date = new Date().toLocaleDateString("zh-CN");
+  let rows = "";
+  WEEKDAYS.forEach(w => {
+    const p = board.days[w.key] || { task: "", hw: "", date: "", due: "" };
+    rows += `<tr><td style="font-weight:bold">${w.label}</td><td>${escapeHtml(p.task)}</td><td>${escapeHtml(p.hw)}</td><td>${escapeHtml(p.date)}</td><td>${escapeHtml(p.due)}</td></tr>`;
+  });
+  let holidayRows = "";
+  (board.holidays || []).forEach(h => {
+    holidayRows += `<tr><td style="font-weight:bold">${escapeHtml(h.name)}</td><td colspan="2">${escapeHtml(h.hw)}</td><td>${escapeHtml(h.date)}</td><td>${escapeHtml(h.due)}</td></tr>`;
+  });
+  return `<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body>
+    <table border="1">
+      <tr><td colspan="5" style="font-weight:bold;text-align:center;font-size:16px">${cls} 教学公告栏（${date}）</td></tr>
+      <tr><td colspan="5" style="font-weight:bold">本周教学任务：${escapeHtml(board.weekTask || "")}</td></tr>
+      <tr><th>星期</th><th>教学内容</th><th>作业</th><th>日期</th><th>上交时间</th></tr>
+      ${rows}
+      ${holidayRows ? `<tr><th colspan="5">节假日 / 特殊作业</th></tr>${holidayRows}` : ""}
+    </table>
+  </body></html>`;
+}
+
+/* 导出打印：把当前班公告栏导出为 .xls（Excel/WPS 可打开打印） */
+function exportBulletin() {
+  const html = buildBulletinHtml();
+  const blob = new Blob(["\ufeff" + html], { type: "application/vnd.ms-excel;charset=utf-8" });
+  const a = document.createElement("a");
+  const d = new Date(); const p = n => String(n).padStart(2, "0");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${clsShort(currentClassKey)}教学公告栏_${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}.xls`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  toast("已导出 Excel，可用 WPS / Excel 打开打印");
 }
 
 /* 节假日作业区 */
