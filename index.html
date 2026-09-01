@@ -87,6 +87,8 @@ header {
 .bulletin-week { padding: 0 16px 6px; }
 .bulletin-week textarea, .bulletin-week input { width: 100%; border: 1px solid #c7d7fb; border-radius: 9px; padding: 8px 12px; font-size: 14px; outline: none; background: #fff; resize: vertical; min-height: 40px; }
 .bulletin-toggle { min-height: 36px; padding: 0 12px; border: 1px solid #c7d7fb; background: #fff; border-radius: 8px; font-size: 13px; color: #24408f; }
+.bulletin-sync { min-height: 36px; padding: 0 12px; border: none; background: var(--primary); color: #fff; border-radius: 8px; font-size: 13px; font-weight: 600; }
+.bulletin-sync:active { background: #2f5fdc; }
 .bulletin-days { display: grid; grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); gap: 8px; padding: 0 16px 12px; }
 .bday { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 8px 9px; }
 .bday.weekend { background: #fffaf3; border-color: #f0d9a8; }
@@ -364,8 +366,11 @@ header {
 <!-- 教学公告栏（按班级分开：教学进度 + 每日/周末/节假日作业，含日期与上交时间） -->
 <section class="bulletin" id="bulletin">
   <div class="bulletin-head">
-    <h2 id="bulletinTitle">教学公告栏</h2><span class="tag" id="bulletinHint"></span>
-    <button class="bulletin-toggle" id="bulletinToggle" onclick="toggleBulletin()">收起</button>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><h2 id="bulletinTitle">教学公告栏</h2><span class="tag" id="bulletinHint"></span></div>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+      <button class="bulletin-sync" id="btnSyncBulletin" onclick="syncBulletin()">同步到其他班</button>
+      <button class="bulletin-toggle" id="bulletinToggle" onclick="toggleBulletin()">收起</button>
+    </div>
   </div>
   <div class="bulletin-body" id="bulletinBody">
     <div class="bulletin-week">
@@ -2061,6 +2066,17 @@ function renderBulletin() {
   renderHolidaySection(board, readOnly);
   document.getElementById("bulletinBody").classList.toggle("hidden", !bulletinOpen);
   document.getElementById("bulletinToggle").textContent = bulletinOpen ? "收起" : "展开";
+  document.getElementById("btnSyncBulletin").classList.toggle("hidden", isRepresentative);
+}
+
+/* 一键同步：把当前班的教学公告栏（教学进度+每日/节假日作业）复制到其他三个班 */
+function syncBulletin() {
+  const src = getBoard(currentClassKey);
+  const others = CLASS_META.filter(m => m.key !== currentClassKey);
+  if (!confirm(`确定把「${clsShort(currentClassKey)}」的教学公告栏（本周教学进度 + 周一~周日教学内容/作业 + 节假日作业）同步到 ${others.map(m => m.short).join("、")} 吗？将覆盖这些班的现有公告栏内容。`)) return;
+  others.forEach(m => { state.boards[m.key] = JSON.parse(JSON.stringify(src)); });
+  saveState(); renderBulletin();
+  toast(`已同步到 ${others.map(m => m.short).join("、")}`);
 }
 
 /* 节假日作业区 */
