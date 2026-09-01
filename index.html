@@ -2387,6 +2387,10 @@ function renderHwList() {
   document.getElementById("hwAssignBar").innerHTML = `
     <select class="sort-select" style="width:100%;margin-bottom:8px" onchange="switchAssignment(this.value)">${opts}</select>
     ${isRepresentative ? "" : `<div class="modal-actions" style="margin-bottom:8px"><button class="mini-btn" onclick="openNewAssignment()">＋ 新建作业</button><button class="mini-btn" style="color:var(--danger)" onclick="deleteAssignment('${a.id}')">删除本作业</button></div>`}
+    <div class="modal-actions" style="margin-bottom:8px">
+      <button class="btn primary" style="flex:1;min-height:44px;background:#22a06b" onclick="markAllSubmitted()">一键全交</button>
+      ${isRepresentative ? "" : `<button class="mini-btn" style="flex:1;min-height:44px" onclick="markAllMissing()">一键设未交</button>`}
+    </div>
     <div class="empty-tip" style="margin-bottom:6px">${a.due ? "上交时间：" + escapeHtml(a.due) : "可新建作业，填写标题 / 日期 / 上交时间"}</div>`;
 
   // 当前作业收缴名单
@@ -2423,6 +2427,25 @@ function renderHwHistory() {
 function switchAssignment(id) {
   state.currentAssignment[currentClassKey] = id;
   saveState(); renderOverview(); renderStudentList(); renderHwList();
+}
+
+/* 一键全交：把当前作业中所有「未交」的学生标记为「已交」（保留优秀/补交/打回等已有标记） */
+function markAllSubmitted() {
+  const a = currentAssignment(currentClassKey);
+  const missing = currentStudents().filter(s => getSub(currentClassKey, a.id, s.name) === "missing");
+  if (!missing.length) { toast("当前作业已全部交齐，无需操作"); return; }
+  if (!confirm(`确定把 ${missing.length} 名未交学生一键标记为「已交」吗？`)) return;
+  missing.forEach(s => setSub(currentClassKey, a.id, s.name, "submitted"));
+  saveState(); renderStudentList(); renderOverview(); renderHwList();
+  toast(`已将 ${missing.length} 人标记为「已交」`);
+}
+/* 一键设未交：清空当前作业所有收缴标记（全部回到未交） */
+function markAllMissing() {
+  const a = currentAssignment(currentClassKey);
+  if (!confirm("确定把全班重置为「未交」吗？（会清空本作业所有已交/优秀/补交等标记）")) return;
+  if (state.submissions[currentClassKey]) delete state.submissions[currentClassKey][a.id];
+  saveState(); renderStudentList(); renderOverview(); renderHwList();
+  toast("全班已重置为「未交」");
 }
 function openNewAssignment() {
   openModal(`
