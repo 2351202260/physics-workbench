@@ -1,5 +1,5 @@
 /* Service Worker：缓存应用资源，实现离线可用与可安装 */
-const CACHE = "physics-workbench-v5";
+const CACHE = "physics-workbench-v6";
 const ASSETS = [
   "./",
   "./index.html",
