@@ -215,10 +215,7 @@ header {
 .hw-chip b { font-size: 15px; }
 .hw-chip.missing { color: var(--tier-A); background: #fff0f0; border-color: #f3c3c3; }
 .hw-chip.submitted { color: var(--ok); background: #e8f6ee; border-color: #b9e2ca; }
-.hw-chip.excellent { color: #d9700c; background: #fdf0e6; border-color: #f5d0a4; }
 .hw-chip.late { color: #6d5bd0; background: #f1eefd; border-color: #d2c9f5; }
-.hw-chip.returned { color: #b54708; background: #fdebe0; border-color: #f4c6a8; }
-.hw-chip.corrected { color: #0f7b6c; background: #e2f3ef; border-color: #b5ddd4; }
 
 .special-note { flex-basis: 100%; background: #fff1f1; border: 1px solid #f3c3c3; color: #a02020; border-radius: 10px; padding: 7px 13px; font-size: 12px; }
 
@@ -279,10 +276,7 @@ header {
 .hw-btn { min-height: 42px; padding: 0 14px; border-radius: 10px; border: 1px solid; font-size: 14px; font-weight: 600; }
 .hw-btn.missing { color: var(--tier-A); background: #fff0f0; border-color: #f3c3c3; }
 .hw-btn.submitted { color: var(--ok); background: #e8f6ee; border-color: #b9e2ca; }
-.hw-btn.excellent { color: #d9700c; background: #fdf0e6; border-color: #f5d0a4; }
 .hw-btn.late { color: #6d5bd0; background: #f1eefd; border-color: #d2c9f5; }
-.hw-btn.returned { color: #b54708; background: #fdebe0; border-color: #f4c6a8; }
-.hw-btn.corrected { color: #0f7b6c; background: #e2f3ef; border-color: #b5ddd4; }
 .sc-check { width: 32px; height: 32px; border-radius: 8px; border: 2px solid var(--border); background: #fff; font-size: 18px; color: #fff; }
 .sc-check.checked { background: var(--primary); border-color: var(--primary); }
 
@@ -296,6 +290,12 @@ header {
 .rr-btns button.on-missing { background: #fff0f0; color: var(--tier-A); border-color: #f3c3c3; }
 .rr-btns button.on-submitted { background: #e8f6ee; color: var(--ok); border-color: #b9e2ca; }
 .rr-btns button.on-late { background: #f1eefd; color: #6d5bd0; border-color: #d2c9f5; }
+.rr-grade { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; border: 1px solid; flex-shrink: 0; }
+.rr-grade.A { background: #e8f6ee; color: #1f9d55; border-color: #b9e2ca; }
+.rr-grade.B { background: #eaf3ff; color: #2f6bd6; border-color: #c7d7fb; }
+.rr-grade.C { background: #fdf0e6; color: #d9700c; border-color: #f5d0a4; }
+.rr-grade.D { background: #fff0f0; color: #d03b3b; border-color: #f3c3c3; }
+.rr-grade.none { background: #f5f5f5; color: #999; border-color: #e0e0e0; }
 
 /* ---------- 侧边栏 ---------- */
 .col-side { display: flex; flex-direction: column; gap: 13px; }
@@ -331,7 +331,6 @@ header {
 .missing-tag { border-radius: 8px; padding: 4px 11px; font-size: 13px; font-weight: 600; border: 1px solid; }
 .missing-tag.missing { background: #fff0f0; color: var(--tier-A); border-color: #f3c3c3; }
 .missing-tag.late { background: #f1eefd; color: #6d5bd0; border-color: #d2c9f5; }
-.missing-tag.returned { background: #fdebe0; color: #b54708; border-color: #f4c6a8; }
 
 /* 作业收缴汇总栏（收缴状态 + ABCD 等级，可点开查看） */
 .hw-summary { margin-bottom: 10px; }
@@ -344,13 +343,10 @@ header {
 .hw-sum-chip.submitted { background: #e8f6ee; color: #1f9d55; border-color: #b9e2ca; }
 .hw-sum-chip.missing { background: #fff0f0; color: #d03b3b; border-color: #f3c3c3; }
 .hw-sum-chip.late { background: #f1eefd; color: #6d5bd0; border-color: #d2c9f5; }
-.hw-sum-chip.excellent { background: #fdf0e6; color: #d9700c; border-color: #f5d0a4; }
-.hw-sum-chip.returned { background: #fdebe0; color: #b54708; border-color: #f4c6a8; }
-.hw-sum-chip.corrected { background: #e2f3ef; color: #0f7b6c; border-color: #b5ddd4; }
-.hw-sum-chip.A { background: #fff0f0; color: #d03b3b; border-color: #f3c3c3; }
-.hw-sum-chip.B { background: #fdf0e6; color: #d9700c; border-color: #f5d0a4; }
-.hw-sum-chip.C { background: #eaf3ff; color: #2f6bd6; border-color: #c7d7fb; }
-.hw-sum-chip.D { background: #f1eefd; color: #6d5bd0; border-color: #d2c9f5; }
+.hw-sum-chip.A { background: #e8f6ee; color: #1f9d55; border-color: #b9e2ca; }
+.hw-sum-chip.B { background: #eaf3ff; color: #2f6bd6; border-color: #c7d7fb; }
+.hw-sum-chip.C { background: #fdf0e6; color: #d9700c; border-color: #f5d0a4; }
+.hw-sum-chip.D { background: #fff0f0; color: #d03b3b; border-color: #f3c3c3; }
 .hw-sum-chip.none { background: #f5f5f5; color: #999; border-color: #e0e0e0; }
 .hw-sum-chip.active { outline: 2px solid #3b6ef5; outline-offset: 1px; }
 .hw-stu-panel { border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; margin-bottom: 10px; max-height: 320px; overflow-y: auto; }
@@ -1943,10 +1939,7 @@ const TIER_CONFIG = {
 const HW_INFO = {
   missing:   { label: "未交",     sub: "未上交" },
   submitted: { label: "已交",     sub: "已上交" },
-  excellent: { label: "优秀",     sub: "评特优" },
   late:      { label: "补交",     sub: "补交" },
-  returned:  { label: "打回重写", sub: "需订正" },
-  corrected: { label: "已订正",   sub: "重交合格" },
 };
 
 /* 快速批改评价等级：A/B/C/D 对应 特优/优秀/良好/补写 */
@@ -2551,7 +2544,7 @@ function renderOverview() {
   const total = students.length;
   const target = state.targets[currentClassKey] || { A: 0, B: 2, C: 8 };
   const cnt = { A: 0, B: 0, C: 0, D: 0, none: 0 };
-  const hw = { missing: 0, submitted: 0, excellent: 0, late: 0, returned: 0, corrected: 0 };
+  const hw = { missing: 0, submitted: 0, late: 0 };
   const a = currentAssignment(currentClassKey);
   students.forEach(s => {
     cnt[getTier(s.schoolRank)]++;
@@ -2566,10 +2559,7 @@ function renderOverview() {
     <div class="hb-chips">
       <span class="hw-chip submitted"><b>${hw.submitted}</b>已交</span>
       <span class="hw-chip missing"><b>${hw.missing}</b>未交</span>
-      <span class="hw-chip excellent"><b>${hw.excellent}</b>优秀</span>
       <span class="hw-chip late"><b>${hw.late}</b>补交</span>
-      <span class="hw-chip returned"><b>${hw.returned}</b>打回重写</span>
-      <span class="hw-chip corrected"><b>${hw.corrected}</b>已订正</span>
     </div>
   </div>`;
 
@@ -2864,15 +2854,22 @@ function renderStudentList() {
     return va - vb;
   });
 
-  // 课代表模式：只读简表，只显示名次+姓名+作业按钮（针对当前作业）
+  // 课代表模式：只读简表，显示名次+姓名+批改登记（等级）+作业按钮（针对当前作业）
   if (isRepresentative) {
     document.getElementById("studentList").className = "rep-list";
+    const a = currentAssignment(currentClassKey);
+    const grades = getGrades(currentClassKey, a.id);
     document.getElementById("studentList").innerHTML = sorted.map(({ s }) => {
       const hw = hwOf(s.name);
       const rank = s.classRank != null ? `第${s.classRank}名` : "—";
+      const g = grades[s.name];
+      const gradeTag = g
+        ? `<span class="rr-grade ${g}">${GRADE_META[g].label}</span>`
+        : `<span class="rr-grade none">未批</span>`;
       return `<div class="rep-row">
         <span class="rr-rank">${rank}</span>
         <span class="rr-name">${escapeHtml(s.name)}</span>
+        ${gradeTag}
         <div class="rr-btns">
           <button class="${hw === "missing" ? "on-missing" : ""}" onclick="repSetHw('${escapeHtml(s.name)}','missing')">未交</button>
           <button class="${hw === "submitted" ? "on-submitted" : ""}" onclick="repSetHw('${escapeHtml(s.name)}','submitted')">已交</button>
@@ -3015,9 +3012,6 @@ function renderHwList() {
     { key: "submitted", label: "已交", cls: "submitted" },
     { key: "missing", label: "未交", cls: "missing" },
     { key: "late", label: "补交", cls: "late" },
-    { key: "excellent", label: "优秀", cls: "excellent" },
-    { key: "returned", label: "打回", cls: "returned" },
-    { key: "corrected", label: "订正", cls: "corrected" },
   ];
   const subMap = {};
   sorted.forEach(s => { const st = getSub(currentClassKey, a.id, s.name); (subMap[st] = subMap[st] || []).push(s); });
@@ -3162,11 +3156,11 @@ function renderHwHistory() {
   const list = getAssignments(currentClassKey).slice().sort((x, y) => (y.id || 0) - (x.id || 0));
   const cur = currentAssignment(currentClassKey);
   const rows = list.map(x => {
-    const c = { submitted: 0, missing: 0, late: 0, returned: 0, excellent: 0, corrected: 0 };
+    const c = { submitted: 0, missing: 0, late: 0 };
     students.forEach(s => { const st = getSub(currentClassKey, x.id, s.name); c[st] = (c[st] || 0) + 1; });
     return `<div class="hw-hist-item ${String(x.id) === String(cur.id) ? "active" : ""}" onclick="switchAssignment('${x.id}')">
       <div class="hh-top"><b>${escapeHtml(x.title)}</b>${x.date ? `<span class="hh-date">${escapeHtml(x.date)}</span>` : ""}</div>
-      <div class="hh-stats">已交${c.submitted} · 未交${c.missing} · 优秀${c.excellent} · 补交${c.late} · 打回${c.returned} · 订正${c.corrected}</div>
+      <div class="hh-stats">已交${c.submitted} · 未交${c.missing} · 补交${c.late}</div>
     </div>`;
   }).join("");
   document.getElementById("hwHistory").innerHTML = list.length
@@ -3179,7 +3173,7 @@ function switchAssignment(id) {
   saveState(); renderOverview(); renderStudentList(); renderHwList();
 }
 
-/* 一键全交：把当前作业中所有「未交」的学生标记为「已交」（保留优秀/补交/打回等已有标记） */
+/* 一键全交：把当前作业中所有「未交」的学生标记为「已交」（保留已交/补交等已有标记） */
 function markAllSubmitted() {
   const a = currentAssignment(currentClassKey);
   const missing = currentStudents().filter(s => getSub(currentClassKey, a.id, s.name) === "missing");
@@ -3192,7 +3186,7 @@ function markAllSubmitted() {
 /* 一键设未交：清空当前作业所有收缴标记（全部回到未交） */
 function markAllMissing() {
   const a = currentAssignment(currentClassKey);
-  if (!confirm("确定把全班重置为「未交」吗？（会清空本作业所有已交/优秀/补交等标记）")) return;
+  if (!confirm("确定把全班重置为「未交」吗？（会清空本作业所有已交/补交等标记）")) return;
   if (state.submissions[currentClassKey]) delete state.submissions[currentClassKey][a.id];
   saveState(); renderStudentList(); renderOverview(); renderHwList();
   toast("全班已重置为「未交」");
@@ -3357,9 +3351,9 @@ function openHwModal(idx) {
       </div>
     </div>`);
 }
-function hwColor(k) { return { missing: "#d03b3b", submitted: "#1f9d55", excellent: "#d9700c", late: "#6d5bd0", returned: "#b54708", corrected: "#0f7b6c" }[k]; }
-function hwBg(k) { return { missing: "#fff0f0", submitted: "#e8f6ee", excellent: "#fdf0e6", late: "#f1eefd", returned: "#fdebe0", corrected: "#e2f3ef" }[k]; }
-function hwLine(k) { return { missing: "#f3c3c3", submitted: "#b9e2ca", excellent: "#f5d0a4", late: "#d2c9f5", returned: "#f4c6a8", corrected: "#b5ddd4" }[k]; }
+function hwColor(k) { return { missing: "#d03b3b", submitted: "#1f9d55", late: "#6d5bd0" }[k]; }
+function hwBg(k) { return { missing: "#fff0f0", submitted: "#e8f6ee", late: "#f1eefd" }[k]; }
+function hwLine(k) { return { missing: "#f3c3c3", submitted: "#b9e2ca", late: "#d2c9f5" }[k]; }
 function applyHw(name, val) {
   const a = currentAssignment(currentClassKey);
   setSub(currentClassKey, a.id, name, val);
@@ -3588,11 +3582,12 @@ function delMessage(board, i) {
 
 /* 生成今日反馈（针对当前作业：标题 + 日期 + 名单） */
 function generateFeedback() {
-  const students = currentStudents();
+  const students = currentStudents().slice().sort((x, y) => (x.classRank || 999) - (y.classRank || 999));
   const a = currentAssignment(currentClassKey);
-  const groups = { missing: [], late: [], returned: [] };
+  const groups = { missing: [], late: [] };
   const gradeGroups = { A: [], B: [], C: [], D: [] };
   const grades = getGrades(currentClassKey, a.id);
+  const notes = getGradeNotes(currentClassKey, a.id);
   students.forEach(s => {
     const st = getSub(currentClassKey, a.id, s.name);
     if (groups[st]) groups[st].push(s.name);
@@ -3603,16 +3598,24 @@ function generateFeedback() {
   if (a.due) text += `上交时间：${a.due}\n`;
 
   text += `\n【收缴情况】\n`;
-  if (!groups.missing.length && !groups.returned.length && !groups.late.length) text += "本作业已全部收齐！\n";
+  if (!groups.missing.length && !groups.late.length) text += "本作业已全部收齐！\n";
   else {
     if (groups.missing.length) text += `未交（${groups.missing.length}人）：${groups.missing.join("、")}\n`;
-    if (groups.returned.length) text += `打回重写（${groups.returned.length}人）：${groups.returned.join("、")}\n`;
     if (groups.late.length) text += `补交（${groups.late.length}人）：${groups.late.join("、")}\n`;
   }
 
   const gradeLines = Object.keys(GRADE_META).filter(k => gradeGroups[k].length).map(k => `${GRADE_META[k].label}（${gradeGroups[k].length}人）：${gradeGroups[k].join("、")}`);
   if (gradeLines.length) {
     text += `\n【作业等级】\n${gradeLines.join("\n")}\n`;
+  }
+
+  // 作业批注：每个有批注的学生一行（附等级），方便督促
+  const noteLines = students.filter(s => notes[s.name]).map(s => {
+    const g = grades[s.name];
+    return `${s.name}${g ? "（" + GRADE_META[g].label + "）" : ""}：${notes[s.name]}`;
+  });
+  if (noteLines.length) {
+    text += `\n【作业批注】\n${noteLines.join("\n")}\n`;
   }
 
   text += "\n请课代表跟进催收。";
