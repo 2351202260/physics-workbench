@@ -96,9 +96,11 @@ header {
 .bcls-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px }
 .bcls-head .bcls-name { font-weight:700; font-size:14px; color:#24408f }
 .bcls-head .bcls-cnt { font-size:11px; color:var(--text3) }
-.bcls-days { display:grid; grid-template-columns: repeat(7, 1fr); gap:8px }
-@media (max-width: 1100px) { .bcls-days { grid-template-columns: repeat(7, 1fr); gap:5px } }
+.bcls-days { display:grid; grid-template-columns: repeat(5, 1fr); gap:8px }
+@media (max-width: 1100px) { .bcls-days { grid-template-columns: repeat(5, 1fr); gap:5px } }
 @media (max-width: 760px) { .bcls-days { grid-template-columns: repeat(2, 1fr); gap:6px } }
+.bcls-weekend-days { display:grid; grid-template-columns: repeat(2, 1fr); gap:8px; margin-bottom:10px }
+@media (max-width: 640px) { .bcls-weekend-days { grid-template-columns: 1fr; } }
 .bcls-day { background:#fafbfc; border:1px solid var(--border); border-radius:8px; padding:8px; min-height:150px; display:flex; flex-direction:column; gap:6px }
 .bcls-day.weekend { background:#fffaf3; border-color:#f0d9a8 }
 .bcls-day .bd-label { font-size:13px; font-weight:700; color:#24408f }
@@ -280,12 +282,20 @@ header {
 .sc-check { width: 32px; height: 32px; border-radius: 8px; border: 2px solid var(--border); background: #fff; font-size: 18px; color: #fff; }
 .sc-check.checked { background: var(--primary); border-color: var(--primary); }
 
-/* 课代表模式简表 */
-.rep-list { padding: 8px 14px 14px; display: flex; flex-direction: column; gap: 7px; }
+/* 课代表模式简表（两列/三列卡片网格） */
+.rep-list { padding: 8px 14px 14px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+@media (min-width: 1100px) { .rep-list { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 640px) { .rep-list { grid-template-columns: 1fr; } }
 .rep-row { display: flex; align-items: center; gap: 10px; padding: 9px 11px; border: 1px solid var(--border); border-radius: 11px; }
 .rep-row .rr-rank { font-size: 12px; color: var(--text3); width: 40px; flex-shrink: 0; }
 .rep-row .rr-name { flex: 1; font-weight: 600; font-size: 16px; }
 .rep-row .rr-btns { display: flex; gap: 6px; }
+.rep-card { display: flex; flex-direction: column; gap: 8px; padding: 10px 11px; border: 1px solid var(--border); border-radius: 11px; background: #fff; }
+.rep-top { display: flex; align-items: center; gap: 7px; }
+.rep-top .rr-rank { font-size: 12px; color: var(--text3); flex-shrink: 0; }
+.rep-top .rr-name { flex: 1; font-weight: 600; font-size: 16px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rep-card .rr-btns { display: flex; gap: 6px; }
+.rep-card .rr-btns button { min-width: 0; flex: 1; padding: 0 6px; }
 .rr-btns button { min-height: 44px; min-width: 58px; padding: 0 10px; border-radius: 9px; border: 1px solid var(--border); background: #fff; font-size: 14px; font-weight: 600; }
 .rr-btns button.on-missing { background: #fff0f0; color: var(--tier-A); border-color: #f3c3c3; }
 .rr-btns button.on-submitted { background: #e8f6ee; color: var(--ok); border-color: #b9e2ca; }
@@ -465,6 +475,7 @@ header {
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
       <h2 id="bulletinTitle">教学公告栏</h2>
       <span class="tag" id="bulletinHint"></span>
+      <span class="tag" id="todayLabel" style="background:#eaf3ff;color:#24408f;border-color:#c7d7fb;font-weight:700"></span>
       <div class="week-switcher">
         <button class="week-nav" onclick="switchWeek(-1)" title="上一周">◀</button>
         <span id="weekLabel">第1周 9.1-9.4</span>
@@ -2181,6 +2192,7 @@ function renderTabs() {
 /* 当前周次（按日期算出） */
 const TEACH_START = new Date(2026, 8, 1);  // 教研第1周起 Sep 1, 2026
 let currentWeekIdx = -1;  // 全局当前查看的周次
+let weekLocked = false;   // 用户是否手动切换过周次（false=实时跟随当前日期，true=保持手动选择）
 function computeCurrentWeekIdx() {
   const n = new Date();
   const dow = n.getDay();
@@ -2222,10 +2234,14 @@ function setLessonOverride(weekIdx, dayCode, period, key, val) {
 
 /* 公告栏：分周视图，按班+节次展开预填章节，作业点击选择 */
 function renderBulletin() {
-  if (currentWeekIdx < 0) currentWeekIdx = computeCurrentWeekIdx();
+  if (!weekLocked) currentWeekIdx = computeCurrentWeekIdx();
   const readOnly = isRepresentative;
   const board = getBoard(currentClassKey);
   const plan = TEACH_PLAN[currentWeekIdx];
+  const _now = new Date();
+  const _wk = ["日", "一", "二", "三", "四", "五", "六"][_now.getDay()];
+  const todayEl = document.getElementById("todayLabel");
+  if (todayEl) todayEl.textContent = `${_now.getFullYear()}年${_now.getMonth() + 1}月${_now.getDate()}日 周${_wk}`;
   document.getElementById("bulletinTitle").textContent = `教学公告栏 · ${clsShort(currentClassKey)}`;
   document.getElementById("weekLabel").textContent = `${plan.week} ${plan.dates}`;
   document.getElementById("bulletinHint").textContent = readOnly ? "（只读）" : "按周切换 · 每节课标题自动从教研安排填充 · 作业点击选择全品作业本";
@@ -2236,7 +2252,7 @@ function renderBulletin() {
   const wt = board.weekTasks[currentWeekIdx];
   document.getElementById("weekTask").value = wt || "";
   document.getElementById("weekTask").disabled = readOnly;
-  // 按班 × 7 天视图（仅当前班；周四周六周日也可点「＋添加课时」编辑）
+  // 周一~周五 5 天视图；周六周日并入下方「周末/节假日」板块（避免 7 列超出页面）
   const dayNames = ["", "周一", "周二", "周三", "周四", "周五", "周六", "周日"];
   const today = new Date();
   const todayCode = today.getDay() === 0 ? 7 : today.getDay();  // 1-7
@@ -2244,42 +2260,43 @@ function renderBulletin() {
   const m = CLASS_META.find(x => x.key === currentClassKey);
   const clsCode = m.clsCode;
   const weekLessons = board.lessons[currentWeekIdx] || {};
-  const periodsThisWeek = [];
-  let totalLessons = 0;
-  for (let d = 1; d <= 7; d++) {
+
+  // 某天该班节次列表（含自定义课时 period>=9）
+  const dayPeriods = (d) => {
     const ds = SCHEDULE[String(d)] || {};
     const list = [];
-    for (let p = 1; p <= 8; p++) {
-      if (ds[String(p)] === clsCode) list.push(p);
-    }
-    totalLessons += list.length;
-    // 自定义课时（period >= 9，无课日期添加的）
+    for (let p = 1; p <= 8; p++) if (ds[String(p)] === clsCode) list.push(p);
     for (const k in weekLessons) {
       const parts = k.split("-");
       if (parts.length === 2 && Number(parts[0]) === d && Number(parts[1]) >= 9) list.push(Number(parts[1]));
     }
     list.sort((a, b) => a - b);
-    periodsThisWeek.push({ day: d, periods: list });
-  }
+    return list;
+  };
+  // 渲染单个「天」格子（周一~周日通用）
+  const renderDay = (day) => {
+    const dn = dayNames[day];
+    const weekend = (day === 6 || day === 7);
+    const isToday = isCurrentWeek && day === todayCode;
+    const periods = dayPeriods(day);
+    return `<div class="bcls-day ${weekend ? "weekend" : ""} ${isToday ? "today" : ""}">
+      <div class="bd-label">${dn}${isToday ? "（今天）" : ""}</div>
+      ${periods.map(p => renderLessonCell(currentWeekIdx, day, p, clsCode, readOnly)).join("")}
+      ${readOnly ? "" : `<button class="bl-add" onclick="addCustomLesson(${day})">＋ 添加课时</button>`}
+    </div>`;
+  };
+
+  let totalLessons = 0;
+  for (let d = 1; d <= 7; d++) totalLessons += dayPeriods(d).length;
+
   document.getElementById("bulletinClasses").innerHTML = `<div class="bcls-row">
     <div class="bcls-head">
       <div class="bcls-name">${m.short} ${m.badge ? `<span class="tag" style="margin-left:6px">${m.badge}</span>` : ""}</div>
       <div class="bcls-cnt">本周共 ${totalLessons} 课时${totalLessons < plan.lessons.length ? "（本班进度少 1 节，自动顺延）" : ""}</div>
     </div>
-    <div class="bcls-days">
-      ${periodsThisWeek.map(({ day, periods }) => {
-        const dn = dayNames[day];
-        const weekend = (day === 6 || day === 7);
-        const isToday = isCurrentWeek && day === todayCode;
-        return `<div class="bcls-day ${weekend ? "weekend" : ""} ${isToday ? "today" : ""}">
-          <div class="bd-label">${dn}${isToday ? "（今天）" : ""}</div>
-          ${periods.map(p => renderLessonCell(currentWeekIdx, day, p, clsCode, readOnly)).join("")}
-          ${readOnly ? "" : `<button class="bl-add" onclick="addCustomLesson(${day})">＋ 添加课时</button>`}
-        </div>`;
-      }).join("")}
-    </div>
+    <div class="bcls-days">${[1, 2, 3, 4, 5].map(renderDay).join("")}</div>
   </div>`;
-  renderHolidaySection(board, readOnly);
+  renderWeekendHoliday(board, readOnly, renderDay);
   document.getElementById("bulletinBody").classList.toggle("hidden", !bulletinOpen);
   document.getElementById("bulletinToggle").textContent = bulletinOpen ? "收起" : "展开";
   document.getElementById("btnSyncBulletin").classList.toggle("hidden", isRepresentative);
@@ -2439,10 +2456,12 @@ function buildHwSelectOptions(selected) {
 
 /* 周次切换 */
 function switchWeek(delta) {
+  weekLocked = true;
   currentWeekIdx = Math.max(0, Math.min(TEACH_PLAN.length - 1, currentWeekIdx + delta));
   renderBulletin();
 }
 function jumpToCurrentWeek() {
+  weekLocked = false;
   currentWeekIdx = computeCurrentWeekIdx();
   renderBulletin();
 }
@@ -2521,7 +2540,7 @@ function exportBulletin() {
 }
 
 /* 节假日作业区 */
-function renderHolidaySection(board, readOnly) {
+function renderWeekendHoliday(board, readOnly, renderDay) {
   const entries = (board.holidays || []).map(h => `
     <div class="holiday-entry">
       <input type="text" data-hid="${h.id}" data-f="name" value="${escapeHtml(h.name)}" placeholder="名称（如国庆假期）" ${readOnly ? "disabled" : ""}>
@@ -2531,7 +2550,8 @@ function renderHolidaySection(board, readOnly) {
       ${readOnly ? "" : `<button class="holiday-del" onclick="delHoliday('${h.id}')">×</button>`}
     </div>`).join("");
   document.getElementById("bulletinHoliday").innerHTML = `
-    <div class="holiday-head">节假日 / 特殊作业</div>
+    <div class="holiday-head">周末 / 节假日 / 特殊作业</div>
+    <div class="bcls-weekend-days">${[6, 7].map(renderDay).join("")}</div>
     ${entries || `<div class="empty-tip" style="margin-bottom:8px">暂无节假日作业</div>`}
     ${readOnly ? "" : `<button class="add-holiday" onclick="addHoliday()">＋ 添加节假日作业</button>`}`;
 }
@@ -2544,24 +2564,9 @@ function renderOverview() {
   const total = students.length;
   const target = state.targets[currentClassKey] || { A: 0, B: 2, C: 8 };
   const cnt = { A: 0, B: 0, C: 0, D: 0, none: 0 };
-  const hw = { missing: 0, submitted: 0, late: 0 };
-  const a = currentAssignment(currentClassKey);
-  students.forEach(s => {
-    cnt[getTier(s.schoolRank)]++;
-    hw[getSub(currentClassKey, a.id, s.name)] = (hw[getSub(currentClassKey, a.id, s.name)] || 0) + 1;
-  });
+  students.forEach(s => { cnt[getTier(s.schoolRank)]++; });
 
   let html = `<div class="ov-card"><div class="num">${total}</div><div class="lbl">班级总人数</div></div>`;
-
-  // 作业收缴情况（针对当前作业，显示标题+日期）
-  html += `<div class="hwbar">
-    <div class="hb-title">作业收缴 · ${escapeHtml(a.title)}${a.date ? "（" + a.date + "）" : ""}</div>
-    <div class="hb-chips">
-      <span class="hw-chip submitted"><b>${hw.submitted}</b>已交</span>
-      <span class="hw-chip missing"><b>${hw.missing}</b>未交</span>
-      <span class="hw-chip late"><b>${hw.late}</b>补交</span>
-    </div>
-  </div>`;
 
   if (!isRepresentative) {
     html += `<div class="ov-card tier-A"><div class="num tA">${cnt.A}<small>/${target.A || 0}</small></div><div class="lbl">A指标 达标/目标</div></div>
@@ -2854,7 +2859,7 @@ function renderStudentList() {
     return va - vb;
   });
 
-  // 课代表模式：只读简表，显示名次+姓名+批改登记（等级）+作业按钮（针对当前作业）
+  // 课代表模式：只读简表（两列/三列卡片），显示名次+姓名+批改登记（等级）+作业按钮（针对当前作业）
   if (isRepresentative) {
     document.getElementById("studentList").className = "rep-list";
     const a = currentAssignment(currentClassKey);
@@ -2866,10 +2871,12 @@ function renderStudentList() {
       const gradeTag = g
         ? `<span class="rr-grade ${g}">${GRADE_META[g].label}</span>`
         : `<span class="rr-grade none">未批</span>`;
-      return `<div class="rep-row">
-        <span class="rr-rank">${rank}</span>
-        <span class="rr-name">${escapeHtml(s.name)}</span>
-        ${gradeTag}
+      return `<div class="rep-card">
+        <div class="rep-top">
+          <span class="rr-rank">${rank}</span>
+          <span class="rr-name">${escapeHtml(s.name)}</span>
+          ${gradeTag}
+        </div>
         <div class="rr-btns">
           <button class="${hw === "missing" ? "on-missing" : ""}" onclick="repSetHw('${escapeHtml(s.name)}','missing')">未交</button>
           <button class="${hw === "submitted" ? "on-submitted" : ""}" onclick="repSetHw('${escapeHtml(s.name)}','submitted')">已交</button>
@@ -2999,7 +3006,7 @@ function renderHwList() {
     <div class="modal-actions" style="margin-bottom:8px">
       <button class="btn primary" style="flex:1;min-height:44px;background:#22a06b" onclick="markAllSubmitted()">一键全交</button>
       ${isRepresentative ? "" : `<button class="mini-btn" style="flex:1;min-height:44px" onclick="markAllMissing()">一键设未交</button>`}
-      <button class="mini-btn" style="flex:1;min-height:44px;background:#5b6bd6" onclick="openQuickGrade()">快速批改</button>
+      ${isRepresentative ? "" : `<button class="mini-btn" style="flex:1;min-height:44px;background:#5b6bd6" onclick="openQuickGrade()">快速批改</button>`}
     </div>
     <div class="empty-tip" style="margin-bottom:6px">${a.due ? "上交时间：" + escapeHtml(a.due) : "可新建作业，填写标题 / 日期 / 上交时间"}</div>`;
 
@@ -3298,12 +3305,23 @@ function renderRepMode() {
    ============================================================ */
 function switchClass(key) {
   currentClassKey = key; filterTier = "all"; searchQuery = ""; batchMode = false; selected.clear();
+  weekLocked = false;  // 切班回到当前周
   renderAll();
 }
 function setFilter(v) { filterTier = v; renderStudentList(); }
 function setSearch(v) { searchQuery = v; renderStudentList(); }
 function setSort(v) { sortKey = v; renderFilterBar(); renderStudentList(); }
-function toggleRepresentative() { isRepresentative = !isRepresentative; batchMode = false; selected.clear(); renderAll(); }
+function toggleRepresentative() {
+  isRepresentative = !isRepresentative; batchMode = false; selected.clear();
+  // 学生列表面板：课代表模式默认展开，教师模式默认收起
+  const spBody = document.getElementById("studentPanelBody");
+  const spToggle = document.getElementById("studentPanelToggle");
+  if (spBody && spToggle) {
+    if (isRepresentative) { spBody.classList.remove("hidden"); spToggle.textContent = "收起"; }
+    else { spBody.classList.add("hidden"); spToggle.textContent = "展开"; }
+  }
+  renderAll();
+}
 
 /* 面板收起/展开（本节课提问、待提问队列、学生列表） */
 function togglePanel(id) {
