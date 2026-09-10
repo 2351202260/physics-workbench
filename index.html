@@ -100,17 +100,32 @@ header {
 @media (max-width: 1100px) { .bcls-days { grid-template-columns: repeat(7, 1fr); gap:5px } }
 @media (max-width: 760px) { .bcls-days { grid-template-columns: repeat(2, 1fr); gap:6px } }
 .bcls-day { background:#fafbfc; border:1px solid var(--border); border-radius:8px; padding:8px; min-height:150px; display:flex; flex-direction:column; gap:6px }
-.bcls-day.empty { background:transparent; border-color:transparent; min-height:0 }
 .bcls-day.weekend { background:#fffaf3; border-color:#f0d9a8 }
 .bcls-day .bd-label { font-size:13px; font-weight:700; color:#24408f }
 .bcls-day.weekend .bd-label { color:#d9700c }
-.bcls-lesson { background:#fff; border:1px solid #dfe5ee; border-radius:7px; padding:6px 7px; font-size:12px; display:flex; flex-direction:column; gap:4px }
-.bcls-lesson .bl-period { font-size:11px; color:var(--text3); display:flex; justify-content:space-between }
-.bcls-lesson .bl-topic { font-weight:700; color:#1a3a8e; line-height:1.4; word-break:break-word }
-.bcls-lesson .bl-hw { font-size:12px; color:#24408f; background:#f0f4ff; padding:3px 5px; border-radius:5px; margin-top:2px }
-.bcls-lesson .bl-hw select { width:100%; border:1px solid #c7d7fb; background:#fff; font-size:12px; padding:3px; border-radius:5px; word-break:break-all }
+.bcls-lesson { position:relative; background:#fff; border:1px solid #dfe5ee; border-radius:7px; padding:6px 7px; font-size:12px; display:flex; flex-direction:column; gap:5px }
+.bcls-lesson.review { border-left:3px solid #5b6bd6 }
+.bcls-lesson.exam { border-left:3px solid #d9700c }
+.bcls-lesson .bl-period { display:flex; align-items:center; gap:5px }
+.bcls-lesson .bl-period-no { font-size:11px; font-weight:700; color:var(--text3); flex-shrink:0 }
+.bcls-lesson .bl-time { flex:1; min-height:27px; border:1px solid var(--border); border-radius:5px; padding:2px 5px; font-size:11px; color:var(--text2); background:#fff }
+.bcls-lesson .bl-time:disabled { background:#f7f8fa }
+.bcls-lesson .bl-topic-wrap { display:flex; gap:4px; align-items:flex-start }
+.bcls-lesson .bl-topic { flex:1; min-height:30px; resize:none; overflow:hidden; border:1px solid #dfe5ee; border-radius:5px; padding:3px 6px; font-size:12px; font-weight:600; color:#1a3a8e; line-height:1.4; word-break:break-word; background:#fff }
+.bcls-lesson .bl-topic:disabled { background:#f7f8fa; color:#1a3a8e; border-color:transparent }
+.bcls-lesson .bl-pick { flex-shrink:0; min-height:30px; min-width:32px; padding:0 7px; border:1px solid #c7d7fb; background:#eaf3ff; border-radius:5px; font-size:11px; color:#24408f; font-weight:700; cursor:pointer }
+.bcls-lesson .bl-hw { display:flex; flex-direction:column; gap:3px; font-size:12px; color:#24408f; background:#f0f4ff; padding:3px 5px; border-radius:5px }
+.bcls-lesson .bl-hw select { width:100%; border:1px solid #c7d7fb; background:#fff; font-size:11px; padding:2px; border-radius:4px }
 .bcls-lesson .bl-hw select:disabled { background:#f0f0f0; color:var(--text3) }
+.bcls-lesson .bl-hw-custom { width:100%; border:1px dashed #c7d7fb; background:#fff; font-size:11px; padding:3px 5px; border-radius:4px; min-height:27px; color:var(--text2) }
+.bcls-lesson .bl-hw-custom:disabled { background:#f7f8fa }
+.bcls-lesson .bl-del { position:absolute; top:-8px; right:-8px; width:22px; height:22px; border-radius:50%; border:1px solid #f3c3c3; background:#fff; color:#d03b3b; font-size:13px; line-height:1; cursor:pointer }
+.bcls-day .bl-add { min-height:34px; border:1px dashed #c7d7fb; background:transparent; border-radius:6px; font-size:12px; color:#24408f; cursor:pointer }
+.bcls-day .bl-add:hover { background:#eaf3ff }
 .bcls-day.today { outline:2px solid #3b6ef5; outline-offset:-2px }
+.topic-pick-list { display:flex; flex-wrap:wrap; gap:8px; max-height:50vh; overflow-y:auto }
+.topic-pick { min-height:44px; padding:0 14px; border:1px solid #c7d7fb; background:#eaf3ff; border-radius:9px; font-size:13px; color:#24408f; cursor:pointer }
+.topic-pick:hover { background:#dbe5ff }
 
 .qg-stat { display:flex; align-items:center; gap:6px; padding:8px 0; flex-wrap:wrap; border-bottom:1px solid var(--border); margin-bottom:8px }
 .qg-pill { display:inline-flex; align-items:center; min-height:30px; padding:0 10px; border-radius:15px; font-size:13px; font-weight:700 }
@@ -121,16 +136,17 @@ header {
 .qg-pill.none { background:#f0f0f0; color:#888 }
 .qg-actions { display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap }
 .qg-list { max-height:55vh; overflow-y:auto; -webkit-overflow-scrolling:touch }
-.qg-row { display:flex; align-items:center; gap:8px; padding:6px 8px; border-bottom:1px solid #f0f0f0 }
+.qg-row { display:flex; flex-wrap:wrap; align-items:center; gap:6px 8px; padding:8px; border-bottom:1px solid #f0f0f0 }
 .qg-row.done { background:#f8fbff }
-.qg-row .qg-name { flex:1; font-size:14px; font-weight:600 }
+.qg-row .qg-name { flex:1; min-width:110px; font-size:14px; font-weight:600 }
 .qg-row .qg-sub { margin-left:6px; font-size:11px; color:var(--text3); font-weight:400 }
-.qg-btns { display:flex; gap:4px }
-.qg-btn { min-width:42px; min-height:42px; border:1px solid #dfe5ee; background:#fff; border-radius:8px; font-size:15px; font-weight:700; color:var(--text2) }
+.qg-btns { display:flex; gap:6px; flex-wrap:wrap }
+.qg-btn { min-width:62px; min-height:52px; padding:0 10px; border:1px solid #dfe5ee; background:#fff; border-radius:9px; font-size:16px; font-weight:700; color:var(--text2) }
 .qg-btn.A.active { background:#1f9d55; color:#fff; border-color:#1f9d55 }
 .qg-btn.B.active { background:#3b6ef5; color:#fff; border-color:#3b6ef5 }
 .qg-btn.C.active { background:#d9700c; color:#fff; border-color:#d9700c }
 .qg-btn.D.active { background:#d03b3b; color:#fff; border-color:#d03b3b }
+.qg-note { width:100%; min-height:38px; resize:none; overflow:hidden; border:1px dashed var(--border); border-radius:7px; padding:6px 9px; font-size:13px; color:var(--text); background:#fff }
 .qg-legend { display:flex; flex-wrap:wrap; gap:10px; padding:8px 4px; font-size:11px; color:var(--text3); border-top:1px solid var(--border); margin-top:8px }
 .rank-tag { display:inline-block; min-width:42px; padding:2px 4px; border-radius:4px; background:#24408f; color:#fff; font-size:10px; font-weight:700; text-align:center; margin-right:6px; vertical-align:middle }
 .missing-list .rank-tag { background:#5b6bd6; color:#fff }
@@ -1927,10 +1943,18 @@ const TIER_CONFIG = {
 const HW_INFO = {
   missing:   { label: "未交",     sub: "未上交" },
   submitted: { label: "已交",     sub: "已上交" },
-  excellent: { label: "优秀",     sub: "评A" },
+  excellent: { label: "优秀",     sub: "评特优" },
   late:      { label: "补交",     sub: "补交" },
   returned:  { label: "打回重写", sub: "需订正" },
   corrected: { label: "已订正",   sub: "重交合格" },
+};
+
+/* 快速批改评价等级：A/B/C/D 对应 特优/优秀/良好/补写 */
+const GRADE_META = {
+  A: { label: "特优", short: "特优", desc: "全对/优秀" },
+  B: { label: "优秀", short: "优秀", desc: "良好/小错" },
+  C: { label: "良好", short: "良好", desc: "一般/较多错" },
+  D: { label: "补写", short: "补写", desc: "需重做/补写" },
 };
 
 /* 一周字段（含周末） */
@@ -2172,8 +2196,8 @@ function computeCurrentWeekIdx() {
   const diffDays = Math.floor((mon - TEACH_START) / (86400000));
   return Math.max(0, Math.min(TEACH_PLAN.length - 1, Math.floor(diffDays / 7)));
 }
-function getLessonTopic(weekIdx, dayCode, period, clsCode) {
-  const board = getBoard(currentClassKey);
+function getLessonTopic(weekIdx, dayCode, period, clsCode, clsKey) {
+  const board = getBoard(clsKey || currentClassKey);
   const key = `${dayCode}-${period}`;
   const week = (board.lessons || {})[weekIdx] || {};
   const ov = week[key];
@@ -2219,24 +2243,31 @@ function renderBulletin() {
   const wt = board.weekTasks[currentWeekIdx];
   document.getElementById("weekTask").value = wt || "";
   document.getElementById("weekTask").disabled = readOnly;
-  // 按班 × 7 天视图（仅当前班）
+  // 按班 × 7 天视图（仅当前班；周四周六周日也可点「＋添加课时」编辑）
   const dayNames = ["", "周一", "周二", "周三", "周四", "周五", "周六", "周日"];
   const today = new Date();
   const todayCode = today.getDay() === 0 ? 7 : today.getDay();  // 1-7
   const isCurrentWeek = currentWeekIdx === computeCurrentWeekIdx();
   const m = CLASS_META.find(x => x.key === currentClassKey);
   const clsCode = m.clsCode;
+  const weekLessons = board.lessons[currentWeekIdx] || {};
   const periodsThisWeek = [];
+  let totalLessons = 0;
   for (let d = 1; d <= 7; d++) {
     const ds = SCHEDULE[String(d)] || {};
     const list = [];
     for (let p = 1; p <= 8; p++) {
-      const c = ds[String(p)];
-      if (c === clsCode) list.push(p);
+      if (ds[String(p)] === clsCode) list.push(p);
     }
+    totalLessons += list.length;
+    // 自定义课时（period >= 9，无课日期添加的）
+    for (const k in weekLessons) {
+      const parts = k.split("-");
+      if (parts.length === 2 && Number(parts[0]) === d && Number(parts[1]) >= 9) list.push(Number(parts[1]));
+    }
+    list.sort((a, b) => a - b);
     periodsThisWeek.push({ day: d, periods: list });
   }
-  const totalLessons = periodsThisWeek.reduce((s, x) => s + x.periods.length, 0);
   document.getElementById("bulletinClasses").innerHTML = `<div class="bcls-row">
     <div class="bcls-head">
       <div class="bcls-name">${m.short} ${m.badge ? `<span class="tag" style="margin-left:6px">${m.badge}</span>` : ""}</div>
@@ -2247,12 +2278,10 @@ function renderBulletin() {
         const dn = dayNames[day];
         const weekend = (day === 6 || day === 7);
         const isToday = isCurrentWeek && day === todayCode;
-        if (periods.length === 0) {
-          return `<div class="bcls-day ${weekend ? "weekend" : ""} empty"><div class="bd-label">${dn}${isToday ? "（今天）" : ""}</div><div style="color:var(--text3);font-size:11px;text-align:center;padding:6px 0">无课</div></div>`;
-        }
         return `<div class="bcls-day ${weekend ? "weekend" : ""} ${isToday ? "today" : ""}">
           <div class="bd-label">${dn}${isToday ? "（今天）" : ""}</div>
           ${periods.map(p => renderLessonCell(currentWeekIdx, day, p, clsCode, readOnly)).join("")}
+          ${readOnly ? "" : `<button class="bl-add" onclick="addCustomLesson(${day})">＋ 添加课时</button>`}
         </div>`;
       }).join("")}
     </div>
@@ -2263,36 +2292,94 @@ function renderBulletin() {
   document.getElementById("btnSyncBulletin").classList.toggle("hidden", isRepresentative);
   // 保存上次查看周次
   board.lastWeekIdx = currentWeekIdx;
+  // 自适应高度
+  document.querySelectorAll("#bulletinClasses textarea, #weekTask").forEach(autoResizeEl);
 }
 
 function renderLessonCell(weekIdx, dayCode, period, clsCode, readOnly) {
-  const topic = getLessonTopic(weekIdx, dayCode, period, clsCode);
   const board = getBoard(currentClassKey);
   const ovKey = `${dayCode}-${period}`;
   const ov = (board.lessons[weekIdx] || {})[ovKey] || {};
-  const isReview = /习题|复习/.test(topic);
-  const isExam = /考试|月考|期中|期末/.test(topic);
+  const isCustom = period >= 9;
+  const topic = getLessonTopic(weekIdx, dayCode, period, clsCode);
+  const topicVal = ov.customTopic != null ? ov.customTopic : topic;
+  const timeVal = ov.customTime != null ? ov.customTime : (isCustom ? "" : (PERIOD_TIME[String(period)] || ""));
+  const hwVal = ov.customHw || "";
   const hwOptionsHtml = buildHwSelectOptions(ov.hwKey);
+  const isReview = /习题|复习/.test(topicVal);
+  const isExam = /考试|月考|期中|期末/.test(topicVal);
   return `<div class="bcls-lesson ${isReview ? "review" : ""} ${isExam ? "exam" : ""}">
-    <div class="bl-period"><span>第${period}节</span><span>${PERIOD_TIME[String(period)] || ""}</span></div>
-    <div class="bl-topic" ${readOnly ? "" : `ondblclick="editLessonTopic(${weekIdx},${dayCode},${period})"`} title="${readOnly ? "" : "双击修改"}">${escapeHtml(topic) || "—"}</div>
+    <div class="bl-period">
+      <span class="bl-period-no">${isCustom ? "自定义" : `第${period}节`}</span>
+      <input type="text" class="bl-time" data-w="${weekIdx}" data-d="${dayCode}" data-p="${period}" data-f="customTime" value="${escapeHtml(timeVal)}" placeholder="时间" ${readOnly ? "disabled" : ""}>
+    </div>
+    <div class="bl-topic-wrap">
+      <textarea class="bl-topic" rows="1" data-w="${weekIdx}" data-d="${dayCode}" data-p="${period}" data-f="customTopic" placeholder="教学内容" ${readOnly ? "disabled" : ""}>${escapeHtml(topicVal)}</textarea>
+      ${readOnly ? "" : `<button class="bl-pick" onclick="openTopicPicker(${weekIdx},${dayCode},${period})" title="从教研安排选择">选</button>`}
+    </div>
     <div class="bl-hw">
-      <select data-week="${weekIdx}" data-day="${dayCode}" data-period="${period}" onchange="onLessonHwSelect(this)" ${readOnly ? "disabled" : ""}>
+      <select data-w="${weekIdx}" data-d="${dayCode}" data-p="${period}" onchange="onLessonHwSelect(this)" ${readOnly ? "disabled" : ""}>
         <option value="">— 选作业 —</option>${hwOptionsHtml}
       </select>
+      <input type="text" class="bl-hw-custom" data-w="${weekIdx}" data-d="${dayCode}" data-p="${period}" data-f="customHw" value="${escapeHtml(hwVal)}" placeholder="或手动填作业" ${readOnly ? "disabled" : ""}>
     </div>
+    ${isCustom && !readOnly ? `<button class="bl-del" onclick="delCustomLesson(${dayCode},${period})" title="删除此课时">×</button>` : ""}
   </div>`;
+}
+
+/* 无课日期添加自定义课时（周四/周六/周日等） */
+function addCustomLesson(day) {
+  const board = getBoard(currentClassKey);
+  if (!board.lessons[currentWeekIdx]) board.lessons[currentWeekIdx] = {};
+  const wk = board.lessons[currentWeekIdx];
+  let maxP = 8;
+  for (const k in wk) {
+    const parts = k.split("-");
+    if (parts.length === 2 && Number(parts[0]) === day && Number(parts[1]) >= 9) maxP = Math.max(maxP, Number(parts[1]));
+  }
+  const p = maxP + 1;
+  wk[`${day}-${p}`] = { customTopic: "", customTime: "", customHw: "" };
+  saveState(); renderBulletin();
+}
+function delCustomLesson(day, period) {
+  const board = getBoard(currentClassKey);
+  const wk = board.lessons[currentWeekIdx];
+  if (wk) delete wk[`${day}-${period}`];
+  saveState(); renderBulletin();
+}
+
+/* 教学内容：点击选择（教研安排预设 + 常用课题） */
+function openTopicPicker(weekIdx, dayCode, period) {
+  const plan = TEACH_PLAN[weekIdx];
+  const presets = [
+    ...(plan ? plan.lessons.map(l => l.topic) : []),
+    "习题课", "复习课", "月考讲评", "期中讲评", "期末讲评", "自习", "放假", "补课",
+  ];
+  const uniq = [...new Set(presets)];
+  openModal(`
+    <div class="modal-head"><h2>选择教学内容</h2><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="empty-tip" style="margin-bottom:8px">点击填入下方文本框，也可直接手动编辑。</div>
+      <div class="topic-pick-list">
+        ${uniq.map(t => `<button class="topic-pick" onclick="pickTopic(${weekIdx},${dayCode},${period},'${escapeHtml(t).replace(/'/g, "\\'")}')">${escapeHtml(t)}</button>`).join("")}
+      </div>
+    </div>`);
+}
+function pickTopic(weekIdx, dayCode, period, topic) {
+  setLessonOverride(weekIdx, dayCode, period, "customTopic", topic);
+  closeModal();
+  renderBulletin();
+  toast("已设置教学内容");
 }
 
 /* 公告栏选了作业 → 自动创建一份作业（如果不存在） */
 function onLessonHwSelect(sel) {
-  const hwKey = sel.value;
-  if (!hwKey) return;
-  const week = parseInt(sel.dataset.week, 10);
-  const day = parseInt(sel.dataset.day, 10);
-  const period = parseInt(sel.dataset.period, 10);
+  const week = parseInt(sel.dataset.w, 10);
+  const day = parseInt(sel.dataset.d, 10);
+  const period = parseInt(sel.dataset.p, 10);
+  const hwKey = sel.value || null;
   setLessonOverride(week, day, period, "hwKey", hwKey);
-  ensureAssignmentFromHwKey(hwKey, week, day);
+  if (hwKey) ensureAssignmentFromHwKey(hwKey, week, day);
 }
 function ensureAssignmentFromHwKey(hwKey, week, day) {
   const meta = parseHwKey(hwKey);
@@ -2340,33 +2427,6 @@ function parseHwKey(hwKey) {
   };
 }
 
-function editLessonTopic(weekIdx, dayCode, period) {
-  const board = getBoard(currentClassKey);
-  const cls = CLASS_META.find(m => m.key === currentClassKey);
-  const ov = ((board.lessons[weekIdx] || {})[`${dayCode}-${period}`]) || {};
-  const cur = ov.customTopic || getLessonTopic(weekIdx, dayCode, period, cls.clsCode);
-  openModal(`
-    <div class="modal-head"><h2>修改本节课标题</h2><button class="modal-close" onclick="closeModal()">×</button></div>
-    <div class="modal-body">
-      <div class="empty-tip" style="margin-bottom:8px">留空 = 恢复教研安排默认。双击空白处可恢复。</div>
-      <textarea id="editTopicText" style="width:100%;min-height:80px;border:1px solid var(--border);border-radius:8px;padding:8px;font-size:13px">${escapeHtml(cur)}</textarea>
-      <div class="modal-actions" style="margin-top:10px">
-        <button class="btn primary" onclick="saveLessonTopic(${weekIdx},${dayCode},${period})">保存</button>
-        <button class="btn ghost" onclick="closeModal()">取消</button>
-      </div>
-    </div>`);
-}
-function saveLessonTopic(weekIdx, dayCode, period) {
-  const v = document.getElementById("editTopicText").value.trim();
-  const board = getBoard(currentClassKey);
-  if (!board.lessons[weekIdx]) board.lessons[weekIdx] = {};
-  if (!board.lessons[weekIdx][`${dayCode}-${period}`]) board.lessons[weekIdx][`${dayCode}-${period}`] = {};
-  board.lessons[weekIdx][`${dayCode}-${period}`].customTopic = v || null;
-  saveState(); renderBulletin();
-  closeModal();
-  toast("已更新本节课标题");
-}
-
 function buildHwSelectOptions(selected) {
   // 全品作业本目录 → 章 → 节 → 课时 三层
   const opts = [];
@@ -2406,33 +2466,41 @@ function syncBulletin() {
 
 /* 生成公告栏的 Excel（HTML 表格）内容 */
 function buildBulletinHtml() {
-  const board = getBoard(currentClassKey);
   const cls = clsShort(currentClassKey);
   const plan = TEACH_PLAN[currentWeekIdx] || { week: "", dates: "" };
-  const wt = (board.weekTasks && board.weekTasks[currentWeekIdx]) || "";
-  // 4 班 × 5 天 × 课时 → 表格：横轴=周1-5/6/7，纵轴=各班该日课表
+  const wt = (getBoard(currentClassKey).weekTasks && getBoard(currentClassKey).weekTasks[currentWeekIdx]) || "";
+  // 4 班 × 7 天 × 课时 → 表格：横轴=周1-7，纵轴=各班该日课表
   const dayNames = ["", "周一", "周二", "周三", "周四", "周五", "周六", "周日"];
   let header = `<tr><th>班级</th>${[1,2,3,4,5,6,7].map(d => `<th>${dayNames[d]}</th>`).join("")}</tr>`;
   let bodyRows = "";
   CLASS_META.forEach(m => {
+    const b = getBoard(m.key);
+    const weekLessons = (b.lessons || {})[currentWeekIdx] || {};
     let cells = `<td style="font-weight:bold">${m.short}</td>`;
     for (let d = 1; d <= 7; d++) {
       const ds = SCHEDULE[String(d)] || {};
       const periods = [];
       for (let p = 1; p <= 8; p++) {
-        if (ds[String(p)] === m.clsCode) {
-          const topic = getLessonTopic(currentWeekIdx, d, p, m.clsCode);
-          const ov = ((board.lessons || {})[currentWeekIdx] || {})[`${d}-${p}`] || {};
-          const hw = ov.hwKey ? (parseHwKey(ov.hwKey) || {}).title || "" : "";
-          periods.push({ p, topic, hw });
-        }
+        if (ds[String(p)] === m.clsCode) periods.push(p);
       }
-      cells += `<td>${periods.length ? periods.map(x => `第${x.p}节 ${escapeHtml(x.topic)}${x.hw ? `<br><small>作业：${escapeHtml(x.hw)}</small>` : ""}`).join("<br>") : "—"}</td>`;
+      // 自定义课时（周四/周六/周日添加的）
+      for (const k in weekLessons) {
+        const parts = k.split("-");
+        if (parts.length === 2 && Number(parts[0]) === d && Number(parts[1]) >= 9) periods.push(Number(parts[1]));
+      }
+      periods.sort((a, b2) => a - b2);
+      cells += `<td>${periods.length ? periods.map(p => {
+        const ov = weekLessons[`${d}-${p}`] || {};
+        const topic = ov.customTopic != null ? ov.customTopic : getLessonTopic(currentWeekIdx, d, p, m.clsCode, m.key);
+        const time = ov.customTime || PERIOD_TIME[String(p)] || "";
+        const hw = ov.customHw || (ov.hwKey ? (parseHwKey(ov.hwKey) || {}).title || "" : "");
+        return `${p >= 9 ? "自定义" : `第${p}节`}${time ? " " + escapeHtml(time) : ""} ${escapeHtml(topic)}${hw ? `<br><small>作业：${escapeHtml(hw)}</small>` : ""}`;
+      }).join("<br>") : "—"}</td>`;
     }
     bodyRows += `<tr>${cells}</tr>`;
   });
   let holidayRows = "";
-  (board.holidays || []).forEach(h => {
+  (getBoard(currentClassKey).holidays || []).forEach(h => {
     holidayRows += `<tr><td style="font-weight:bold">${escapeHtml(h.name)}</td><td colspan="3">${escapeHtml(h.hw)}</td><td>${escapeHtml(h.date)}</td><td>${escapeHtml(h.due)}</td></tr>`;
   });
   return `<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body>
@@ -2954,12 +3022,12 @@ function renderHwList() {
   const subMap = {};
   sorted.forEach(s => { const st = getSub(currentClassKey, a.id, s.name); (subMap[st] = subMap[st] || []).push(s); });
 
-  // 等级分组
+  // 等级分组（特优/优秀/良好/补写）
   const gradeGroups = [
-    { key: "A", label: "A", cls: "A" },
-    { key: "B", label: "B", cls: "B" },
-    { key: "C", label: "C", cls: "C" },
-    { key: "D", label: "D", cls: "D" },
+    { key: "A", label: GRADE_META.A.label, cls: "A" },
+    { key: "B", label: GRADE_META.B.label, cls: "B" },
+    { key: "C", label: GRADE_META.C.label, cls: "C" },
+    { key: "D", label: GRADE_META.D.label, cls: "D" },
     { key: "none", label: "未批", cls: "none" },
   ];
   const gradeMap = {};
@@ -2996,7 +3064,7 @@ function renderHwList() {
     const key = hwOpenGroup.slice(6);
     const arr = gradeMap[key] || [];
     const g = gradeGroups.find(x => x.key === key);
-    html += `<div class="hw-stu-panel"><div class="hw-stu-panel-head">等级 ${g.label} · ${arr.length} 人</div>${arr.length ? renderStuRows(arr, g.cls) : `<div class="empty-tip">暂无</div>`}</div>`;
+    html += `<div class="hw-stu-panel"><div class="hw-stu-panel-head">${g.label} · ${arr.length} 人</div>${arr.length ? renderStuRows(arr, g.cls) : `<div class="empty-tip">暂无</div>`}</div>`;
   }
 
   document.getElementById("hwListBox").innerHTML = html;
@@ -3004,12 +3072,18 @@ function renderHwList() {
   renderHwHistory();
 }
 
-/* 快速批改：当前作业全班 ABCD 等级 */
+/* 快速批改：当前作业全班等级（特优/优秀/良好/补写）+ 批注 */
 function getGrades(clsKey, aId) {
   if (!state.grades) state.grades = {};
   if (!state.grades[clsKey]) state.grades[clsKey] = {};
   if (!state.grades[clsKey][aId]) state.grades[clsKey][aId] = {};
   return state.grades[clsKey][aId];
+}
+function getGradeNotes(clsKey, aId) {
+  if (!state.gradeNotes) state.gradeNotes = {};
+  if (!state.gradeNotes[clsKey]) state.gradeNotes[clsKey] = {};
+  if (!state.gradeNotes[clsKey][aId]) state.gradeNotes[clsKey][aId] = {};
+  return state.gradeNotes[clsKey][aId];
 }
 function setGrade(name, grade) {
   const a = currentAssignment(currentClassKey);
@@ -3018,56 +3092,58 @@ function setGrade(name, grade) {
   saveState();
   openQuickGrade();
 }
+function saveGradeNote(name, text) {
+  const a = currentAssignment(currentClassKey);
+  const notes = getGradeNotes(currentClassKey, a.id);
+  if (!text || !text.trim()) delete notes[name];
+  else notes[name] = text;
+  saveState();
+}
 function openQuickGrade() {
   const a = currentAssignment(currentClassKey);
   const students = currentStudents().slice().sort((x, y) => (x.classRank || 999) - (y.classRank || 999));
   const g = getGrades(currentClassKey, a.id);
+  const notes = getGradeNotes(currentClassKey, a.id);
   const cnt = { A: 0, B: 0, C: 0, D: 0, none: 0 };
   students.forEach(s => { const v = g[s.name]; cnt[v || "none"]++; });
   const total = students.length;
   const done = cnt.A + cnt.B + cnt.C + cnt.D;
+  const gradeKeys = ["A", "B", "C", "D"];
   const rows = students.map(s => {
     const cur = g[s.name];
     const rank = s.classRank != null ? `第${s.classRank}名` : "缺考";
     const sub = getSub(currentClassKey, a.id, s.name);
     const subLabel = HW_INFO[sub] ? HW_INFO[sub].label : "";
+    const note = notes[s.name] || "";
     return `<div class="qg-row ${cur ? "done" : ""}">
       <div class="qg-name"><span class="rank-tag">${rank}</span> ${escapeHtml(s.name)}<span class="qg-sub">${subLabel}</span></div>
       <div class="qg-btns">
-        <button class="qg-btn A ${cur === "A" ? "active" : ""}" onclick="setGrade('${escapeHtml(s.name)}','A')">A</button>
-        <button class="qg-btn B ${cur === "B" ? "active" : ""}" onclick="setGrade('${escapeHtml(s.name)}','B')">B</button>
-        <button class="qg-btn C ${cur === "C" ? "active" : ""}" onclick="setGrade('${escapeHtml(s.name)}','C')">C</button>
-        <button class="qg-btn D ${cur === "D" ? "active" : ""}" onclick="setGrade('${escapeHtml(s.name)}','D')">D</button>
+        ${gradeKeys.map(k => `<button class="qg-btn ${k} ${cur === k ? "active" : ""}" onclick="setGrade('${escapeHtml(s.name)}','${k}')">${GRADE_META[k].label}</button>`).join("")}
       </div>
+      <textarea class="qg-note" rows="1" placeholder="批注…" oninput="autoResizeEl(this)" onchange="saveGradeNote('${escapeHtml(s.name)}', this.value)">${escapeHtml(note)}</textarea>
     </div>`;
   }).join("");
   openModal(`
     <div class="modal-head"><h2>快速批改 · ${escapeHtml(a.title)}</h2><button class="modal-close" onclick="closeModal()">×</button></div>
     <div class="modal-body">
       <div class="qg-stat">
-        <span class="qg-pill A">A ${cnt.A}</span>
-        <span class="qg-pill B">B ${cnt.B}</span>
-        <span class="qg-pill C">C ${cnt.C}</span>
-        <span class="qg-pill D">D ${cnt.D}</span>
+        ${gradeKeys.map(k => `<span class="qg-pill ${k}">${GRADE_META[k].label} ${cnt[k]}</span>`).join("")}
         <span class="qg-pill none">未批 ${cnt.none}</span>
         <span style="margin-left:auto;color:var(--text2);font-size:12px">已批 ${done}/${total}</span>
       </div>
       <div class="qg-actions">
-        <button class="mini-btn" onclick="quickGradeAll('A')">一键全 A</button>
-        <button class="mini-btn" onclick="quickGradeAll('B')">一键全 B</button>
+        ${gradeKeys.map(k => `<button class="mini-btn" onclick="quickGradeAll('${k}')">一键全${GRADE_META[k].label}</button>`).join("")}
         <button class="mini-btn" onclick="quickGradeReset()">清空全部</button>
       </div>
       <div class="qg-list">${rows}</div>
       <div class="qg-legend">
-        <span><span class="qg-pill A">A</span> 优秀/全对</span>
-        <span><span class="qg-pill B">B</span> 良好/部分小错</span>
-        <span><span class="qg-pill C">C</span> 一般/较多错误</span>
-        <span><span class="qg-pill D">D</span> 较差/需重做</span>
+        ${gradeKeys.map(k => `<span><span class="qg-pill ${k}">${GRADE_META[k].label}</span> ${GRADE_META[k].desc}</span>`).join("")}
       </div>
     </div>`);
+  document.querySelectorAll(".qg-note").forEach(autoResizeEl);
 }
 function quickGradeAll(grade) {
-  if (!confirm(`把当前作业全班一键标记为 ${grade} ？已有等级会被覆盖。`)) return;
+  if (!confirm(`把当前作业全班一键标记为「${GRADE_META[grade].label}」？已有等级会被覆盖。`)) return;
   const a = currentAssignment(currentClassKey);
   const g = getGrades(currentClassKey, a.id);
   currentStudents().forEach(s => { g[s.name] = grade; });
@@ -3456,12 +3532,20 @@ function saveWeekTask(v) {
   board.weekTasks[currentWeekIdx] = v;
   saveState();
 }
-function autoResizeBulletin() {
-  document.querySelectorAll("#bulletinClasses textarea, #weekTask").forEach(ta => {
-    ta.style.height = "auto";
-    ta.style.height = (ta.scrollHeight + 2) + "px";
-  });
+function autoResizeEl(ta) {
+  ta.style.height = "auto";
+  ta.style.height = (ta.scrollHeight + 2) + "px";
 }
+/* 公告栏课时格子：textarea 输入自适应高度，失焦保存（时间/教学内容/作业手动文本） */
+document.getElementById("bulletinClasses").addEventListener("input", e => {
+  if (e.target && e.target.tagName === "TEXTAREA") autoResizeEl(e.target);
+});
+document.getElementById("bulletinClasses").addEventListener("change", e => {
+  const el = e.target;
+  if (!el || !el.dataset || !el.dataset.f) return;
+  const w = Number(el.dataset.w), d = Number(el.dataset.d), p = Number(el.dataset.p);
+  setLessonOverride(w, d, p, el.dataset.f, el.value === "" ? null : el.value);
+});
 document.getElementById("bulletinHoliday").addEventListener("change", e => {
   const inp = e.target.closest("input[data-hid]");
   if (!inp) return;
@@ -3507,16 +3591,31 @@ function generateFeedback() {
   const students = currentStudents();
   const a = currentAssignment(currentClassKey);
   const groups = { missing: [], late: [], returned: [] };
-  students.forEach(s => { const st = getSub(currentClassKey, a.id, s.name); if (groups[st]) groups[st].push(s.name); });
+  const gradeGroups = { A: [], B: [], C: [], D: [] };
+  const grades = getGrades(currentClassKey, a.id);
+  students.forEach(s => {
+    const st = getSub(currentClassKey, a.id, s.name);
+    if (groups[st]) groups[st].push(s.name);
+    const g = grades[s.name];
+    if (g && gradeGroups[g]) gradeGroups[g].push(s.name);
+  });
   let text = `${clsShort(currentClassKey)} 作业反馈 · ${a.title}${a.date ? "（" + a.date + "）" : ""}\n`;
   if (a.due) text += `上交时间：${a.due}\n`;
-  if (!groups.missing.length && !groups.returned.length && !groups.late.length) text += "本作业已全部收齐！";
+
+  text += `\n【收缴情况】\n`;
+  if (!groups.missing.length && !groups.returned.length && !groups.late.length) text += "本作业已全部收齐！\n";
   else {
     if (groups.missing.length) text += `未交（${groups.missing.length}人）：${groups.missing.join("、")}\n`;
     if (groups.returned.length) text += `打回重写（${groups.returned.length}人）：${groups.returned.join("、")}\n`;
     if (groups.late.length) text += `补交（${groups.late.length}人）：${groups.late.join("、")}\n`;
-    text += "请课代表跟进催收。";
   }
+
+  const gradeLines = Object.keys(GRADE_META).filter(k => gradeGroups[k].length).map(k => `${GRADE_META[k].label}（${gradeGroups[k].length}人）：${gradeGroups[k].join("、")}`);
+  if (gradeLines.length) {
+    text += `\n【作业等级】\n${gradeLines.join("\n")}\n`;
+  }
+
+  text += "\n请课代表跟进催收。";
   openModal(`
     <div class="modal-head"><h2>作业反馈</h2><button class="modal-close" onclick="closeModal()">×</button></div>
     <div class="modal-body">
