@@ -171,6 +171,8 @@ header {
 /* 节假日作业 */
 .bulletin-holiday { padding: 0 16px 14px; }
 .holiday-head { font-size: 13px; font-weight: 700; color: #24408f; margin: 4px 0 8px; }
+.weekend-head { cursor: pointer; display: flex; align-items: center; justify-content: space-between; user-select: none; }
+.weekend-arrow { font-size: 12px; color: var(--text2); font-weight: 600; }
 .holiday-entry { display: grid; grid-template-columns: 1.2fr 2fr 1.2fr 1.4fr auto; gap: 7px; align-items: center; margin-bottom: 7px; }
 .holiday-entry input { border: 1px solid #c7d7fb; border-radius: 8px; padding: 6px 9px; font-size: 13px; outline: none; min-height: 38px; background: #fff; }
 .holiday-entry input:focus { border-color: var(--primary); }
@@ -2092,6 +2094,7 @@ function idbGet(key) {
 }
 
 let state = loadState();
+resetCurrentAssignment();  // 作业收缴优先最新：刷新后默认定位最新作业
 let currentClassKey = CLASS_META[0].key;
 let isRepresentative = false;
 let filterTier = "all";
@@ -2100,6 +2103,7 @@ let sortKey = "classRank";
 let batchMode = false;
 const selected = new Set();   // 批量选中的学生姓名（当前班）
 let bulletinOpen = true;      // 公告栏是否展开
+let weekendOpen = true;       // 周末/节假日板块是否展开（课代表模式默认收起）
 
 /* ============================================================
    3. 工具函数
@@ -2132,7 +2136,14 @@ function currentAssignment(clsKey) {
     list.push(a);
     state.currentAssignment[clsKey] = a.id;
   }
-  return list.find(x => String(x.id) === String(state.currentAssignment[clsKey])) || list[list.length - 1];
+  // 优先最新：按 id 降序取最新一份；若用户本次选中了某份则尊重其选择
+  const sorted = list.slice().sort((x, y) => (y.id || 0) - (x.id || 0));
+  return sorted.find(x => String(x.id) === String(state.currentAssignment[clsKey])) || sorted[0];
+}
+function resetCurrentAssignment() {
+  // 清除持久化的旧"当前选中"，刷新后作业收缴默认定位到最新作业
+  const ca = state.currentAssignment || {};
+  Object.keys(ca).forEach(k => { ca[k] = null; });
 }
 function getSub(clsKey, aId, name) {
   const s = state.submissions[clsKey];
@@ -2550,13 +2561,19 @@ function renderWeekendHoliday(board, readOnly, renderDay) {
       ${readOnly ? "" : `<button class="holiday-del" onclick="delHoliday('${h.id}')">×</button>`}
     </div>`).join("");
   document.getElementById("bulletinHoliday").innerHTML = `
-    <div class="holiday-head">周末 / 节假日 / 特殊作业</div>
-    <div class="bcls-weekend-days">${[6, 7].map(renderDay).join("")}</div>
-    ${entries || `<div class="empty-tip" style="margin-bottom:8px">暂无节假日作业</div>`}
-    ${readOnly ? "" : `<button class="add-holiday" onclick="addHoliday()">＋ 添加节假日作业</button>`}`;
+    <div class="holiday-head weekend-head" onclick="toggleWeekend()">
+      <span>周末 / 节假日 / 特殊作业</span>
+      <span class="weekend-arrow">${weekendOpen ? "▲ 收起" : "▼ 展开"}</span>
+    </div>
+    <div id="weekendBody" class="${weekendOpen ? "" : "hidden"}">
+      <div class="bcls-weekend-days">${[6, 7].map(renderDay).join("")}</div>
+      ${entries || `<div class="empty-tip" style="margin-bottom:8px">暂无节假日作业</div>`}
+      ${readOnly ? "" : `<button class="add-holiday" onclick="addHoliday()">＋ 添加节假日作业</button>`}
+    </div>`;
 }
 
 function toggleBulletin() { bulletinOpen = !bulletinOpen; renderBulletin(); }
+function toggleWeekend() { weekendOpen = !weekendOpen; renderBulletin(); }
 
 /* 总览：总人数 + 作业收缴六态 + A/B/C 指标（仅教师） */
 function renderOverview() {
@@ -3313,6 +3330,7 @@ function setSearch(v) { searchQuery = v; renderStudentList(); }
 function setSort(v) { sortKey = v; renderFilterBar(); renderStudentList(); }
 function toggleRepresentative() {
   isRepresentative = !isRepresentative; batchMode = false; selected.clear();
+  weekendOpen = !isRepresentative;  // 课代表模式默认收起周末板块，教师模式默认展开
   // 学生列表面板：课代表模式默认展开，教师模式默认收起
   const spBody = document.getElementById("studentPanelBody");
   const spToggle = document.getElementById("studentPanelToggle");
@@ -3788,7 +3806,7 @@ modalMask.addEventListener("click", e => { if (e.target === modalMask) closeModa
 /* 若 localStorage 为空但 IndexedDB 有数据，从 IndexedDB 恢复 */
 if (!localStorage.getItem(STORAGE_KEY)) {
   idbGet(STORAGE_KEY).then(dbState => {
-    if (dbState) { state = deepMerge(defaultState(), dbState); saveState(); renderAll(); }
+    if (dbState) { state = deepMerge(defaultState(), dbState); resetCurrentAssignment(); saveState(); renderAll(); }
   });
 }
 
