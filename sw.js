@@ -1,11 +1,12 @@
 /* Service Worker：缓存应用资源，实现离线可用与可安装 */
-const CACHE = "physics-workbench-v7";
+const CACHE = "physics-workbench-v8";
 const ASSETS = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
+  "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js",
 ];
 
 self.addEventListener("install", (e) => {
