@@ -96,50 +96,22 @@ header {
 .bcls-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px }
 .bcls-head .bcls-name { font-weight:700; font-size:14px; color:#24408f }
 .bcls-head .bcls-cnt { font-size:11px; color:var(--text3) }
-.bcls-days { display:grid; grid-template-columns: repeat(7, 1fr); gap:6px }
-@media (max-width: 1100px) { .bcls-days { grid-template-columns: repeat(7, 1fr); gap:4px } }
-.bcls-day { background:#fafbfc; border:1px solid var(--border); border-radius:8px; padding:6px; min-height:80px; display:flex; flex-direction:column; gap:4px }
-.bcls-day.empty { background:transparent; border-color:transparent }
+.bcls-days { display:grid; grid-template-columns: repeat(7, 1fr); gap:8px }
+@media (max-width: 1100px) { .bcls-days { grid-template-columns: repeat(7, 1fr); gap:5px } }
+@media (max-width: 760px) { .bcls-days { grid-template-columns: repeat(2, 1fr); gap:6px } }
+.bcls-day { background:#fafbfc; border:1px solid var(--border); border-radius:8px; padding:8px; min-height:150px; display:flex; flex-direction:column; gap:6px }
+.bcls-day.empty { background:transparent; border-color:transparent; min-height:0 }
 .bcls-day.weekend { background:#fffaf3; border-color:#f0d9a8 }
-.bcls-day .bd-label { font-size:11px; font-weight:700; color:#24408f }
+.bcls-day .bd-label { font-size:13px; font-weight:700; color:#24408f }
 .bcls-day.weekend .bd-label { color:#d9700c }
-.bcls-lesson { background:#fff; border:1px solid #dfe5ee; border-radius:6px; padding:4px 5px; font-size:11px; display:flex; flex-direction:column; gap:3px }
-.bcls-lesson .bl-period { font-size:10px; color:var(--text3); display:flex; justify-content:space-between }
-.bcls-lesson .bl-topic { font-weight:700; color:#1a3a8e; line-height:1.3 }
-.bcls-lesson .bl-hw { font-size:11px; color:#24408f; background:#f0f4ff; padding:2px 4px; border-radius:4px; margin-top:2px }
-.bcls-lesson .bl-hw select { width:100%; border:1px solid #c7d7fb; background:#fff; font-size:11px; padding:2px; border-radius:4px }
+.bcls-lesson { background:#fff; border:1px solid #dfe5ee; border-radius:7px; padding:6px 7px; font-size:12px; display:flex; flex-direction:column; gap:4px }
+.bcls-lesson .bl-period { font-size:11px; color:var(--text3); display:flex; justify-content:space-between }
+.bcls-lesson .bl-topic { font-weight:700; color:#1a3a8e; line-height:1.4; word-break:break-word }
+.bcls-lesson .bl-hw { font-size:12px; color:#24408f; background:#f0f4ff; padding:3px 5px; border-radius:5px; margin-top:2px }
+.bcls-lesson .bl-hw select { width:100%; border:1px solid #c7d7fb; background:#fff; font-size:12px; padding:3px; border-radius:5px; word-break:break-all }
 .bcls-lesson .bl-hw select:disabled { background:#f0f0f0; color:var(--text3) }
 .bcls-day.today { outline:2px solid #3b6ef5; outline-offset:-2px }
 
-/* 作业收缴：棋盘矩阵视图 */
-.hw-matrix-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; background:#fff; border:1px solid var(--border); border-radius:8px; padding:8px }
-.hw-matrix { border-collapse:separate; border-spacing:0; font-size:12px; min-width:600px }
-.hw-matrix th, .hw-matrix td { border:1px solid #e3e8f1; padding:6px 8px; text-align:center; white-space:nowrap }
-.hw-matrix th { background:#f0f4ff; color:#24408f; font-weight:700; position:sticky; top:0 }
-.hw-matrix th.stu-name-col, .hw-matrix td.stu-name-col { text-align:left; position:sticky; left:0; background:#fff; z-index:1; min-width:140px; font-weight:600 }
-.hw-matrix th.stu-name-col { background:#f0f4ff }
-.hw-matrix tr:nth-child(even) td.stu-name-col { background:#fafbfc }
-.hw-matrix .hw-cell { cursor:pointer; font-weight:700; font-size:11px; min-width:60px }
-.hw-matrix .hw-cell.missing { background:#fff0f0; color:#d03b3b }
-.hw-matrix .hw-cell.submitted { background:#e8f6ee; color:#1f9d55 }
-.hw-matrix .hw-cell.excellent { background:#fdf0e6; color:#d9700c }
-.hw-matrix .hw-cell.late { background:#f1eefd; color:#6d5bd0 }
-.hw-matrix .hw-cell.returned { background:#fdebe0; color:#b54708 }
-.hw-matrix .hw-cell.corrected { background:#e2f3ef; color:#0f7b6c }
-.hw-matrix .hw-cell.no-grade { background:#f5f5f5; color:#aaa }
-.hw-matrix .hw-cell:hover { outline:2px solid #3b6ef5; outline-offset:-2px }
-.hw-matrix .grade-mark { display:inline-block; min-width:22px; padding:1px 4px; border-radius:4px; font-weight:700 }
-.grade-mark.A { background:#d3f0e0; color:#1f9d55 }
-.grade-mark.B { background:#dbe5ff; color:#24408f }
-.grade-mark.C { background:#fdebd6; color:#d9700c }
-.grade-mark.D { background:#fde0e0; color:#d03b3b }
-.hw-collect-tip { font-size:13px; padding:8px 10px; border-radius:8px; margin-bottom:8px }
-.hw-collect-tip.ok { background:#e8f6ee; color:#1f9d55; border:1px solid #b9e2ca }
-.hw-collect-tip.warn { background:#fff8e6; color:#b54708; border:1px solid #f5d0a4 }
-.hw-collect-tip.lock { background:#f5f5f5; color:#888; border:1px solid #e0e0e0 }
-.view-toggle { display:inline-flex; background:#f0f4ff; border-radius:18px; padding:2px; margin-bottom:8px }
-.view-toggle button { min-height:32px; padding:0 14px; border:none; background:transparent; font-size:13px; color:#24408f; border-radius:16px; cursor:pointer }
-.view-toggle button.active { background:#3b6ef5; color:#fff; font-weight:700 }
 .qg-stat { display:flex; align-items:center; gap:6px; padding:8px 0; flex-wrap:wrap; border-bottom:1px solid var(--border); margin-bottom:8px }
 .qg-pill { display:inline-flex; align-items:center; min-height:30px; padding:0 10px; border-radius:15px; font-size:13px; font-weight:700 }
 .qg-pill.A { background:#d3f0e0; color:#1f9d55 }
@@ -242,6 +214,9 @@ header {
 .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 13px 15px; border-bottom: 1px solid var(--border); }
 .panel-head h2 { margin: 0; font-size: 16px; font-weight: 700; }
 .panel-head .ph-sub { font-size: 12px; color: var(--text3); }
+.collapsible .panel-head { cursor: pointer; user-select: none; }
+.collapsible .panel-head:hover { background: #f7f8fa; }
+.ph-toggle { min-height: 30px; padding: 0 12px; border-radius: 15px; border: 1px solid var(--border); background: #fff; font-size: 12px; color: var(--primary); font-weight: 600; cursor: pointer; flex-shrink: 0; }
 
 /* 筛选栏 */
 .filter-bar { display: flex; gap: 7px; align-items: center; padding: 11px 14px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
@@ -341,6 +316,34 @@ header {
 .missing-tag.missing { background: #fff0f0; color: var(--tier-A); border-color: #f3c3c3; }
 .missing-tag.late { background: #f1eefd; color: #6d5bd0; border-color: #d2c9f5; }
 .missing-tag.returned { background: #fdebe0; color: #b54708; border-color: #f4c6a8; }
+
+/* 作业收缴汇总栏（收缴状态 + ABCD 等级，可点开查看） */
+.hw-summary { margin-bottom: 10px; }
+.hw-sum-label { font-size: 11px; color: var(--text3); font-weight: 700; margin: 8px 0 5px; }
+.hw-sum-label:first-child { margin-top: 0; }
+.hw-sum-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.hw-sum-chip { display: inline-flex; align-items: center; gap: 5px; min-height: 34px; padding: 0 11px; border-radius: 17px; border: 1px solid var(--border); background: #fff; font-size: 13px; cursor: pointer; }
+.hw-sum-chip b { font-weight: 700; }
+.hw-sum-chip span { font-size: 12px; font-weight: 700; min-width: 18px; text-align: center; }
+.hw-sum-chip.submitted { background: #e8f6ee; color: #1f9d55; border-color: #b9e2ca; }
+.hw-sum-chip.missing { background: #fff0f0; color: #d03b3b; border-color: #f3c3c3; }
+.hw-sum-chip.late { background: #f1eefd; color: #6d5bd0; border-color: #d2c9f5; }
+.hw-sum-chip.excellent { background: #fdf0e6; color: #d9700c; border-color: #f5d0a4; }
+.hw-sum-chip.returned { background: #fdebe0; color: #b54708; border-color: #f4c6a8; }
+.hw-sum-chip.corrected { background: #e2f3ef; color: #0f7b6c; border-color: #b5ddd4; }
+.hw-sum-chip.A { background: #fff0f0; color: #d03b3b; border-color: #f3c3c3; }
+.hw-sum-chip.B { background: #fdf0e6; color: #d9700c; border-color: #f5d0a4; }
+.hw-sum-chip.C { background: #eaf3ff; color: #2f6bd6; border-color: #c7d7fb; }
+.hw-sum-chip.D { background: #f1eefd; color: #6d5bd0; border-color: #d2c9f5; }
+.hw-sum-chip.none { background: #f5f5f5; color: #999; border-color: #e0e0e0; }
+.hw-sum-chip.active { outline: 2px solid #3b6ef5; outline-offset: 1px; }
+.hw-stu-panel { border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; margin-bottom: 10px; max-height: 320px; overflow-y: auto; }
+.hw-stu-panel-head { font-size: 13px; font-weight: 700; color: var(--text2); margin-bottom: 6px; }
+.hw-stu-row { display: flex; align-items: center; gap: 8px; padding: 6px 4px; border-bottom: 1px dashed var(--border); }
+.hw-stu-row:last-child { border-bottom: none; }
+.hw-stu-no { width: 24px; height: 24px; border-radius: 50%; background: var(--primary-soft); color: var(--primary); font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.hw-stu-name { flex: 1; font-weight: 600; font-size: 14px; }
+
 .empty-tip { color: var(--text3); font-size: 13px; }
 .feedback-btn { width: 100%; min-height: 50px; margin-top: 10px; border-radius: 12px; border: none; background: #22a06b; color: #fff; font-size: 15px; font-weight: 700; }
 .feedback-btn:active { background: #1c8559; }
@@ -477,19 +480,32 @@ header {
 
 <main class="layout">
   <section class="col-main">
-    <div class="panel">
-      <div class="panel-head"><h2 id="listTitle">学生列表</h2><span class="ph-sub" id="listSortHint"></span></div>
-      <div class="filter-bar" id="filterBar"></div>
-      <div class="batch-bar hidden" id="batchBar"></div>
-      <div class="student-list" id="studentList"></div>
+    <div class="panel collapsible">
+      <div class="panel-head" onclick="togglePanel('studentPanel')"><h2 id="listTitle">学生列表</h2><span class="ph-sub" id="listSortHint"></span><button class="ph-toggle" id="studentPanelToggle">展开</button></div>
+      <div id="studentPanelBody" class="hidden">
+        <div class="filter-bar" id="filterBar"></div>
+        <div class="batch-bar hidden" id="batchBar"></div>
+        <div class="student-list" id="studentList"></div>
+      </div>
     </div>
   </section>
 
   <aside class="col-side">
-    <!-- 本节课提问（课前预设 → 课后确认记录） -->
-    <div class="panel side-panel" id="lessonPanel">
-      <div class="panel-head"><h2>本节课提问 <span class="ph-sub" id="lessonCount"></span></h2></div>
+    <!-- 作业收缴 -->
+    <div class="panel side-panel" id="hwListPanel">
+      <div class="panel-head"><h2>作业收缴</h2></div>
       <div class="panel-body">
+        <div id="hwAssignBar"></div>
+        <div id="hwListBox"></div>
+        <button class="feedback-btn" id="feedbackBtn" onclick="generateFeedback()">生成今日反馈</button>
+        <div id="hwHistory"></div>
+      </div>
+    </div>
+
+    <!-- 本节课提问（课前预设 → 课后确认记录） -->
+    <div class="panel side-panel collapsible" id="lessonPanel">
+      <div class="panel-head" onclick="togglePanel('lessonPanel')"><h2>本节课提问 <span class="ph-sub" id="lessonCount"></span></h2><button class="ph-toggle" id="lessonPanelToggle">展开</button></div>
+      <div class="panel-body hidden" id="lessonPanelBody">
         <input type="text" id="lessonTitle" placeholder="本节课标题（如：《内能》第3课时提问）" oninput="saveLessonTitle(this.value)" style="width:100%;min-height:42px;border:1px solid var(--border);border-radius:9px;padding:0 11px;font-size:14px;margin-bottom:8px;outline:none">
         <div class="empty-tip" style="margin-bottom:6px">课前预设人选与问题，提问后点「确认记录」写入个人卡片。</div>
         <div id="rosterList"></div>
@@ -504,9 +520,9 @@ header {
     </div>
 
     <!-- 智能提问队列 -->
-    <div class="panel side-panel" id="queuePanel">
-      <div class="panel-head"><h2>待提问队列</h2></div>
-      <div class="panel-body">
+    <div class="panel side-panel collapsible" id="queuePanel">
+      <div class="panel-head" onclick="togglePanel('queuePanel')"><h2>待提问队列</h2><button class="ph-toggle" id="queuePanelToggle">展开</button></div>
+      <div class="panel-body hidden" id="queuePanelBody">
         <div class="empty-tip" style="margin-bottom:8px">补差优先：未达线 → C → B → A，同级提问次数少者优先。点「＋」加入本节课。</div>
         <div class="queue-legend">
           <span style="color:var(--tier-A);background:var(--tier-A-bg)">A 拔高</span>
@@ -515,17 +531,6 @@ header {
           <span style="color:var(--tier-D);background:var(--tier-D-bg)">未达线 补差</span>
         </div>
         <div id="queueList"></div>
-      </div>
-    </div>
-
-    <!-- 作业收缴 -->
-    <div class="panel side-panel" id="hwListPanel">
-      <div class="panel-head"><h2>作业收缴</h2></div>
-      <div class="panel-body">
-        <div id="hwAssignBar"></div>
-        <div id="hwListBox"></div>
-        <button class="feedback-btn" id="feedbackBtn" onclick="generateFeedback()">生成今日反馈</button>
-        <div id="hwHistory"></div>
       </div>
     </div>
 
@@ -1903,8 +1908,8 @@ const CLASS_META = [
 /* 22 周教研安排（人教版九上，来自云校教研安排表） */
 const TEACH_PLAN = [{"week": "第1周", "dates": "9.1-9.4", "lessons": [{"topic": "13.2分子动理论的初步知识", "hours": 1}, {"topic": "13.3内能", "hours": 1}, {"topic": "习题课", "hours": 1}]}, {"week": "第2周", "dates": "9.7-9.11", "lessons": [{"topic": "14.1能量的转化与守恒", "hours": 1}, {"topic": "14.2热机", "hours": 1}, {"topic": "14.3热机的效率", "hours": 1}, {"topic": "习题课", "hours": 1}]}, {"week": "第3周", "dates": "9.14-9.18", "lessons": [{"topic": "15.1两种电荷", "hours": 1}, {"topic": "15.2电流与电路", "hours": 1}, {"topic": "15.3串联电路和并联电路", "hours": 1}, {"topic": "习题课", "hours": 1}]}, {"week": "第4周", "dates": "9.20-9.24", "lessons": [{"topic": "习题课", "hours": 1}, {"topic": "15.4电流的测量", "hours": 1}, {"topic": "15.5串、并联电路中电流的规律", "hours": 1}, {"topic": "习题课", "hours": 1}]}, {"week": "第5周", "dates": "9.28-9.30", "lessons": [{"topic": "16.1电压", "hours": 1}, {"topic": "16.2串、并联电路中电压的规律", "hours": 1}]}, {"week": "第6周", "dates": "10.8-10.10", "lessons": [{"topic": "考试周：月考1", "hours": 1}, {"topic": "月考1试卷讲评", "hours": 1}]}, {"week": "第7周", "dates": "10.12-10.16", "lessons": [{"topic": "16.3电阻", "hours": 1}, {"topic": "16.4变阻器", "hours": 1}, {"topic": "习题课", "hours": 1}, {"topic": "17.1电流与电压、电阻的关系", "hours": 1}]}, {"week": "第8周", "dates": "10.19-10.23", "lessons": [{"topic": "习题课", "hours": 1}, {"topic": "17.2欧姆定律", "hours": 1}, {"topic": "17.4 欧姆定律在串、并联电路中的应用", "hours": 1}, {"topic": "习题课", "hours": 1}]}, {"week": "第9周", "dates": "10.26-10.30", "lessons": [{"topic": "习题课", "hours": 1}, {"topic": "17.3电阻的测量", "hours": 1}, {"topic": "习题课", "hours": 2}]}, {"week": "第10周", "dates": "11.2-11.6", "lessons": [{"topic": "期中考试复习", "hours": 1}]}, {"week": "第11周", "dates": "11.9-11.13", "lessons": [{"topic": "考试周：期中考试", "hours": 1}, {"topic": "期中考试试卷讲评", "hours": 1}, {"topic": "18.1电能 电功", "hours": 1}]}, {"week": "第12周", "dates": "11.16-11.20", "lessons": [{"topic": "习题课", "hours": 1}, {"topic": "18.2电功率", "hours": 1}, {"topic": "习题课1课时", "hours": 1}, {"topic": "18.3焦耳定律", "hours": 1}]}, {"week": "第13周", "dates": "11.23-11.27", "lessons": [{"topic": "习题课", "hours": 3}, {"topic": "19.1安全用电", "hours": 1}]}, {"week": "第14周", "dates": "11.30-12.4", "lessons": [{"topic": "19.2家庭电路的基本组成", "hours": 1}, {"topic": "习题课", "hours": 1}, {"topic": "月考2复习", "hours": 1}]}, {"week": "第15周", "dates": "12.7-12.11", "lessons": [{"topic": "考试周：月考2", "hours": 1}, {"topic": "月考2试卷讲评", "hours": 1}]}, {"week": "第16周", "dates": "12.14-11.18", "lessons": [{"topic": "20.1磁现象 磁场", "hours": 2}, {"topic": "20.2电生磁", "hours": 1}, {"topic": "20.3电磁铁 电磁继电器", "hours": 1}]}, {"week": "第17周", "dates": "12.21-12.25", "lessons": [{"topic": "习题课", "hours": 1}, {"topic": "20.4电动机", "hours": 1}, {"topic": "20.6磁生电", "hours": 1}, {"topic": "习题课", "hours": 1}]}, {"week": "第18周", "dates": "12.28-12.31", "lessons": [{"topic": "习题课", "hours": 1}, {"topic": "第二十一章电磁波及其应用", "hours": 1}, {"topic": "第二十二章能源与可持续发展", "hours": 1}]}, {"week": "第19周", "dates": "1.4-1.8", "lessons": [{"topic": "期末考试复习", "hours": 1}]}, {"week": "第20周", "dates": "1.11-1.15", "lessons": [{"topic": "期末考试复习", "hours": 1}]}, {"week": "第21周", "dates": "1.18-1.22", "lessons": [{"topic": "考试周：期末考试", "hours": 1}, {"topic": "期末考试试卷讲评", "hours": 1}, {"topic": "中考复习", "hours": 1}]}, {"week": "第22周", "dates": "1.25-1.29", "lessons": [{"topic": "中考复习", "hours": 1}]}];
 
-/* 4 班 × 5 天 × 8 节课程表（刘老师课表） */
-const SCHEDULE = {"1": {"1": null, "2": "meet1", "3": "94", "4": "93", "5": "91", "6": null, "7": "yx", "8": null}, "2": {"1": "92", "2": null, "3": "91", "4": "93", "5": "94", "6": null, "7": null, "8": "banhui91"}, "3": {"1": "93", "2": "92", "3": "94", "4": null, "5": "91", "6": null, "7": null, "8": null}, "4": {"1": null, "2": null, "3": null, "4": null, "5": null, "6": "92", "7": null, "8": null}, "5": {"1": "meet2", "2": "94", "3": "93", "4": null, "5": null, "6": "92", "7": "91", "8": null}};
+/* 4 班 × 5 天 × 8 节课程表（刘老师第2周课表） */
+const SCHEDULE = {"1": {"1": null, "2": "meet1", "3": "94", "4": "93", "5": "91", "6": "92", "7": "yx", "8": null}, "2": {"1": "92", "2": null, "3": "91", "4": "93", "5": "94", "6": null, "7": null, "8": "banhui91"}, "3": {"1": "93", "2": "92", "3": "94", "4": null, "5": "91", "6": null, "7": null, "8": null}, "4": {"1": null, "2": null, "3": null, "4": null, "5": null, "6": null, "7": null, "8": null}, "5": {"1": "meet2", "2": "94", "3": "93", "4": null, "5": null, "6": "92", "7": "91", "8": null}};
 const PERIOD_TIME = {"1": "08:00-08:40", "2": "08:50-09:30", "3": "09:40-10:20", "4": "10:50-11:30", "5": "11:40-12:20", "6": "14:20-15:00", "7": "15:10-15:50", "8": "16:20-17:00"};
 
 /* 全品作业本目录（章 → 节 → 课时） */
@@ -2214,45 +2219,44 @@ function renderBulletin() {
   const wt = board.weekTasks[currentWeekIdx];
   document.getElementById("weekTask").value = wt || "";
   document.getElementById("weekTask").disabled = readOnly;
-  // 按班 × 7 天视图
+  // 按班 × 7 天视图（仅当前班）
   const dayNames = ["", "周一", "周二", "周三", "周四", "周五", "周六", "周日"];
   const today = new Date();
   const todayCode = today.getDay() === 0 ? 7 : today.getDay();  // 1-7
   const isCurrentWeek = currentWeekIdx === computeCurrentWeekIdx();
-  document.getElementById("bulletinClasses").innerHTML = CLASS_META.map(m => {
-    const clsCode = m.clsCode;
-    const periodsThisWeek = [];
-    for (let d = 1; d <= 7; d++) {
-      const ds = SCHEDULE[String(d)] || {};
-      const list = [];
-      for (let p = 1; p <= 8; p++) {
-        const c = ds[String(p)];
-        if (c === clsCode) list.push(p);
-      }
-      periodsThisWeek.push({ day: d, periods: list });
+  const m = CLASS_META.find(x => x.key === currentClassKey);
+  const clsCode = m.clsCode;
+  const periodsThisWeek = [];
+  for (let d = 1; d <= 7; d++) {
+    const ds = SCHEDULE[String(d)] || {};
+    const list = [];
+    for (let p = 1; p <= 8; p++) {
+      const c = ds[String(p)];
+      if (c === clsCode) list.push(p);
     }
-    const totalLessons = periodsThisWeek.reduce((s, x) => s + x.periods.length, 0);
-    return `<div class="bcls-row">
-      <div class="bcls-head">
-        <div class="bcls-name">${m.short} ${m.badge ? `<span class="tag" style="margin-left:6px">${m.badge}</span>` : ""}</div>
-        <div class="bcls-cnt">本周共 ${totalLessons} 课时${totalLessons < plan.lessons.length ? "（本班进度少 1 节，自动顺延）" : ""}</div>
-      </div>
-      <div class="bcls-days">
-        ${periodsThisWeek.map(({ day, periods }) => {
-          const dn = dayNames[day];
-          const weekend = (day === 6 || day === 7);
-          const isToday = isCurrentWeek && day === todayCode;
-          if (periods.length === 0) {
-            return `<div class="bcls-day ${weekend ? "weekend" : ""} empty"><div class="bd-label">${dn}${isToday ? "（今天）" : ""}</div><div style="color:var(--text3);font-size:11px;text-align:center;padding:6px 0">无课</div></div>`;
-          }
-          return `<div class="bcls-day ${weekend ? "weekend" : ""} ${isToday ? "today" : ""}">
-            <div class="bd-label">${dn}${isToday ? "（今天）" : ""}</div>
-            ${periods.map(p => renderLessonCell(currentWeekIdx, day, p, clsCode, readOnly)).join("")}
-          </div>`;
-        }).join("")}
-      </div>
-    </div>`;
-  }).join("");
+    periodsThisWeek.push({ day: d, periods: list });
+  }
+  const totalLessons = periodsThisWeek.reduce((s, x) => s + x.periods.length, 0);
+  document.getElementById("bulletinClasses").innerHTML = `<div class="bcls-row">
+    <div class="bcls-head">
+      <div class="bcls-name">${m.short} ${m.badge ? `<span class="tag" style="margin-left:6px">${m.badge}</span>` : ""}</div>
+      <div class="bcls-cnt">本周共 ${totalLessons} 课时${totalLessons < plan.lessons.length ? "（本班进度少 1 节，自动顺延）" : ""}</div>
+    </div>
+    <div class="bcls-days">
+      ${periodsThisWeek.map(({ day, periods }) => {
+        const dn = dayNames[day];
+        const weekend = (day === 6 || day === 7);
+        const isToday = isCurrentWeek && day === todayCode;
+        if (periods.length === 0) {
+          return `<div class="bcls-day ${weekend ? "weekend" : ""} empty"><div class="bd-label">${dn}${isToday ? "（今天）" : ""}</div><div style="color:var(--text3);font-size:11px;text-align:center;padding:6px 0">无课</div></div>`;
+        }
+        return `<div class="bcls-day ${weekend ? "weekend" : ""} ${isToday ? "today" : ""}">
+          <div class="bd-label">${dn}${isToday ? "（今天）" : ""}</div>
+          ${periods.map(p => renderLessonCell(currentWeekIdx, day, p, clsCode, readOnly)).join("")}
+        </div>`;
+      }).join("")}
+    </div>
+  </div>`;
   renderHolidaySection(board, readOnly);
   document.getElementById("bulletinBody").classList.toggle("hidden", !bulletinOpen);
   document.getElementById("bulletinToggle").textContent = bulletinOpen ? "收起" : "展开";
@@ -2909,32 +2913,11 @@ function renderQueue() {
     </div>`).join("") || `<div class="empty-tip">暂无队列</div>`;
 }
 
-/* 作业收缴：作业选择 + 当前作业名单 + 历史作业汇总 */
-/* 收作业时间窗口：周三 12:30-13:30 收 92/94；周四 07:30-08:30 收 91/93；其余时段仅可标记不能"一键全收" */
-function collectWindow(clsCode) {
-  const now = new Date();
-  const dow = now.getDay();  // 0=Sun, 1=Mon...6=Sat
-  const h = now.getHours(), m = now.getMinutes();
-  const minutes = h * 60 + m;
-  if (dow === 3 && minutes >= 12 * 60 + 30 && minutes <= 13 * 60 + 30 && (clsCode === "92" || clsCode === "94")) return "ok";
-  if (dow === 4 && minutes >= 7 * 60 + 30 && minutes <= 8 * 60 + 30 && (clsCode === "91" || clsCode === "93")) return "ok";
-  if (dow === 3 && (clsCode === "92" || clsCode === "94")) return "later";
-  if (dow === 4 && (clsCode === "91" || clsCode === "93")) return "later";
-  return "lock";
-}
-function collectWindowTip(clsCode) {
-  const w = collectWindow(clsCode);
-  const names = { 91: "九一班", 92: "九二班", 93: "九三班", 94: "九四班" };
-  const label = names[clsCode] || clsCode;
-  if (w === "ok") return `<div class="hw-collect-tip ok">✅ 当前为 <b>${label}</b> 收作业时间窗（${clsCode === "92" || clsCode === "94" ? "周三 12:30-13:30 午休结束" : "周四 07:30-08:30 早读前"}），可以正常收缴。</div>`;
-  if (w === "later") return `<div class="hw-collect-tip warn">⏰ ${label} 今天尚可收作业，但未到窗口（${clsCode === "92" || clsCode === "94" ? "周三 12:30-13:30" : "周四 07:30-08:30"}）。窗口开启后课代表一键全交。</div>`;
-  return `<div class="hw-collect-tip lock">🔒 当前时段非 ${label} 收作业日。${label} 仅在${clsCode === "92" || clsCode === "94" ? "周三午休结束" : "周四早上"}收作业，其余时间仅记录作业状态。</div>`;
-}
+/* 作业收缴：作业选择 + 汇总栏（收缴状态 + ABCD 等级，可点开查看） + 历史作业汇总 */
+let hwOpenGroup = null;  // 当前展开的分组 key，如 "submitted" / "gradeA"
 
-/* 视图模式：list = 名单式；matrix = 棋盘式 */
-let hwViewMode = "list";
-function toggleHwView(mode) {
-  hwViewMode = mode;
+function toggleHwGroup(key) {
+  hwOpenGroup = (hwOpenGroup === key) ? null : key;
   renderHwList();
 }
 
@@ -2942,82 +2925,83 @@ function renderHwList() {
   const students = currentStudents();
   const a = currentAssignment(currentClassKey);
   const list = getAssignments(currentClassKey).slice().sort((x, y) => (y.id || 0) - (x.id || 0));
-  const meta = CLASS_META.find(x => x.key === currentClassKey);
-
-  // 视图切换
-  const viewSwitch = `<div class="view-toggle">
-    <button class="${hwViewMode === "list" ? "active" : ""}" onclick="toggleHwView('list')">名单式</button>
-    <button class="${hwViewMode === "matrix" ? "active" : ""}" onclick="toggleHwView('matrix')">棋盘矩阵</button>
-  </div>`;
-
-  // 收作业时间窗提示
-  const cwTip = collectWindowTip(meta ? meta.clsCode : "");
 
   // 作业选择栏
   const opts = list.map(x => `<option value="${x.id}" ${String(x.id) === String(a.id) ? "selected" : ""}>${escapeHtml(x.title)}${x.date ? "（" + x.date + "）" : ""}</option>`).join("");
-  const w = collectWindow(meta ? meta.clsCode : "");
-  const canCollect = w === "ok";
   document.getElementById("hwAssignBar").innerHTML = `
-    ${cwTip}
-    ${viewSwitch}
     <select class="sort-select" style="width:100%;margin-bottom:8px" onchange="switchAssignment(this.value)">${opts}</select>
     ${isRepresentative ? "" : `<div class="modal-actions" style="margin-bottom:8px"><button class="mini-btn" onclick="openNewAssignment()">＋ 新建作业</button><button class="mini-btn" style="color:var(--danger)" onclick="deleteAssignment('${a.id}')">删除本作业</button></div>`}
     <div class="modal-actions" style="margin-bottom:8px">
-      <button class="btn primary" style="flex:1;min-height:44px;background:${canCollect ? "#22a06b" : "#bdc3c7"}" ${canCollect || isRepresentative ? "" : "disabled"} onclick="markAllSubmitted()">一键全交</button>
+      <button class="btn primary" style="flex:1;min-height:44px;background:#22a06b" onclick="markAllSubmitted()">一键全交</button>
       ${isRepresentative ? "" : `<button class="mini-btn" style="flex:1;min-height:44px" onclick="markAllMissing()">一键设未交</button>`}
       <button class="mini-btn" style="flex:1;min-height:44px;background:#5b6bd6" onclick="openQuickGrade()">快速批改</button>
     </div>
     <div class="empty-tip" style="margin-bottom:6px">${a.due ? "上交时间：" + escapeHtml(a.due) : "可新建作业，填写标题 / 日期 / 上交时间"}</div>`;
 
-  if (hwViewMode === "matrix") {
-    renderHwMatrix();
-  } else {
-    // 当前作业收缴名单（含编号）
-    const groups = { missing: [], late: [], returned: [], submitted: [], excellent: [], corrected: [] };
-    students.forEach(s => { const st = getSub(currentClassKey, a.id, s.name); (groups[st] = groups[st] || []).push({ s, name: s.name, rank: s.classRank }); });
-    const stuMap = new Map(students.map(s => [s.name, s]));
-    const mk = (arr, cls, label) => arr.length
-      ? `<div style="margin-bottom:4px;font-size:12px;color:var(--text2);font-weight:700">${label}（${arr.length}人）</div><div class="missing-list">${arr.map(x => {
-          const r = x.rank != null ? `<span class="rank-tag">第${x.rank}名</span>` : "";
-          return `<span class="missing-tag ${cls}">${r}${escapeHtml(x.name)}</span>`;
-        }).join("")}</div>`
-      : "";
-    document.getElementById("hwListBox").innerHTML =
-      (mk(groups.missing, "missing", "未交") + mk(groups.returned, "returned", "打回重写") + mk(groups.late, "late", "补交"))
-      || `<div class="empty-tip">本作业已全部收齐</div>`;
+  // 学生按班级名次排序（序号用）
+  const sorted = [...students].sort((x, y) => (x.classRank || 999) - (y.classRank || 999));
+  const grades = getGrades(currentClassKey, a.id);
+
+  // 收缴状态分组
+  const subGroups = [
+    { key: "submitted", label: "已交", cls: "submitted" },
+    { key: "missing", label: "未交", cls: "missing" },
+    { key: "late", label: "补交", cls: "late" },
+    { key: "excellent", label: "优秀", cls: "excellent" },
+    { key: "returned", label: "打回", cls: "returned" },
+    { key: "corrected", label: "订正", cls: "corrected" },
+  ];
+  const subMap = {};
+  sorted.forEach(s => { const st = getSub(currentClassKey, a.id, s.name); (subMap[st] = subMap[st] || []).push(s); });
+
+  // 等级分组
+  const gradeGroups = [
+    { key: "A", label: "A", cls: "A" },
+    { key: "B", label: "B", cls: "B" },
+    { key: "C", label: "C", cls: "C" },
+    { key: "D", label: "D", cls: "D" },
+    { key: "none", label: "未批", cls: "none" },
+  ];
+  const gradeMap = {};
+  sorted.forEach(s => { const g = grades[s.name] || "none"; (gradeMap[g] = gradeMap[g] || []).push(s); });
+
+  // 展开某组学生名单（带序号）
+  const renderStuRows = (arr, cls) => arr.map((s, i) => `
+    <div class="hw-stu-row">
+      <span class="hw-stu-no">${i + 1}</span>
+      <span class="hw-stu-name">${escapeHtml(s.name)}</span>
+      <span class="rank-tag">${s.classRank != null ? "第" + s.classRank + "名" : "缺考"}</span>
+    </div>`).join("");
+
+  // 汇总卡片（可点击展开/收起）
+  const chip = (key, label, cnt, cls, active) => `
+    <button class="hw-sum-chip ${cls} ${active ? "active" : ""}" onclick="toggleHwGroup('${key}')">
+      <b>${label}</b><span>${cnt}</span>
+    </button>`;
+
+  let html = `<div class="hw-summary">
+    <div class="hw-sum-label">收缴状态</div>
+    <div class="hw-sum-chips">${subGroups.map(g => chip("sub-" + g.key, g.label, (subMap[g.key] || []).length, g.cls, hwOpenGroup === "sub-" + g.key)).join("")}</div>
+    <div class="hw-sum-label">作业等级</div>
+    <div class="hw-sum-chips">${gradeGroups.map(g => chip("grade-" + g.key, g.label, (gradeMap[g.key] || []).length, g.cls, hwOpenGroup === "grade-" + g.key)).join("")}</div>
+  </div>`;
+
+  // 展开的学生名单
+  if (hwOpenGroup && hwOpenGroup.startsWith("sub-")) {
+    const key = hwOpenGroup.slice(4);
+    const arr = subMap[key] || [];
+    const g = subGroups.find(x => x.key === key);
+    html += `<div class="hw-stu-panel"><div class="hw-stu-panel-head">${g.label} · ${arr.length} 人</div>${arr.length ? renderStuRows(arr, g.cls) : `<div class="empty-tip">暂无</div>`}</div>`;
+  } else if (hwOpenGroup && hwOpenGroup.startsWith("grade-")) {
+    const key = hwOpenGroup.slice(6);
+    const arr = gradeMap[key] || [];
+    const g = gradeGroups.find(x => x.key === key);
+    html += `<div class="hw-stu-panel"><div class="hw-stu-panel-head">等级 ${g.label} · ${arr.length} 人</div>${arr.length ? renderStuRows(arr, g.cls) : `<div class="empty-tip">暂无</div>`}</div>`;
   }
+
+  document.getElementById("hwListBox").innerHTML = html;
 
   renderHwHistory();
-}
-
-/* 棋盘矩阵：横轴=作业份（最近 N 份），纵轴=学生 */
-function renderHwMatrix() {
-  const students = currentStudents();
-  const list = getAssignments(currentClassKey).slice().sort((x, y) => (y.id || 0) - (x.id || 0));
-  if (!list.length) {
-    document.getElementById("hwListBox").innerHTML = `<div class="empty-tip">暂无作业，先「＋ 新建作业」或从公告栏选课时作业。</div>`;
-    return;
-  }
-  // 横轴：最多显示最近 8 份
-  const recent = list.slice(0, 8);
-  // 学生按班级名次排序
-  const sorted = [...students].sort((a, b) => (a.classRank || 999) - (b.classRank || 999));
-  let header = `<tr><th class="stu-name-col">学生 / 作业</th>${recent.map(x => `<th title="${escapeHtml(x.title)}">${escapeHtml(x.title).slice(0, 10)}${x.title.length > 10 ? "…" : ""}</th>`).join("")}</tr>`;
-  let rows = sorted.map(s => {
-    const cells = recent.map(a => {
-      const st = getSub(currentClassKey, a.id, s.name);
-      const label = HW_INFO[st] ? HW_INFO[st].label : "未交";
-      return `<td class="hw-cell ${st}" onclick="openHwModalByName('${escapeHtml(s.name)}')" title="${escapeHtml(s.name)} · ${escapeHtml(a.title)}">${label}</td>`;
-    }).join("");
-    const rank = s.classRank != null ? `第${s.classRank}名` : "缺考";
-    return `<tr><td class="stu-name-col"><span class="rank-tag">${rank}</span> ${escapeHtml(s.name)}</td>${cells}</tr>`;
-  }).join("");
-  document.getElementById("hwListBox").innerHTML = `<div class="hw-matrix-wrap"><table class="hw-matrix">${header}${rows}</table></div>`;
-}
-
-function openHwModalByName(name) {
-  const idx = currentStudents().findIndex(s => s.name === name);
-  if (idx >= 0) openHwModal(idx);
 }
 
 /* 快速批改：当前作业全班 ABCD 等级 */
@@ -3250,6 +3234,16 @@ function setFilter(v) { filterTier = v; renderStudentList(); }
 function setSearch(v) { searchQuery = v; renderStudentList(); }
 function setSort(v) { sortKey = v; renderFilterBar(); renderStudentList(); }
 function toggleRepresentative() { isRepresentative = !isRepresentative; batchMode = false; selected.clear(); renderAll(); }
+
+/* 面板收起/展开（本节课提问、待提问队列、学生列表） */
+function togglePanel(id) {
+  const body = document.getElementById(id + "Body");
+  const toggle = document.getElementById(id + "Toggle");
+  if (!body || !toggle) return;
+  const collapsed = body.classList.contains("hidden");
+  if (collapsed) { body.classList.remove("hidden"); toggle.textContent = "收起"; }
+  else { body.classList.add("hidden"); toggle.textContent = "展开"; }
+}
 function toggleBatch() { batchMode = !batchMode; selected.clear(); renderFilterBar(); renderBatchBar(); renderStudentList(); }
 function toggleSelect(name) { selected.has(name) ? selected.delete(name) : selected.add(name); renderBatchBar(); renderStudentList(); }
 function batchSelectAll() {
