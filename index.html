@@ -2103,7 +2103,7 @@ let sortKey = "classRank";
 let batchMode = false;
 const selected = new Set();   // 批量选中的学生姓名（当前班）
 let bulletinOpen = true;      // 公告栏是否展开
-let weekendOpen = true;       // 周末/节假日板块是否展开（课代表模式默认收起）
+let weekendOpen = false;      // 周末/节假日板块是否展开（教师/课代表模式默认均收起，可点标题展开）
 
 /* ============================================================
    3. 工具函数
@@ -2201,7 +2201,7 @@ function renderTabs() {
 }
 
 /* 当前周次（按日期算出） */
-const TEACH_START = new Date(2026, 8, 1);  // 教研第1周起 Sep 1, 2026
+const TEACH_START = new Date(2026, 7, 31);  // 教研第1周的周一 Aug 31, 2026（9.1为周二开学，需对齐到该周周一，否则分周错位一周）
 let currentWeekIdx = -1;  // 全局当前查看的周次
 let weekLocked = false;   // 用户是否手动切换过周次（false=实时跟随当前日期，true=保持手动选择）
 function computeCurrentWeekIdx() {
@@ -3330,7 +3330,7 @@ function setSearch(v) { searchQuery = v; renderStudentList(); }
 function setSort(v) { sortKey = v; renderFilterBar(); renderStudentList(); }
 function toggleRepresentative() {
   isRepresentative = !isRepresentative; batchMode = false; selected.clear();
-  weekendOpen = !isRepresentative;  // 课代表模式默认收起周末板块，教师模式默认展开
+  weekendOpen = false;  // 教师/课代表模式切换后，周末板块均默认收起
   // 学生列表面板：课代表模式默认展开，教师模式默认收起
   const spBody = document.getElementById("studentPanelBody");
   const spToggle = document.getElementById("studentPanelToggle");
