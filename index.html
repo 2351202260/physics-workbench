@@ -302,6 +302,20 @@ header {
 .rr-btns button.on-missing { background: #fff0f0; color: var(--tier-A); border-color: #f3c3c3; }
 .rr-btns button.on-submitted { background: #e8f6ee; color: var(--ok); border-color: #b9e2ca; }
 .rr-btns button.on-late { background: #f1eefd; color: #6d5bd0; border-color: #d2c9f5; }
+/* 学生管理列表（表格形式，带连续序号） */
+.sm-table { width: 100%; border-collapse: collapse; }
+.sm-table th {
+  position: sticky; top: 0; z-index: 1; background: #f6f7f9; text-align: left;
+  padding: 9px 10px; font-size: 12px; color: var(--text2); font-weight: 600;
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+.sm-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.sm-table tbody tr:last-child td { border-bottom: none; }
+.sm-table .sm-no { width: 44px; color: var(--text3); font-size: 13px; text-align: center; font-variant-numeric: tabular-nums; }
+.sm-table .sm-name { font-weight: 600; font-size: 15px; }
+.sm-table .sm-val { color: var(--text2); font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sm-table .sm-btns { text-align: right; white-space: nowrap; }
+.sm-table .sm-btns .mini-btn { min-height: 42px; padding: 0 13px; }
 .rr-grade { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; border: 1px solid; flex-shrink: 0; }
 .rr-grade.A { background: #e8f6ee; color: #1f9d55; border-color: #b9e2ca; }
 .rr-grade.B { background: #eaf3ff; color: #2f6bd6; border-color: #c7d7fb; }
@@ -2628,28 +2642,32 @@ function renderBatchBar() {
 /* ---------- 学生增删改 ---------- */
 let editingStudent = null;   // 正在编辑的学生姓名（null=新增）
 
-/* 学生管理弹窗：列出当前班学生，可编辑/删除/新增 */
+/* 学生管理弹窗：列表（表格）形式显示，带连续序号，可编辑/删除/新增 */
 function openStudentManager() {
   const students = getClassStudents(currentClassKey).slice().sort((a, b) => (a.classRank == null ? 9999 : a.classRank) - (b.classRank == null ? 9999 : b.classRank));
-  const rows = students.map(s => `
-    <div class="rep-row">
-      <span class="rr-rank">${s.classRank != null ? "第" + s.classRank + "名" : "—"}</span>
-      <span class="rr-name">${escapeHtml(s.name)}</span>
-      <span style="font-size:12px;color:var(--text3)">总分${s.totalScore != null ? s.totalScore : "—"} · 物理${s.physics != null ? s.physics : "—"}</span>
-      <div class="rr-btns">
+  const rows = students.map((s, idx) => `
+    <tr>
+      <td class="sm-no">${idx + 1}</td>
+      <td class="sm-name">${escapeHtml(s.name)}</td>
+      <td class="sm-val">${s.totalScore != null ? s.totalScore : "—"}</td>
+      <td class="sm-val">${s.physics != null ? s.physics : "—"}</td>
+      <td class="sm-btns">
         <button class="mini-btn" onclick="openStudentForm('${escapeHtml(s.name)}')">编辑</button>
         <button class="mini-btn" style="color:var(--danger)" onclick="deleteStudent('${escapeHtml(s.name)}')">删除</button>
-      </div>
-    </div>`).join("");
+      </td>
+    </tr>`).join("");
   openModal(`
     <div class="modal-head"><h2>学生管理 · ${clsShort(currentClassKey)}</h2><button class="modal-close" onclick="closeModal()">×</button></div>
     <div class="modal-body">
-      <div class="empty-tip" style="margin-bottom:10px">共 ${students.length} 人。删除后班级名次自动重排。</div>
+      <div class="empty-tip" style="margin-bottom:10px">共 ${students.length} 人 · 按班级名次排序，序号自动编号。</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
         <button class="btn primary block" style="flex:1" onclick="openStudentForm()">＋ 新增学生</button>
         <button class="btn ghost block" style="flex:1" onclick="openGradeImport()">📊 批量导入成绩</button>
       </div>
-      <div class="rep-list" style="padding:0">${rows}</div>
+      <table class="sm-table">
+        <thead><tr><th class="sm-no">序号</th><th>姓名</th><th>总分</th><th>物理</th><th class="sm-btns">操作</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
       <div class="modal-actions" style="margin-top:12px">
         <button class="btn ghost" onclick="closeModal()">关闭</button>
         <button class="btn danger" onclick="resetStudentData()">恢复默认名单</button>
