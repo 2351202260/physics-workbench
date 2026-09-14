@@ -121,6 +121,8 @@ header {
 .bcls-lesson .bl-hw select:disabled { background:#f0f0f0; color:var(--text3) }
 .bcls-lesson .bl-hw-custom { width:100%; border:1px dashed #c7d7fb; background:#fff; font-size:11px; padding:3px 5px; border-radius:4px; min-height:27px; color:var(--text2) }
 .bcls-lesson .bl-hw-custom:disabled { background:#f7f8fa }
+.bcls-lesson .bl-page { width:100%; border:1px dashed #c7d7fb; background:#fff; font-size:11px; padding:3px 5px; border-radius:4px; min-height:27px; color:#6d5bd0; font-variant-numeric: tabular-nums; }
+.bcls-lesson .bl-page:disabled { background:#f7f8fa }
 .bcls-lesson .bl-due { width:100%; border:1px solid #c7d7fb; background:#fff; font-size:11px; padding:3px 5px; border-radius:4px; min-height:27px; color:#1a3a8e; font-variant-numeric: tabular-nums; }
 .bcls-lesson .bl-due:disabled { background:#f7f8fa; color:var(--text3) }
 .bcls-lesson .bl-del { position:absolute; top:-8px; right:-8px; width:22px; height:22px; border-radius:50%; border:1px solid #f3c3c3; background:#fff; color:#d03b3b; font-size:13px; line-height:1; cursor:pointer }
@@ -395,6 +397,16 @@ header {
 .hw-hist-item .hh-top b { font-size: 14px; }
 .hw-hist-item .hh-date { font-size: 11px; color: var(--text3); }
 .hw-hist-item .hh-stats { font-size: 12px; color: var(--text2); margin-top: 3px; }
+.hw-hist-item .hh-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.hw-hist-item .hh-tag { font-size: 11px; color: #6d5bd0; background: #f1eefd; padding: 1px 7px; border-radius: 999px; }
+.hh-cur { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; padding: 8px 10px; border: 1px solid var(--primary); background: var(--primary-soft); border-radius: 10px; }
+.hh-cur-title { font-size: 15px; font-weight: 700; color: #1a3a8e; }
+.hh-cur .hh-tag { font-size: 11px; color: #6d5bd0; background: #fff; border: 1px solid #d2c9f5; padding: 2px 8px; border-radius: 999px; }
+.hw-week { margin-bottom: 6px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.hw-week-head { display: flex; align-items: center; gap: 8px; padding: 9px 11px; background: #f6f8fc; cursor: pointer; font-size: 13px; font-weight: 700; color: var(--text); }
+.hw-week-head .hw-week-cnt { margin-left: auto; font-size: 11px; color: var(--text3); font-weight: 500; }
+.hw-week-head .weekend-arrow { font-size: 12px; color: var(--text3); }
+.hw-week .hw-hist-item { margin-bottom: 0; border: none; border-top: 1px dashed var(--border); border-radius: 0; }
 
 /* 留言板 */
 .msg-box { border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; margin-bottom: 8px; }
@@ -2110,7 +2122,8 @@ function idbGet(key) {
 }
 
 let state = loadState();
-resetCurrentAssignment();  // 作业收缴优先最新：刷新后默认定位最新作业
+cleanupPlaceholderAssignments();  // 清掉历史遗留的空“今日作业”占位，不再自动预设
+resetCurrentAssignment();  // 作业收缴刷新后默认定位当前周作业
 let currentClassKey = CLASS_META[0].key;
 let isRepresentative = false;
 let filterTier = "all";
@@ -2144,22 +2157,105 @@ function getSubmissions(clsKey) {
   if (!state.submissions[clsKey]) state.submissions[clsKey] = {};
   return state.submissions[clsKey];
 }
-/* 当前选中的作业（默认最新一份；无则自动创建一份“今日作业”） */
+/* 作业：不再自动预设“今日作业”，改为从教学公告栏的作业内容同步 */
+function weekDateLabel(w) {
+  return (TEACH_PLAN[w] && TEACH_PLAN[w].dates) ? TEACH_PLAN[w].dates : "";
+}
+function fmtDue(due) {
+  if (!due) return "";
+  const m = String(due).match(/^(\d{4})-(\d{1,2})-(\d{1,2})[T ](\d{1,2}):(\d{2})/);
+  if (m) return `${Number(m[2])}月${Number(m[3])}日 ${m[4]}:${m[5]}`;
+  return due;
+}
+function byWeekDayPeriod(a, b) {
+  return (a.weekIdx || 0) - (b.weekIdx || 0) || (a.dayCode || 0) - (b.dayCode || 0) || (a.period || 0) - (b.period || 0);
+}
+/* 默认定位：当前周优先，其次上一周（含上周五），再按周序 */
+function pickDefaultAssignment() {
+  const list = getAssignments(currentClassKey);
+  if (!list.length) return null;
+  const byWeek = list.slice().sort(byWeekDayPeriod);
+  const curW = computeCurrentWeekIdx();
+  const inCur = byWeek.filter(x => x.weekIdx === curW);
+  if (inCur.length) return inCur[0];
+  const prev = byWeek.filter(x => x.weekIdx === curW - 1);
+  if (prev.length) return prev[0];
+  return byWeek[0];
+}
 function currentAssignment(clsKey) {
   const list = getAssignments(clsKey);
-  if (list.length === 0) {
-    const a = { id: Date.now(), title: "今日作业", date: new Date().toLocaleDateString("zh-CN"), due: "" };
-    list.push(a);
-    state.currentAssignment[clsKey] = a.id;
-  }
-  // 优先最新：按 id 降序取最新一份；若用户本次选中了某份则尊重其选择
+  if (list.length === 0) return null;
   const sorted = list.slice().sort((x, y) => (y.id || 0) - (x.id || 0));
-  return sorted.find(x => String(x.id) === String(state.currentAssignment[clsKey])) || sorted[0];
+  const cur = sorted.find(x => String(x.id) === String(state.currentAssignment[clsKey]));
+  if (cur) return cur;
+  const def = pickDefaultAssignment();
+  if (def) state.currentAssignment[clsKey] = def.id;
+  return def;
 }
 function resetCurrentAssignment() {
-  // 清除持久化的旧"当前选中"，刷新后作业收缴默认定位到最新作业
+  // 清除持久化的旧“当前选中”，刷新后作业收缴默认定位到当前周作业
   const ca = state.currentAssignment || {};
   Object.keys(ca).forEach(k => { ca[k] = null; });
+}
+/* 清理历史遗留的空“今日作业”占位（无收缴/批改数据），不再自动预设 */
+function cleanupPlaceholderAssignments() {
+  Object.keys(state.assignments || {}).forEach(k => {
+    const arr = state.assignments[k];
+    if (!Array.isArray(arr)) return;
+    const hasData = (a) => {
+      const subs = (state.submissions[k] && state.submissions[k][a.id]) || {};
+      const g = (state.grades && state.grades[k] && state.grades[k][a.id]) || {};
+      const n = (state.gradeNotes && state.gradeNotes[k] && state.gradeNotes[k][a.id]) || {};
+      return Object.keys(subs).length || Object.keys(g).length || Object.keys(n).length;
+    };
+    const kept = arr.filter(a => !(a && a.title === "今日作业" && !a.boardKey && !a.hwKey && !hasData(a)));
+    if (kept.length !== arr.length) state.assignments[k] = kept;
+  });
+}
+/* 从教学公告栏同步作业（内容/页码/收缴时间）到作业收缴，按 boardKey 稳定关联，保留收缴与批改记录 */
+function syncAssignmentsFromBoard() {
+  const board = getBoard(currentClassKey);
+  const list = getAssignments(currentClassKey);
+  const seen = new Set();
+  let nextId = Date.now();
+  let dirty = false;
+  for (let w = 0; w < TEACH_PLAN.length; w++) {
+    const week = (board.lessons || {})[w] || {};
+    Object.keys(week).forEach(k => {
+      const ov = week[k];
+      const hw = (ov.customHw || "").trim();
+      if (!hw) return;
+      const [d, p] = k.split("-").map(Number);
+      const boardKey = `b${w}-${d}-${p}`;
+      seen.add(boardKey);
+      const due = (ov.customDue || "").trim();
+      const page = (ov.customPage || "").trim();
+      let a = list.find(x => x.boardKey === boardKey);
+      if (!a) {
+        a = { id: nextId++, boardKey, title: hw, page, due, weekIdx: w, dayCode: d, period: p, date: weekDateLabel(w), createdAt: Date.now() };
+        list.push(a);
+        dirty = true;
+      } else {
+        if (a.title !== hw || a.page !== page || a.due !== due || a.weekIdx !== w || a.dayCode !== d || a.period !== p) {
+          a.title = hw; a.page = page; a.due = due; a.weekIdx = w; a.dayCode = d; a.period = p; dirty = true;
+        }
+        if (!a.date) { a.date = weekDateLabel(w); dirty = true; }
+      }
+    });
+  }
+  // 移除公告栏已删除的作业（boardKey 关联的），保留手动新建（无 boardKey）的作业
+  const removed = list.filter(x => x.boardKey && !seen.has(x.boardKey));
+  if (removed.length) {
+    removed.forEach(x => {
+      if (state.submissions[currentClassKey]) delete state.submissions[currentClassKey][x.id];
+      if (state.grades && state.grades[currentClassKey]) delete state.grades[currentClassKey][x.id];
+      if (state.gradeNotes && state.gradeNotes[currentClassKey]) delete state.gradeNotes[currentClassKey][x.id];
+      if (String(state.currentAssignment[currentClassKey]) === String(x.id)) state.currentAssignment[currentClassKey] = null;
+    });
+    state.assignments[currentClassKey] = list.filter(x => !(x.boardKey && !seen.has(x.boardKey)));
+    dirty = true;
+  }
+  if (dirty) saveState();
 }
 function getSub(clsKey, aId, name) {
   const s = state.submissions[clsKey];
@@ -2203,6 +2299,7 @@ function toast(msg) {
    4. 渲染
    ============================================================ */
 function renderAll() {
+  syncAssignmentsFromBoard();
   renderTabs(); renderBulletin(); renderOverview(); renderFilterBar();
   renderBatchBar(); renderStudentList(); renderLesson(); renderQueue();
   renderHwList(); renderMessages(); renderRepMode();
@@ -2342,6 +2439,7 @@ function renderLessonCell(weekIdx, dayCode, period, clsCode, readOnly) {
   const topicVal = ov.customTopic != null ? ov.customTopic : topic;
   const timeVal = ov.customTime != null ? ov.customTime : (isCustom ? "" : (PERIOD_TIME[String(period)] || ""));
   const hwVal = ov.customHw || "";
+  const pageVal = ov.customPage || "";
   const dueVal = ov.customDue || "";
   const isReview = /习题|复习/.test(topicVal);
   const isExam = /考试|月考|期中|期末/.test(topicVal);
@@ -2355,8 +2453,9 @@ function renderLessonCell(weekIdx, dayCode, period, clsCode, readOnly) {
       ${readOnly ? "" : `<button class="bl-pick" onclick="openTopicPicker(${weekIdx},${dayCode},${period})" title="从教研安排选择">选</button>`}
     </div>
     <div class="bl-hw">
-      <input type="text" class="bl-hw-custom" data-w="${weekIdx}" data-d="${dayCode}" data-p="${period}" data-f="customHw" value="${escapeHtml(hwVal)}" placeholder="作业内容（手动填写）" ${readOnly ? "disabled" : ""}>
-      <input type="date" class="bl-due" data-w="${weekIdx}" data-d="${dayCode}" data-p="${period}" data-f="customDue" value="${escapeHtml(dueVal)}" title="上交日期" ${readOnly ? "disabled" : ""}>
+      <input type="text" class="bl-hw-custom" data-w="${weekIdx}" data-d="${dayCode}" data-p="${period}" data-f="customHw" value="${escapeHtml(hwVal)}" placeholder="作业内容" ${readOnly ? "disabled" : ""}>
+      <input type="text" class="bl-page" data-w="${weekIdx}" data-d="${dayCode}" data-p="${period}" data-f="customPage" value="${escapeHtml(pageVal)}" placeholder="作业页码（如 P12）" ${readOnly ? "disabled" : ""}>
+      <input type="datetime-local" class="bl-due" data-w="${weekIdx}" data-d="${dayCode}" data-p="${period}" data-f="customDue" value="${escapeHtml(dueVal)}" title="收缴时间（年月日 时:分）" ${readOnly ? "disabled" : ""}>
     </div>
     ${isCustom && !readOnly ? `<button class="bl-del" onclick="delCustomLesson(${dayCode},${period})" title="删除此课时">×</button>` : ""}
   </div>`;
@@ -2509,8 +2608,8 @@ function syncBulletin() {
   toast(`已同步到 ${others.map(m => m.short).join("、")}`);
 }
 
-/* 收集某班某周的物理课节次 key（常规课，按 day/period 升序） */
-function classLessonKeys(clsCode) {
+/* 收集某班常规物理课节次 key（仅课表 1-8 节，按 day/period 升序） */
+function regularLessonKeys(clsCode) {
   const keys = [];
   for (let d = 1; d <= 7; d++) {
     const ds = SCHEDULE[String(d)] || {};
@@ -2518,34 +2617,55 @@ function classLessonKeys(clsCode) {
   }
   return keys.sort(byDayPeriod);
 }
+/* 某班某周全部物理课节次 key = 常规课 + 自定义课时（period>=9，含周四/周六/周日新增），按序 */
+function classLessonKeys(clsCode, weekLessons) {
+  const keys = regularLessonKeys(clsCode);
+  if (weekLessons) {
+    Object.keys(weekLessons)
+      .filter(k => Number(k.split("-")[1]) >= 9)
+      .sort(byDayPeriod)
+      .forEach(k => { if (!keys.includes(k)) keys.push(k); });
+  }
+  return keys;
+}
 function byDayPeriod(a, b) {
   const [da, pa] = a.split("-").map(Number), [db, pb] = b.split("-").map(Number);
   return da - db || pa - pb;
 }
+function pickLessonFields(ov) {
+  const merged = {
+    customTopic: ov.customTopic != null ? ov.customTopic : null,
+    customHw: ov.customHw || null,
+    customPage: ov.customPage || null,
+    customDue: ov.customDue || null,
+    hwKey: ov.hwKey || null,
+  };
+  return Object.values(merged).some(v => v != null && v !== "") ? merged : null;
+}
 
-/* 按物理课顺序把源班 lessons 内容映射到目标班节次（四个班课表节次不同，需按课程顺序对齐） */
+/* 按物理课顺序把源班 lessons 内容映射到目标班节次（四个班课表节次不同，需按课程顺序对齐）
+   源班的自定义课时（如周四新增）也一并同步：先按顺序对齐常规课，超出目标常规课数目的自定义课时原样保留 */
 function remapLessonsByOrder(srcLessons, srcCode, dstCode) {
   const out = {};
-  const dstKeys = classLessonKeys(dstCode);
-  const srcKeys = classLessonKeys(srcCode);
+  const dstRegular = regularLessonKeys(dstCode);
   for (let w = 0; w < TEACH_PLAN.length; w++) {
     const srcWeek = srcLessons[w] || {};
-    // 源班自定义课时（period>=9）也参与顺序，排在常规课之后
-    const extra = Object.keys(srcWeek).filter(k => Number(k.split("-")[1]) >= 9).sort(byDayPeriod);
-    const srcSeq = srcKeys.concat(extra);
+    const srcKeys = classLessonKeys(srcCode, srcWeek);
     const dstWeek = {};
-    dstKeys.forEach((dk, i) => {
-      const sk = srcSeq[i];
-      const ov = sk ? srcWeek[sk] : null;
-      if (!ov) return;
-      const merged = {
-        customTopic: ov.customTopic != null ? ov.customTopic : null,
-        customHw: ov.customHw || null,
-        customDue: ov.customDue || null,
-        hwKey: ov.hwKey || null,
-      };
-      if (Object.values(merged).some(v => v != null && v !== "")) dstWeek[dk] = merged;
-    });
+    // 1) 按顺序把源班第 i 节课 → 目标班第 i 节常规课
+    const n = Math.min(srcKeys.length, dstRegular.length);
+    for (let i = 0; i < n; i++) {
+      const ov = srcWeek[srcKeys[i]];
+      const merged = ov ? pickLessonFields(ov) : null;
+      if (merged) dstWeek[dstRegular[i]] = merged;
+    }
+    // 2) 源班多出的自定义课时（超出目标常规课数，如周四新增）原样保留（同 day/period）
+    for (let i = dstRegular.length; i < srcKeys.length; i++) {
+      const sk = srcKeys[i];
+      const ov = srcWeek[sk];
+      const merged = ov ? pickLessonFields(ov) : null;
+      if (merged) dstWeek[sk] = merged;
+    }
     if (Object.keys(dstWeek).length) out[w] = dstWeek;
   }
   return out;
@@ -2581,8 +2701,9 @@ function buildBulletinHtml() {
         const topic = ov.customTopic != null ? ov.customTopic : getLessonTopic(currentWeekIdx, d, p, m.clsCode, m.key);
         const time = ov.customTime || PERIOD_TIME[String(p)] || "";
         const hw = ov.customHw || (ov.hwKey ? (parseHwKey(ov.hwKey) || {}).title || "" : "");
-        const due = ov.customDue || "";
-        return `${p >= 9 ? "自定义" : `第${p}节`}${time ? " " + escapeHtml(time) : ""} ${escapeHtml(topic)}${hw ? `<br><small>作业：${escapeHtml(hw)}</small>` : ""}${due ? `<br><small>上交：${escapeHtml(due)}</small>` : ""}`;
+        const page = ov.customPage || "";
+        const due = ov.customDue ? fmtDue(ov.customDue) : "";
+        return `${p >= 9 ? "自定义" : `第${p}节`}${time ? " " + escapeHtml(time) : ""} ${escapeHtml(topic)}${hw ? `<br><small>作业：${escapeHtml(hw)}</small>` : ""}${page ? `<br><small>页码：${escapeHtml(page)}</small>` : ""}${due ? `<br><small>收缴：${escapeHtml(due)}</small>` : ""}`;
       }).join("<br>") : "—"}</td>`;
     }
     bodyRows += `<tr>${cells}</tr>`;
@@ -2949,6 +3070,7 @@ function renderStudentList() {
   if (isRepresentative) {
     document.getElementById("studentList").className = "rep-list";
     const a = currentAssignment(currentClassKey);
+    if (!a) { document.getElementById("studentList").innerHTML = `<div class="empty-tip">请老师先在教学公告栏设置作业</div>`; return; }
     const grades = getGrades(currentClassKey, a.id);
     document.getElementById("studentList").innerHTML = sorted.map(({ s }) => {
       const hw = hwOf(s.name);
@@ -3080,21 +3202,32 @@ function toggleHwGroup(key) {
 }
 
 function renderHwList() {
+  syncAssignmentsFromBoard();
   const students = currentStudents();
   const a = currentAssignment(currentClassKey);
-  const list = getAssignments(currentClassKey).slice().sort((x, y) => (y.id || 0) - (x.id || 0));
+  const list = getAssignments(currentClassKey);
 
-  // 作业选择栏
-  const opts = list.map(x => `<option value="${x.id}" ${String(x.id) === String(a.id) ? "selected" : ""}>${escapeHtml(x.title)}${x.date ? "（" + x.date + "）" : ""}</option>`).join("");
+  if (!list.length || !a) {
+    document.getElementById("hwAssignBar").innerHTML = `<div class="empty-tip">暂无作业。请在「教学公告栏」对应课时的作业内容里填写（内容 / 页码 / 收缴时间），这里会自动按教学周同步；也可点下方「新建作业」手动添加。</div>`;
+    document.getElementById("hwListBox").innerHTML = "";
+    document.getElementById("hwHistory").innerHTML = "";
+    return;
+  }
+
+  // 当前作业操作栏
   document.getElementById("hwAssignBar").innerHTML = `
-    <select class="sort-select" style="width:100%;margin-bottom:8px" onchange="switchAssignment(this.value)">${opts}</select>
+    <div class="hh-cur">
+      <span class="hh-cur-title">${escapeHtml(a.title)}</span>
+      ${a.page ? `<span class="hh-tag">页码 ${escapeHtml(a.page)}</span>` : ""}
+      ${a.weekIdx != null ? `<span class="hh-tag">第${a.weekIdx + 1}周</span>` : ""}
+    </div>
     ${isRepresentative ? "" : `<div class="modal-actions" style="margin-bottom:8px"><button class="mini-btn" onclick="openNewAssignment()">＋ 新建作业</button><button class="mini-btn" style="color:var(--danger)" onclick="deleteAssignment('${a.id}')">删除本作业</button></div>`}
     <div class="modal-actions" style="margin-bottom:8px">
       <button class="btn primary" style="flex:1;min-height:44px;background:#22a06b" onclick="markAllSubmitted()">一键全交</button>
       ${isRepresentative ? "" : `<button class="mini-btn" style="flex:1;min-height:44px" onclick="markAllMissing()">一键设未交</button>`}
       ${isRepresentative ? "" : `<button class="mini-btn" style="flex:1;min-height:44px;background:#5b6bd6" onclick="openQuickGrade()">快速批改</button>`}
     </div>
-    <div class="empty-tip" style="margin-bottom:6px">${a.due ? "上交时间：" + escapeHtml(a.due) : "可新建作业，填写标题 / 日期 / 上交时间"}</div>`;
+    <div class="empty-tip" style="margin-bottom:6px">${a.due ? "收缴时间：" + escapeHtml(fmtDue(a.due)) : "未设置收缴时间"}</div>`;
 
   // 学生按班级名次排序（序号用）
   const sorted = [...students].sort((x, y) => (x.classRank || 999) - (y.classRank || 999));
@@ -3188,6 +3321,7 @@ function saveGradeNote(name, text) {
 }
 function openQuickGrade() {
   const a = currentAssignment(currentClassKey);
+  if (!a) { toast("请先在教学公告栏设置作业"); return; }
   const students = currentStudents().slice().sort((x, y) => (x.classRank || 999) - (y.classRank || 999));
   const g = getGrades(currentClassKey, a.id);
   const notes = getGradeNotes(currentClassKey, a.id);
@@ -3243,22 +3377,54 @@ function quickGradeReset() {
   saveState(); openQuickGrade();
 }
 
-/* 历史作业汇总：每份作业显示已交/未交等汇总，点击切换查看 */
+/* 历史作业汇总：按教学周分组显示，默认展开当前周 + 上一周（含上周五），其余周点击展开 */
+let hwOpenWeeks = null;  // null=自动（当前周+上一周）；否则为 Set<weekIdx>
+
+function toggleHwWeek(w) {
+  if (hwOpenWeeks == null) {
+    const cw = computeCurrentWeekIdx();
+    hwOpenWeeks = new Set([cw, Math.max(0, cw - 1)]);
+  }
+  hwOpenWeeks.has(w) ? hwOpenWeeks.delete(w) : hwOpenWeeks.add(w);
+  renderHwHistory();
+}
+
 function renderHwHistory() {
-  const students = currentStudents();
-  const list = getAssignments(currentClassKey).slice().sort((x, y) => (y.id || 0) - (x.id || 0));
+  const list = getAssignments(currentClassKey);
+  if (!list.length) { document.getElementById("hwHistory").innerHTML = ""; return; }
   const cur = currentAssignment(currentClassKey);
-  const rows = list.map(x => {
-    const c = { submitted: 0, missing: 0, late: 0 };
-    students.forEach(s => { const st = getSub(currentClassKey, x.id, s.name); c[st] = (c[st] || 0) + 1; });
-    return `<div class="hw-hist-item ${String(x.id) === String(cur.id) ? "active" : ""}" onclick="switchAssignment('${x.id}')">
-      <div class="hh-top"><b>${escapeHtml(x.title)}</b>${x.date ? `<span class="hh-date">${escapeHtml(x.date)}</span>` : ""}</div>
-      <div class="hh-stats">已交${c.submitted} · 未交${c.missing} · 补交${c.late}</div>
+  const curW = computeCurrentWeekIdx();
+  if (hwOpenWeeks == null) hwOpenWeeks = new Set([curW, Math.max(0, curW - 1)]);
+
+  const groups = {};
+  list.forEach(x => { const w = (x.weekIdx == null ? -1 : x.weekIdx); (groups[w] = groups[w] || []).push(x); });
+  const weeks = Object.keys(groups).map(Number).sort((a, b) => a - b);
+
+  const html = weeks.map(w => {
+    const arr = groups[w].slice().sort(byWeekDayPeriod);
+    const label = w < 0 ? "未分周" : `第${w + 1}周`;
+    const dates = (w >= 0 && TEACH_PLAN[w]) ? TEACH_PLAN[w].dates : "";
+    const open = hwOpenWeeks.has(w);
+    const rows = arr.map(x => {
+      const c = { submitted: 0, missing: 0, late: 0 };
+      currentStudents().forEach(s => { const st = getSub(currentClassKey, x.id, s.name); c[st] = (c[st] || 0) + 1; });
+      const active = cur && String(x.id) === String(cur.id);
+      return `<div class="hw-hist-item ${active ? "active" : ""}" onclick="switchAssignment('${x.id}')">
+        <div class="hh-top"><b>${escapeHtml(x.title)}</b>${x.page ? `<span class="hh-tag">${escapeHtml(x.page)}</span>` : ""}</div>
+        <div class="hh-meta">${x.due ? "收缴 " + escapeHtml(fmtDue(x.due)) : "未设收缴时间"}</div>
+        <div class="hh-stats">已交${c.submitted} · 未交${c.missing} · 补交${c.late}</div>
+      </div>`;
+    }).join("");
+    return `<div class="hw-week">
+      <div class="hw-week-head" onclick="toggleHwWeek(${w})">
+        <span>${label}${dates ? " · " + escapeHtml(dates) : ""}</span>
+        <span class="hw-week-cnt">${arr.length} 份</span>
+        <span class="weekend-arrow">${open ? "▲" : "▼"}</span>
+      </div>
+      <div class="${open ? "" : "hidden"}">${rows}</div>
     </div>`;
   }).join("");
-  document.getElementById("hwHistory").innerHTML = list.length
-    ? `<div style="margin:14px 0 4px;font-weight:700;font-size:13px">历史作业（点击切换查看）</div>${rows}`
-    : "";
+  document.getElementById("hwHistory").innerHTML = `<div style="margin:14px 0 4px;font-weight:700;font-size:13px">作业列表（按教学周，点击周标题展开/收起，点作业切换）</div>${html}`;
 }
 
 function switchAssignment(id) {
@@ -3285,18 +3451,13 @@ function markAllMissing() {
   toast("全班已重置为「未交」");
 }
 function openNewAssignment() {
-  // 用全品作业本目录 → 章 → 节 → 课时 三层选择
-  const chapOpts = Object.entries(QB_CATALOG).map(([k, v]) => `<option value="${k}">${escapeHtml(v.title)}</option>`).join("");
   openModal(`
     <div class="modal-head"><h2>新建作业 · ${clsShort(currentClassKey)}</h2><button class="modal-close" onclick="closeModal()">×</button></div>
     <div class="modal-body">
-      <div class="set-row"><label>选择章节</label><select id="naChap" onchange="naChapChange()"><option value="">— 选择章 —</option>${chapOpts}</select></div>
-      <div class="set-row"><label>选择节</label><select id="naSec" onchange="naSecChange()" disabled><option>— 选择节 —</option></select></div>
-      <div class="set-row"><label>选择课时</label><select id="naLesson" onchange="naLessonChange()" disabled><option>— 选择课时 —</option></select></div>
-      <div class="set-row"><label>作业标题（可改）</label><input type="text" id="naTitle" placeholder="如：第1节 热量 比热容"></div>
-      <div class="set-row"><label>日期</label><input type="text" id="naDate" value="${new Date().toLocaleDateString("zh-CN")}" placeholder="如 9/10"></div>
-      <div class="set-row"><label>上交时间</label><input type="text" id="naDue" placeholder="如：次日早读前"></div>
-      <div class="set-row" id="naHwKeyRow" style="display:none"><label>作业 Key</label><input type="text" id="naHwKey" readonly></div>
+      <div class="empty-tip" style="margin-bottom:10px">公告栏里已填写的作业会自动同步到作业列表；这里可手动补充一份作业（内容 / 页码 / 收缴时间）。</div>
+      <div class="set-row"><label>作业内容</label><input type="text" id="naTitle" placeholder="如：练习册 P12 第3-5题"></div>
+      <div class="set-row"><label>作业页码</label><input type="text" id="naPage" placeholder="如：P12"></div>
+      <div class="set-row"><label>收缴时间</label><input type="datetime-local" id="naDue"></div>
       <div class="modal-actions"><button class="btn primary" onclick="saveNewAssignment()">创建</button><button class="btn ghost" onclick="closeModal()">取消</button></div>
     </div>`);
 }
@@ -3331,13 +3492,12 @@ function naLessonChange() {
   }
 }
 function saveNewAssignment() {
-  let title = document.getElementById("naTitle").value.trim();
-  const hwKey = document.getElementById("naHwKey").value;
-  if (!title && !hwKey) { toast("请选择章节/课时，或填写作业标题"); return; }
-  if (!title) { title = (parseHwKey(hwKey) || {}).title || "未命名作业"; document.getElementById("naTitle").value = title; }
-  const date = document.getElementById("naDate").value.trim();
-  const due = document.getElementById("naDue").value.trim();
-  const a = { id: Date.now(), title, date, due, hwKey: hwKey || null, createdAt: Date.now() };
+  const title = document.getElementById("naTitle").value.trim();
+  if (!title) { toast("请填写作业内容"); return; }
+  const page = document.getElementById("naPage").value.trim();
+  const due = document.getElementById("naDue").value;
+  const w = computeCurrentWeekIdx();
+  const a = { id: Date.now(), title, page, due, weekIdx: w, dayCode: null, period: null, date: weekDateLabel(w), createdAt: Date.now() };
   getAssignments(currentClassKey).push(a);
   state.currentAssignment[currentClassKey] = String(a.id);
   saveState(); closeModal(); renderOverview(); renderStudentList(); renderHwList(); renderBulletin();
@@ -3392,6 +3552,7 @@ function renderRepMode() {
 function switchClass(key) {
   currentClassKey = key; filterTier = "all"; searchQuery = ""; batchMode = false; selected.clear();
   weekLocked = false;  // 切班回到当前周
+  hwOpenWeeks = null;  // 重置作业列表周折叠为默认（当前周+上一周）
   renderAll();
 }
 function setFilter(v) { filterTier = v; renderStudentList(); }
@@ -3445,6 +3606,7 @@ document.getElementById("studentList").addEventListener("click", e => {
 function openHwModal(idx) {
   const s = currentStudents()[idx];
   const a = currentAssignment(currentClassKey);
+  if (!a) { toast("请先在教学公告栏设置作业"); return; }
   const cur = getSub(currentClassKey, a.id, s.name);
   openModal(`
     <div class="modal-head"><h2>${escapeHtml(s.name)} · 作业状态</h2><button class="modal-close" onclick="closeModal()">×</button></div>
@@ -3461,6 +3623,7 @@ function hwBg(k) { return { missing: "#fff0f0", submitted: "#e8f6ee", late: "#f1
 function hwLine(k) { return { missing: "#f3c3c3", submitted: "#b9e2ca", late: "#d2c9f5" }[k]; }
 function applyHw(name, val) {
   const a = currentAssignment(currentClassKey);
+  if (!a) { toast("请先在教学公告栏设置作业"); return; }
   setSub(currentClassKey, a.id, name, val);
   saveState(); closeModal(); renderStudentList(); renderOverview(); renderHwList();
   toast(`${name} 已标记为「${HW_INFO[val].label}」`);
@@ -3644,6 +3807,8 @@ document.getElementById("bulletinClasses").addEventListener("change", e => {
   if (!el || !el.dataset || !el.dataset.f) return;
   const w = Number(el.dataset.w), d = Number(el.dataset.d), p = Number(el.dataset.p);
   setLessonOverride(w, d, p, el.dataset.f, el.value === "" ? null : el.value);
+  // 作业内容/页码/收缴时间变化 → 同步到作业收缴
+  if (el.dataset.f === "customHw" || el.dataset.f === "customPage" || el.dataset.f === "customDue") renderHwList();
 });
 document.getElementById("bulletinHoliday").addEventListener("change", e => {
   const inp = e.target.closest("input[data-hid]");
@@ -3689,6 +3854,7 @@ function delMessage(board, i) {
 function generateFeedback() {
   const students = currentStudents().slice().sort((x, y) => (x.classRank || 999) - (y.classRank || 999));
   const a = currentAssignment(currentClassKey);
+  if (!a) { toast("请先在教学公告栏设置作业"); return; }
   const groups = { missing: [], late: [] };
   const gradeGroups = { A: [], B: [], C: [], D: [] };
   const grades = getGrades(currentClassKey, a.id);
@@ -3760,6 +3926,7 @@ function openDataManage() {
 }
 function resetTodayHw() {
   const a = currentAssignment(currentClassKey);
+  if (!a) { toast("请先在教学公告栏设置作业"); return; }
   if (state.submissions[currentClassKey]) delete state.submissions[currentClassKey][a.id];
   saveState(); renderStudentList(); renderOverview(); renderHwList(); closeModal(); toast("当前作业已重置为未交");
 }
@@ -3801,6 +3968,7 @@ function batchClearQuestions() {
 function batchResetHw() {
   if (!selected.size) { toast("请先勾选学生"); return; }
   const a = currentAssignment(currentClassKey);
+  if (!a) { toast("请先在教学公告栏设置作业"); return; }
   selected.forEach(n => { setSub(currentClassKey, a.id, n, "missing"); });
   saveState(); renderStudentList(); renderOverview(); renderHwList(); toast("已批量重置作业");
 }
