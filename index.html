@@ -121,6 +121,8 @@ header {
 .bcls-lesson .bl-hw select:disabled { background:#f0f0f0; color:var(--text3) }
 .bcls-lesson .bl-hw-custom { width:100%; border:1px dashed #c7d7fb; background:#fff; font-size:11px; padding:3px 5px; border-radius:4px; min-height:27px; color:var(--text2) }
 .bcls-lesson .bl-hw-custom:disabled { background:#f7f8fa }
+.bcls-lesson .bl-due { width:100%; border:1px solid #c7d7fb; background:#fff; font-size:11px; padding:3px 5px; border-radius:4px; min-height:27px; color:#1a3a8e; font-variant-numeric: tabular-nums; }
+.bcls-lesson .bl-due:disabled { background:#f7f8fa; color:var(--text3) }
 .bcls-lesson .bl-del { position:absolute; top:-8px; right:-8px; width:22px; height:22px; border-radius:50%; border:1px solid #f3c3c3; background:#fff; color:#d03b3b; font-size:13px; line-height:1; cursor:pointer }
 .bcls-day .bl-add { min-height:34px; border:1px dashed #c7d7fb; background:transparent; border-radius:6px; font-size:12px; color:#24408f; cursor:pointer }
 .bcls-day .bl-add:hover { background:#eaf3ff }
@@ -2340,7 +2342,7 @@ function renderLessonCell(weekIdx, dayCode, period, clsCode, readOnly) {
   const topicVal = ov.customTopic != null ? ov.customTopic : topic;
   const timeVal = ov.customTime != null ? ov.customTime : (isCustom ? "" : (PERIOD_TIME[String(period)] || ""));
   const hwVal = ov.customHw || "";
-  const hwOptionsHtml = buildHwSelectOptions(ov.hwKey);
+  const dueVal = ov.customDue || "";
   const isReview = /习题|复习/.test(topicVal);
   const isExam = /考试|月考|期中|期末/.test(topicVal);
   return `<div class="bcls-lesson ${isReview ? "review" : ""} ${isExam ? "exam" : ""}">
@@ -2353,10 +2355,8 @@ function renderLessonCell(weekIdx, dayCode, period, clsCode, readOnly) {
       ${readOnly ? "" : `<button class="bl-pick" onclick="openTopicPicker(${weekIdx},${dayCode},${period})" title="从教研安排选择">选</button>`}
     </div>
     <div class="bl-hw">
-      <select data-w="${weekIdx}" data-d="${dayCode}" data-p="${period}" onchange="onLessonHwSelect(this)" ${readOnly ? "disabled" : ""}>
-        <option value="">— 选作业 —</option>${hwOptionsHtml}
-      </select>
-      <input type="text" class="bl-hw-custom" data-w="${weekIdx}" data-d="${dayCode}" data-p="${period}" data-f="customHw" value="${escapeHtml(hwVal)}" placeholder="或手动填作业" ${readOnly ? "disabled" : ""}>
+      <input type="text" class="bl-hw-custom" data-w="${weekIdx}" data-d="${dayCode}" data-p="${period}" data-f="customHw" value="${escapeHtml(hwVal)}" placeholder="作业内容（手动填写）" ${readOnly ? "disabled" : ""}>
+      <input type="date" class="bl-due" data-w="${weekIdx}" data-d="${dayCode}" data-p="${period}" data-f="customDue" value="${escapeHtml(dueVal)}" title="上交日期" ${readOnly ? "disabled" : ""}>
     </div>
     ${isCustom && !readOnly ? `<button class="bl-del" onclick="delCustomLesson(${dayCode},${period})" title="删除此课时">×</button>` : ""}
   </div>`;
@@ -2491,14 +2491,64 @@ function jumpToCurrentWeek() {
   renderBulletin();
 }
 
-/* 一键同步：把当前班的教学公告栏（教学进度+每日/节假日作业）复制到其他三个班 */
+/* 一键同步：把当前班的教学公告栏（各周教学内容/作业/上交日期 + 周任务 + 节假日）按物理课顺序同步到其他三个班 */
 function syncBulletin() {
+  const srcMeta = CLASS_META.find(m => m.key === currentClassKey);
   const src = getBoard(currentClassKey);
   const others = CLASS_META.filter(m => m.key !== currentClassKey);
-  if (!confirm(`确定把「${clsShort(currentClassKey)}」的教学公告栏（本周教学进度 + 周一~周日教学内容/作业 + 节假日作业）同步到 ${others.map(m => m.short).join("、")} 吗？将覆盖这些班的现有公告栏内容。`)) return;
-  others.forEach(m => { state.boards[m.key] = JSON.parse(JSON.stringify(src)); });
+  if (!confirm(`确定把「${clsShort(currentClassKey)}」的教学公告栏（各周教学内容/作业/上交日期 + 周任务 + 节假日）同步到 ${others.map(m => m.short).join("、")} 吗？将覆盖这些班的现有公告栏内容。`)) return;
+  others.forEach(m => {
+    const dst = getBoard(m.key);
+    dst.weekTask = src.weekTask || "";
+    dst.days = JSON.parse(JSON.stringify(src.days || {}));
+    dst.weekTasks = JSON.parse(JSON.stringify(src.weekTasks || []));
+    dst.holidays = JSON.parse(JSON.stringify(src.holidays || []));
+    dst.lessons = remapLessonsByOrder(src.lessons || {}, srcMeta.clsCode, m.clsCode);
+  });
   saveState(); renderBulletin();
   toast(`已同步到 ${others.map(m => m.short).join("、")}`);
+}
+
+/* 收集某班某周的物理课节次 key（常规课，按 day/period 升序） */
+function classLessonKeys(clsCode) {
+  const keys = [];
+  for (let d = 1; d <= 7; d++) {
+    const ds = SCHEDULE[String(d)] || {};
+    for (let p = 1; p <= 8; p++) if (ds[String(p)] === clsCode) keys.push(`${d}-${p}`);
+  }
+  return keys.sort(byDayPeriod);
+}
+function byDayPeriod(a, b) {
+  const [da, pa] = a.split("-").map(Number), [db, pb] = b.split("-").map(Number);
+  return da - db || pa - pb;
+}
+
+/* 按物理课顺序把源班 lessons 内容映射到目标班节次（四个班课表节次不同，需按课程顺序对齐） */
+function remapLessonsByOrder(srcLessons, srcCode, dstCode) {
+  const out = {};
+  const dstKeys = classLessonKeys(dstCode);
+  const srcKeys = classLessonKeys(srcCode);
+  for (let w = 0; w < TEACH_PLAN.length; w++) {
+    const srcWeek = srcLessons[w] || {};
+    // 源班自定义课时（period>=9）也参与顺序，排在常规课之后
+    const extra = Object.keys(srcWeek).filter(k => Number(k.split("-")[1]) >= 9).sort(byDayPeriod);
+    const srcSeq = srcKeys.concat(extra);
+    const dstWeek = {};
+    dstKeys.forEach((dk, i) => {
+      const sk = srcSeq[i];
+      const ov = sk ? srcWeek[sk] : null;
+      if (!ov) return;
+      const merged = {
+        customTopic: ov.customTopic != null ? ov.customTopic : null,
+        customHw: ov.customHw || null,
+        customDue: ov.customDue || null,
+        hwKey: ov.hwKey || null,
+      };
+      if (Object.values(merged).some(v => v != null && v !== "")) dstWeek[dk] = merged;
+    });
+    if (Object.keys(dstWeek).length) out[w] = dstWeek;
+  }
+  return out;
 }
 
 /* 生成公告栏的 Excel（HTML 表格）内容 */
@@ -2531,7 +2581,8 @@ function buildBulletinHtml() {
         const topic = ov.customTopic != null ? ov.customTopic : getLessonTopic(currentWeekIdx, d, p, m.clsCode, m.key);
         const time = ov.customTime || PERIOD_TIME[String(p)] || "";
         const hw = ov.customHw || (ov.hwKey ? (parseHwKey(ov.hwKey) || {}).title || "" : "");
-        return `${p >= 9 ? "自定义" : `第${p}节`}${time ? " " + escapeHtml(time) : ""} ${escapeHtml(topic)}${hw ? `<br><small>作业：${escapeHtml(hw)}</small>` : ""}`;
+        const due = ov.customDue || "";
+        return `${p >= 9 ? "自定义" : `第${p}节`}${time ? " " + escapeHtml(time) : ""} ${escapeHtml(topic)}${hw ? `<br><small>作业：${escapeHtml(hw)}</small>` : ""}${due ? `<br><small>上交：${escapeHtml(due)}</small>` : ""}`;
       }).join("<br>") : "—"}</td>`;
     }
     bodyRows += `<tr>${cells}</tr>`;
