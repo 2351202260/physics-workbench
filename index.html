@@ -401,6 +401,8 @@ header {
 .hw-hist-item .hh-tag { font-size: 11px; color: #6d5bd0; background: #f1eefd; padding: 1px 7px; border-radius: 999px; }
 .hh-cur { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; padding: 8px 10px; border: 1px solid var(--primary); background: var(--primary-soft); border-radius: 10px; }
 .hh-cur-title { font-size: 15px; font-weight: 700; color: #1a3a8e; }
+.hh-cur-label { font-size: 12px; font-weight: 700; color: var(--text2); flex-shrink: 0; }
+.hw-cur-select { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; color: #1a3a8e; padding: 7px 9px; border: 1px solid #c7d7fb; border-radius: 8px; background: #fff; }
 .hh-cur .hh-tag { font-size: 11px; color: #6d5bd0; background: #fff; border: 1px solid #d2c9f5; padding: 2px 8px; border-radius: 999px; }
 .hw-week { margin-bottom: 6px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
 .hw-week-head { display: flex; align-items: center; gap: 8px; padding: 9px 11px; background: #f6f8fc; cursor: pointer; font-size: 13px; font-weight: 700; color: var(--text); }
@@ -2167,6 +2169,20 @@ function fmtDue(due) {
   if (m) return `${Number(m[2])}月${Number(m[3])}日 ${m[4]}:${m[5]}`;
   return due;
 }
+function fmtDueDate(due) {
+  if (!due) return "";
+  const m = String(due).match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return `${Number(m[1])}/${Number(m[2])}/${Number(m[3])}`;
+  return due;
+}
+/* 作业标题：作业内容 + 作业页码 + 收缴日期，如 “全品14.1能量的转化与守恒 p17-18 2026/9/15” */
+function assignmentLabel(a) {
+  if (!a) return "";
+  let s = a.title || "";
+  if (a.page) s += " " + a.page;
+  if (a.due) s += " " + fmtDueDate(a.due);
+  return s;
+}
 function byWeekDayPeriod(a, b) {
   return (a.weekIdx || 0) - (b.weekIdx || 0) || (a.dayCode || 0) - (b.dayCode || 0) || (a.period || 0) - (b.period || 0);
 }
@@ -3201,6 +3217,22 @@ function toggleHwGroup(key) {
   renderHwList();
 }
 
+/* 当前作业下拉：本周公告栏 + 上周五 + 历史作业分组，方便课代表点选 */
+function hwCurSelect(cur) {
+  const list = getAssignments(currentClassKey);
+  const curW = computeCurrentWeekIdx();
+  const opt = (x) => `<option value="${x.id}" ${cur && String(x.id) === String(cur.id) ? "selected" : ""}>${escapeHtml(assignmentLabel(x))}</option>`;
+  const thisWeek = list.filter(x => x.weekIdx === curW).sort(byWeekDayPeriod);
+  const lastFri = list.filter(x => x.weekIdx === curW - 1 && x.dayCode === 5).sort(byWeekDayPeriod);
+  const picked = new Set([...thisWeek, ...lastFri].map(x => x.id));
+  const others = list.filter(x => !picked.has(x.id)).sort(byWeekDayPeriod);
+  let html = "";
+  if (thisWeek.length) html += `<optgroup label="本周公告栏">${thisWeek.map(opt).join("")}</optgroup>`;
+  if (lastFri.length) html += `<optgroup label="上周五">${lastFri.map(opt).join("")}</optgroup>`;
+  if (others.length) html += `<optgroup label="历史作业">${others.map(opt).join("")}</optgroup>`;
+  return html;
+}
+
 function renderHwList() {
   syncAssignmentsFromBoard();
   const students = currentStudents();
@@ -3217,9 +3249,8 @@ function renderHwList() {
   // 当前作业操作栏
   document.getElementById("hwAssignBar").innerHTML = `
     <div class="hh-cur">
-      <span class="hh-cur-title">${escapeHtml(a.title)}</span>
-      ${a.page ? `<span class="hh-tag">页码 ${escapeHtml(a.page)}</span>` : ""}
-      ${a.weekIdx != null ? `<span class="hh-tag">第${a.weekIdx + 1}周</span>` : ""}
+      <label class="hh-cur-label">作业标题</label>
+      <select class="hw-cur-select" onchange="switchAssignment(this.value)">${hwCurSelect(a)}</select>
     </div>
     ${isRepresentative ? "" : `<div class="modal-actions" style="margin-bottom:8px"><button class="mini-btn" onclick="openNewAssignment()">＋ 新建作业</button><button class="mini-btn" style="color:var(--danger)" onclick="deleteAssignment('${a.id}')">删除本作业</button></div>`}
     <div class="modal-actions" style="margin-bottom:8px">
@@ -3410,8 +3441,7 @@ function renderHwHistory() {
       currentStudents().forEach(s => { const st = getSub(currentClassKey, x.id, s.name); c[st] = (c[st] || 0) + 1; });
       const active = cur && String(x.id) === String(cur.id);
       return `<div class="hw-hist-item ${active ? "active" : ""}" onclick="switchAssignment('${x.id}')">
-        <div class="hh-top"><b>${escapeHtml(x.title)}</b>${x.page ? `<span class="hh-tag">${escapeHtml(x.page)}</span>` : ""}</div>
-        <div class="hh-meta">${x.due ? "收缴 " + escapeHtml(fmtDue(x.due)) : "未设收缴时间"}</div>
+        <div class="hh-top"><b>${escapeHtml(assignmentLabel(x))}</b></div>
         <div class="hh-stats">已交${c.submitted} · 未交${c.missing} · 补交${c.late}</div>
       </div>`;
     }).join("");
